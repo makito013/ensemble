@@ -1,2 +1,5 @@
 .superpowers/
 .DS_Store
+
+# agentes-pipeline (dados locais, não versionados)
+.agents/
