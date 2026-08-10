@@ -34,4 +34,18 @@ check "$DIR/orquestrador-team.md" '^argument-hint: \[ação opcional' "orquestra
 check "$DIR/orquestrador-team.md" 'TEAM.md' "orquestrador-team.md referencia TEAM.md"
 check "$DIR/orquestrador-team.md" '.agents/ORQUESTRADOR.md' "orquestrador-team.md referencia ORQUESTRADOR.md"
 
+check "$DIR/orquestrador-pr.md" '^argument-hint: \[branch do PR\]' "orquestrador-pr.md tem argument-hint"
+check "$DIR/orquestrador-pr.md" '^argument-hint:.*\[commit opcional\]' "orquestrador-pr.md tem commit no argument-hint"
+check "$DIR/orquestrador-pr.md" '\$ARGUMENTS' "orquestrador-pr.md injeta \$ARGUMENTS"
+check "$DIR/orquestrador-pr.md" 'CONTEXTO.md' "orquestrador-pr.md lê CONTEXTO.md"
+check "$DIR/orquestrador-pr.md" 'REVISOR.md' "orquestrador-pr.md referencia REVISOR.md"
+check "$DIR/orquestrador-pr.md" 'SEGURANCA.md' "orquestrador-pr.md referencia SEGURANCA.md"
+check "$DIR/orquestrador-pr.md" 'general-purpose' "orquestrador-pr.md dispara subagentes general-purpose"
+check "$DIR/orquestrador-pr.md" 'opus' "orquestrador-pr.md escala Segurança para Opus"
+check "$DIR/orquestrador-pr.md" '\.agents/\.pr-reviews/' "orquestrador-pr.md persiste em .agents/.pr-reviews/"
+check "$DIR/orquestrador-pr.md" 'NÃO MERGEAR' "orquestrador-pr.md define veredito NÃO MERGEAR"
+check "$DIR/orquestrador-pr.md" 'OK PARA MERGE' "orquestrador-pr.md define veredito OK PARA MERGE"
+check "$DIR/orquestrador-pr.md" 'MERGEAR COM RESSALVAS' "orquestrador-pr.md define veredito MERGEAR COM RESSALVAS"
+check "$DIR/orquestrador-pr.md" '🔴 BLOQUEADO' "orquestrador-pr.md trata veto de Segurança BLOQUEADO"
+
 exit $fail

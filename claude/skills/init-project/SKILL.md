@@ -93,7 +93,7 @@ backup, igual a `CONTEXTO.md`/`TEAM.md`.
       aprendizado local não se perder num reinstall completo. O backup
       continua intacto com as cópias originais.
    6. copie todo o conteúdo de `COMMANDS_DIR` para dentro de
-      `./.claude/commands/` (sobrescrevendo os 4 arquivos do Orquestrador se
+      `./.claude/commands/` (sobrescrevendo os 5 arquivos do Orquestrador se
       já existirem; não mexa em outros comandos que não sejam
       `orquestrador*.md`)
    7. copie todo o conteúdo de `SKILLS_DIR` para dentro de `./.claude/skills/`
@@ -169,7 +169,7 @@ backup, igual a `CONTEXTO.md`/`TEAM.md`.
 ## Escopo
 
 Este skill sempre instala o conjunto fixo completo de 12 arquivos em `.agents/`
-(11 personas + `PIPELINE.md`) mais os 4 comandos `/orquestrador*` em
+(11 personas + `PIPELINE.md`) mais os 5 comandos `/orquestrador*` em
 `.claude/commands/` mais a skill `coding-standards` em
 `.claude/skills/coding-standards/SKILL.md`. A seleção de quais etapas do
 pipeline rodar em cada tarefa é uma decisão de runtime feita pela persona
