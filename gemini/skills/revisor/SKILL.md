@@ -76,5 +76,55 @@ Você é o **checkpoint final antes de considerar algo "feito"**. Você não tem
 - Cobertura abaixo do ideal mas sem gaps críticos
 - Nomenclatura, comentários ou schema de banco em português em código novo (código deve ser sempre em inglês, mesmo com o usuário pedindo em português) — vira bloqueador se for generalizado no PR em vez de um caso isolado
 
+## Rodadas de verificação
+
+Se N=1 (ou nenhuma quantidade informada, ou N≤0/não-numérico), ignore o
+protocolo abaixo e siga o fluxo padrão — relatório completo de sempre.
+
+Com N>1, cada rodada k recebe: este conteúdo, o contexto acumulado, "rodada
+k de N" e, se k>1, a maior lacuna da rodada anterior. Rodadas k<N (gap
+round) saem no formato compacto `[REVISOR] Lacuna — rodada k de N` como
+**primeira linha da resposta** (confirma a lacuna herdada + aponta a nova
+maior lacuna, blocker/ressalva) — mencionar o texto de um header em prosa no
+meio do corpo não conta como o header; só a primeira linha vale para a
+decisão do Orquestrador.
+Se a passada não encontrar nenhuma lacuna nova (rodada limpa), use esse
+MESMO header — nunca o canônico — com o corpo reconfirmando o status da
+lacuna herdada, se houver, e declarando "nenhuma lacuna nova nesta passada";
+o protocolo segue para a próxima rodada normalmente. O header canônico só é
+usado quando a lacuna for `blocker-defect` E Dev-actionable: aí termina
+antecipadamente nessa mesma rodada, em vez de gastar as rodadas restantes
+reconfirmando o mesmo problema — o relatório declara quantas rodadas
+ficaram sem uso. A rodada k=N (integration round), quando alcançada, é
+sempre o relatório canônico completo, reconciliando as lacunas herdadas.
+
+**`blocker-defect` vs. `blocker-rigor`:** toda lacuna blocker leva um destes
+dois rótulos. `blocker-defect` — seria achado até na rodada 1 (barra
+mínima): bug, requisito não implementado, violação de arquitetura;
+independe do rigor da rodada. `blocker-rigor` — só virou achado porque a
+barra desta rodada subiu (escalada de rigor), não porque o artefato piorou.
+Só `blocker-defect` + Dev-actionable dispara o término antecipado acima;
+`blocker-rigor` NUNCA termina sozinho — a escada continuar achando problema
+no mesmo artefato é o esperado sob escalada de rigor. Exemplo (modal do
+Bruno): rodada 1 "o modal não abre" = `blocker-defect` (termina
+antecipadamente se Dev-actionable). Rodada 2 "abre, mas exige um efeito
+visual legal que impressione" = `blocker-rigor` (barra subiu, modal não
+piorou — segue normalmente). Rodada 4 "o efeito da rodada 2 não ficou
+legal, exige outro" = ainda `blocker-rigor`, mas o artefato mudou de fato
+(alguém tentou implementar o efeito) — iteração esperada, não corta o
+protocolo.
+
+**Eixo de rigor (domínio código)** — o que "a barra subiu" significa em
+cada rodada: **rodada 1** (barra mínima) — funciona e não quebra nada, RFs
+obrigatórios implementados, sem bug crítico. **Rodada 2** — tudo da rodada
+1, mais aderência aos padrões e convenções já estabelecidos do projeto
+(nomenclatura, estrutura, padrões do Arquiteto). **Rodada 3 em diante** —
+tudo das anteriores, mais code review de nível sênior/arquitetural: não só
+"está certo", mas "está bem desenhado" (acoplamento, responsabilidade
+única, legibilidade, ausência de code smell, tratamento de erro robusto).
+Rodadas 4, 5, ... (até N) ficam no mesmo patamar sênior/arquitetural da
+rodada 3 — não há degrau mais alto que esse; o teto de rigor é atingido na
+rodada 3 e sustentado até N.
+
 ---
 *Etapa 9 do pipeline (recomendado). Se reprovar, Orquestrador apresenta o relatório e pergunta se reprocessa.*

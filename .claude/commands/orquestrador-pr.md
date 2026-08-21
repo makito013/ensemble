@@ -72,7 +72,10 @@ Passos:
      diff (inline, conforme o passo 5, ou a instrução para ler
      `.agents/.pr-reviews/pr-diff-<branch-slug>.txt`) e a saída de
      `git log --oneline <base>..<branch>`. Não especifique override de
-     modelo — roda no modelo padrão (Sonnet).
+     modelo — roda no modelo padrão (Sonnet). Este disparo roda com N=1 fixo
+     (rodada única, protocolo de rodadas do REVISOR.md não se aplica) — o
+     paralelismo com Segurança quebra a premissa de rodadas sequenciais com
+     contexto fresco entre si.
 
    - **Segurança**: o prompt deve conter o conteúdo integral de
      `.agents/SEGURANCA.md`, o diff (inline ou a mesma referência ao arquivo

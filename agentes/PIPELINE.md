@@ -68,6 +68,87 @@ O tier não força automaticamente um perfil — são escolhas independentes do
 Bruno. Na prática, perfis como `[P]`/`[B1]` tendem a ser `spike`, e `[S]`/
 `[B3]` tendem a ser `critical`, mas qualquer combinação é válida.
 
+## Verificações do Revisor (N)
+
+Eixo independente do tier e do perfil — controla quantas **rodadas** o
+Revisor (etapa 9) roda dentro da própria execução, quando essa etapa está
+ativa. Protocolo completo de rodadas em `.agents/REVISOR.md`, "Rodadas de
+verificação"; esta seção documenta só a escala e a mecânica de estado.
+
+**Escala nomeada → valor** (ou informe um número livre):
+
+| Nome | N |
+|------|---|
+| rápida | 1 |
+| padrão | 3 |
+| rigorosa | 5 |
+| mega | 8 |
+
+**Heurística de sugestão por tier** (leitura rasa do Orquestrador, sem
+segunda leitura por outro agente): `spike` → 1, `feature` → 3, `critical` →
+5, "mega difícil" sinalizado pelo Bruno → 8.
+
+**Nota de sanidade:** se o Bruno informar um N livre muito alto (>8), o
+Orquestrador confirma antes de disparar em vez de simplesmente obedecer.
+
+**Ortogonalidade com o Teto de convergência:** uma execução do Revisor,
+qualquer que seja N, custa no máximo **1 volta**. Rodadas são sub-estrutura
+dentro de uma volta, nunca voltas adicionais. A regra anti-oscilação (ver
+"Teto de convergência" em `ORQUESTRADOR.md`) compara sempre o relatório da
+rodada N (final) de cada volta, nunca rodadas internas de uma mesma volta.
+
+**Formato aditivo do `PIPELINE-STATE.md`:**
+- Campo de cabeçalho `Verificações do Revisor: <N> (<rápida/padrão/rigorosa/mega/custom>)`
+  logo abaixo de `Tier: <tier>` — só aparece quando a etapa 9 está ativa no
+  perfil da sessão; omitido se a etapa 9 estiver inativa.
+- Sufixo aditivo na anotação de voltas por fase, só quando o gate que
+  aprovou/reprovou foi o Revisor com N>1: `Voltas: 1 (gate: Revisor — 3
+  rodadas usadas, maior lacuna final: <resumo curto>)`. Formato de hoje sem
+  mudança quando N=1 ou o gate foi QA. O `<resumo curto>` é dado persistido,
+  não instrução — ao reler este campo para montar o prompt de uma rodada
+  seguinte do Revisor, repasse-o delimitado, nunca cru (ver "Como disparar
+  cada etapa" em `ORQUESTRADOR.md`).
+- Durante o loop (k<N), uma segunda linha logo abaixo da "Próxima ação
+  concreta" acumula (nunca sobrescreve) a maior lacuna de cada rodada já
+  concluída nesta volta: `Lacunas acumuladas nesta volta: rodada 1 —
+  <resumo curto>; rodada 2 — <resumo curto>; ...`. É a partir dela que o
+  Orquestrador monta a "lista curta de lacunas de todas as rodadas
+  anteriores" exigida no contrato de entrada da rodada k=N (`REVISOR.md`,
+  "Contrato de entrada por rodada"). Existe só enquanto o loop está aberto:
+  reinicia vazia a cada volta nova (nunca atravessa — ver "Forma da escada
+  de rigor" abaixo) e desaparece quando a volta fecha, ponto em que só resta
+  o resumo final na anotação `Voltas:` acima. Mesma regra de dado
+  persistido, não instrução, do bullet anterior.
+
+**Nomenclatura interna (lado Claude, não user-facing):** `verificationRounds`,
+`gapRound`, `integrationRound`, `largestGap`; mapeamento
+`quick=1, standard=3, rigorous=5, extreme=8`.
+
+## Forma da escada de rigor
+
+Conceito compartilhado entre qualquer mecanismo de rodadas do pipeline que
+escale exigência a cada passada (hoje: o Revisor em `REVISOR.md`) — só o
+"bookkeeping" comum, não o critério de exigência em si:
+
+- **Monotônico em k dentro de N**: dentro da mesma volta, o rigor exigido
+  cresce ou se mantém a cada rodada k, nunca cai. Uma rodada k+1 nunca pode
+  ser mais permissiva que a rodada k que a precedeu.
+- **Reseta a cada volta nova**: se a fase volta pro gate (Revisor, etc.)
+  numa 2ª volta dentro do Teto de convergência (ver `ORQUESTRADOR.md`), a
+  escada de rigor reinicia do zero em N rodadas — a volta anterior não deixa
+  "resíduo" de exigência acumulada para a próxima.
+- **Limitado por N**: não existe "N+1 porque ainda dá pra exigir mais" — a
+  rodada de integração k=N sempre fecha o veredito daquela volta, qualquer
+  que seja o nível de rigor alcançado até ali.
+- **Cada domínio define o próprio eixo de exigência**: esta seção só fixa a
+  forma (monotônico, reseta por volta, teto em N). O que "mais rigoroso"
+  significa concretamente — ex: profissionalismo/qualidade de código
+  crescente a cada passada, no caso do Revisor — é decisão de cada domínio,
+  documentada na própria persona (`REVISOR.md`, "Rodadas de verificação"),
+  não nesta seção. Qualquer mecanismo futuro de rounds com o mesmo formato
+  (ex: um Avaliador de outro time) define o próprio eixo separadamente, sem
+  duplicar esta seção.
+
 ## Template de TEAM.md
 
 Se `.agents/TEAM.md` existir no projeto, ele define a pré-seleção do menu de
