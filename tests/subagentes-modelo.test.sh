@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fail=0
 PONTEIRO='Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.'
-PERSONAS=(ANALISTA ARQUITETO BDD DESIGNER DEV ORQUESTRADOR PO QA REVISOR SEGURANCA TL)
+PERSONAS=(ACESSIBILIDADE ANALISTA ARQUITETO AVALIADOR BDD BRAND COPYWRITER DESIGNER DEV DEV-DESIGN ORQUESTRADOR ORQUESTRADOR-DESIGN PO QA REVISOR SEGURANCA TL UX)
 
 if grep -q 'Subagentes e escolha de modelo' "$ROOT/agentes/PIPELINE.md" \
    && grep -q 'não funciona ao disparar um' "$ROOT/agentes/PIPELINE.md"; then

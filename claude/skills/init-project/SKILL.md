@@ -1,11 +1,11 @@
 ---
 name: init-project
-description: Bootstrap a project with the standard multi-agent development pipeline (Analista, PO, Arquiteto, BDD, Designer, TL, Dev, QA, Revisor, Segurança, Orquestrador). Use when the user asks to set up, install, or update the agent pipeline in a project via /init-project.
+description: Bootstrap a project with the standard multi-agent development pipeline (Analista, PO, Arquiteto, BDD, Designer, TL, Dev, QA, Revisor, Segurança, Orquestrador) plus the Time de Design (Orquestrador-Design, Avaliador, UX, Dev-Design, Copywriter, Acessibilidade, Brand). Use when the user asks to set up, install, or update the agent pipeline in a project via /init-project.
 ---
 
 # init-project
 
-Instala (ou atualiza) o conjunto padrão de 11 personas de agentes + o documento de
+Instala (ou atualiza) o conjunto padrão de 18 personas de agentes + o documento de
 pipeline dentro de `./.agents/`, os comandos `/orquestrador*` dentro de
 `./.claude/commands/`, e a skill `coding-standards` (convenção de código sempre
 em inglês) dentro de `./.claude/skills/`, no diretório de trabalho atual.
@@ -168,8 +168,8 @@ backup, igual a `CONTEXTO.md`/`TEAM.md`.
 
 ## Escopo
 
-Este skill sempre instala o conjunto fixo completo de 12 arquivos em `.agents/`
-(11 personas + `PIPELINE.md`) mais os 5 comandos `/orquestrador*` em
+Este skill sempre instala o conjunto fixo completo de 19 arquivos em `.agents/`
+(18 personas + `PIPELINE.md`) mais os 5 comandos `/orquestrador*` em
 `.claude/commands/` mais a skill `coding-standards` em
 `.claude/skills/coding-standards/SKILL.md`. A seleção de quais etapas do
 pipeline rodar em cada tarefa é uma decisão de runtime feita pela persona
