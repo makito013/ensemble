@@ -48,4 +48,11 @@ check "$DIR/orquestrador-pr.md" 'OK PARA MERGE' "orquestrador-pr.md define vered
 check "$DIR/orquestrador-pr.md" 'MERGEAR COM RESSALVAS' "orquestrador-pr.md define veredito MERGEAR COM RESSALVAS"
 check "$DIR/orquestrador-pr.md" '🔴 BLOQUEADO' "orquestrador-pr.md trata veto de Segurança BLOQUEADO"
 
+check "$DIR/time-design.md" '^argument-hint: \[pedido inicial opcional\]' "time-design.md tem argument-hint"
+check "$DIR/time-design.md" '.agents/ORQUESTRADOR.md' "time-design.md referencia ORQUESTRADOR.md"
+check "$DIR/time-design.md" 'designContext: standalone' "time-design.md fixa designContext: standalone"
+check "$DIR/time-design.md" 'rápida=1' "time-design.md pergunta o N do Avaliador na escala nomeada"
+check "$DIR/time-design.md" '.design-history/' "time-design.md arquiva DESIGN-STATE.md pré-existente"
+check "$DIR/time-design.md" '\$ARGUMENTS' "time-design.md injeta \$ARGUMENTS"
+
 exit $fail

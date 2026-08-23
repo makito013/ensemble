@@ -6,7 +6,7 @@ description: Bootstrap a project with the standard multi-agent development pipel
 # init-project
 
 Instala (ou atualiza) o conjunto padrão de 18 personas de agentes + o documento de
-pipeline dentro de `./.agents/`, os comandos `/orquestrador*` dentro de
+pipeline dentro de `./.agents/`, os comandos `/orquestrador*` e `/time-design` dentro de
 `./.claude/commands/`, e a skill `coding-standards` (convenção de código sempre
 em inglês) dentro de `./.claude/skills/`, no diretório de trabalho atual.
 
@@ -93,9 +93,9 @@ backup, igual a `CONTEXTO.md`/`TEAM.md`.
       aprendizado local não se perder num reinstall completo. O backup
       continua intacto com as cópias originais.
    6. copie todo o conteúdo de `COMMANDS_DIR` para dentro de
-      `./.claude/commands/` (sobrescrevendo os 5 arquivos do Orquestrador se
-      já existirem; não mexa em outros comandos que não sejam
-      `orquestrador*.md`)
+      `./.claude/commands/` (sobrescrevendo os 5 arquivos do Orquestrador +
+      `time-design.md` se já existirem; não mexa em outros comandos que não
+      sejam esses)
    7. copie todo o conteúdo de `SKILLS_DIR` para dentro de `./.claude/skills/`
       (sobrescrevendo apenas a pasta `coding-standards/` se já existir; não
       mexa em outras skills que o Bruno tenha instalado ali)
@@ -169,8 +169,8 @@ backup, igual a `CONTEXTO.md`/`TEAM.md`.
 ## Escopo
 
 Este skill sempre instala o conjunto fixo completo de 19 arquivos em `.agents/`
-(18 personas + `PIPELINE.md`) mais os 5 comandos `/orquestrador*` em
-`.claude/commands/` mais a skill `coding-standards` em
+(18 personas + `PIPELINE.md`) mais os 6 comandos (`/orquestrador*` +
+`/time-design`) em `.claude/commands/` mais a skill `coding-standards` em
 `.claude/skills/coding-standards/SKILL.md`. A seleção de quais etapas do
 pipeline rodar em cada tarefa é uma decisão de runtime feita pela persona
 Orquestrador no início de cada sessão — não uma escolha no momento da

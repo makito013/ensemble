@@ -198,9 +198,9 @@ Dois pontos de entrada previstos:
   o Time de Design a partir da leitura da solicitação bruta (ver
   `.agents/ORQUESTRADOR.md`, subseção do Time de Design).
 
-O comando `/time-design` em si (arquivo em `.claude/commands/`) é entregue
-na Fase 3 — esta seção só registra a existência prevista dos dois pontos de
-entrada, não a implementação do comando standalone.
+O comando `/time-design` em si já existe (`commands/time-design.md` +
+`.claude/commands/time-design.md`) — esta seção registra os dois pontos de
+entrada e onde cada um está implementado.
 
 ### Critério de "feito" (designContext)
 
@@ -246,9 +246,10 @@ Diretório onde o `Dev-Design` grava o resultado material do time: tokens
 (JSON/YAML), guia de estilo (markdown), componentes de referência em código,
 e o preview renderizável em `.agents/design-system/preview/<slug>.html`
 (HTML autocontido — ver `DEV-DESIGN.md`, "Preview renderizável"). Esta
-seção só documenta a existência prevista e o formato mínimo; a mecânica
-completa do canal de consulta (outros papéis do pipeline principal lendo
-esse diretório) é Fase 3.
+seção documenta a existência e o formato mínimo; a mecânica completa do
+canal de consulta (outros papéis do pipeline principal lendo esse
+diretório) está em `ORQUESTRADOR.md`, "Reabertura de consulta pelo Dev
+principal".
 
 ## Template de TEAM.md
 
