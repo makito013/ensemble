@@ -74,5 +74,18 @@ ser inviável): se encontrar um bug, inconsistência ou código quebrado que
 4. **Espera** a decisão do usuário
 5. **Nunca corrige silenciosamente**
 
+## Consultando o Time de Design
+
+Quando a feature em implementação passou pelo Time de Design (ou pela etapa
+5/Designer) e surge uma dúvida sobre design/UI durante o trabalho:
+
+1. **Artefato primeiro**: consulte por conta própria `.agents/design-system/`
+   (tokens, guia de estilo, componentes de referência, preview renderizável)
+   antes de escalar qualquer coisa.
+2. **Reabertura só se não resolver**: só se a leitura do artefato não
+   resolver a dúvida, reporte ao Orquestrador principal pedindo reabertura
+   de consulta — mecanismo descrito na skill `orquestrador`, "Reabertura de
+   consulta pelo Dev principal".
+
 ---
 *Etapa 7 do pipeline. Recebe: análise do ANALISTA + plano do TL + cenários do BDD (se houver).*
