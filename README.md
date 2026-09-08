@@ -29,11 +29,11 @@ ordem:
 git clone <url-deste-repo> ~/agentes-pipeline
 cd ~/agentes-pipeline
 
-# 2. Rode o instalador da sua plataforma. Ele linka o repo em
-#    ~/agentes-pipeline (se você clonou em outro lugar), linka o skill
-#    de instalação em ~/.claude/skills/init-project, e deixa pronto o
-#    plugin Superpowers-Antigravity (útil se você também usar
-#    Antigravity/Gemini CLI).
+# 2. Rode o instalador da sua plataforma. Ele pergunta quais IAs você usa
+#    nesta máquina, linka o repo em ~/agentes-pipeline (se você clonou em
+#    outro lugar), linka o skill de instalação em
+#    ~/.claude/skills/init-project, e deixa pronto o plugin
+#    Superpowers-Antigravity (só se você selecionar Antigravity).
 ./install.sh          # Mac/Linux
 .\install.ps1          # Windows (PowerShell)
 
@@ -84,6 +84,53 @@ de novo passando `--target`/`-Target` pra cada perfil adicional:
 Usa Antigravity/Gemini CLI em vez de Claude Code? Veja
 [Pré-requisitos por ferramenta](#pré-requisitos-por-ferramenta) e
 [Como instalar num projeto](#como-instalar-num-projeto) abaixo.
+
+### Quais IAs você usa (`--ai`)
+
+Na primeira execução o instalador mostra um menu perguntando quais IAs você
+usa nesta máquina:
+
+```
+Quais IAs você usa nesta máquina?
+  [x] 1) Claude Code               (sempre instalado)
+  [ ] 2) Antigravity / Gemini CLI
+  [ ] 3) Codex CLI (OpenAI)
+  [ ] 4) Cursor
+```
+
+Claude Code está sempre incluído e não pode ser desmarcado. A resposta fica
+gravada em `~/.config/agentes-pipeline/ai-targets.json` e é reusada nas
+execuções seguintes, então rodar o instalador de novo não repete a pergunta se
+você só apertar Enter.
+
+Para responder sem menu (scripts, CI, Dockerfile), use a flag ou a variável de
+ambiente. As duas aceitam a lista separada por vírgula, em qualquer ordem, e
+sempre substituem a seleção anterior por inteiro:
+
+```bash
+./install.sh --ai antigravity,cursor          # Mac/Linux
+.\install.ps1 -Ai antigravity,cursor           # Windows (PowerShell)
+
+AGENTES_PIPELINE_AI_TARGETS=claude,codex ./install.sh
+```
+
+A precedência é `--ai`/`-Ai` > `AGENTES_PIPELINE_AI_TARGETS` > menu interativo >
+config já gravada. Um id desconhecido em `--ai` ou na variável de ambiente é
+erro de uso (exit code 2) e nada é gravado.
+
+**Quando não há terminal** (stdin redirecionado, pipe, CI), o instalador não
+trava esperando resposta: ele usa a config gravada, ou `claude` se não houver
+nenhuma, e avisa:
+
+```
+AVISO: stdin não é um terminal — usando seleção de IAs: claude (mude com --ai ou AGENTES_PIPELINE_AI_TARGETS)
+```
+
+Essa seleção decide o que o instalador faz por conta própria (o plugin
+Superpowers-Antigravity só é clonado se `antigravity` estiver selecionado) e o
+que o `/init-project` materializa dentro de cada projeto. O conjunto base de
+personas e comandos é instalado sempre, para qualquer seleção. `codex` e
+`cursor` já são ids válidos, mas ainda não têm adapter próprio.
 
 ## Estrutura
 

@@ -21,6 +21,23 @@ No Antigravity/Gemini CLI, continua por prefixo de texto (skill discovery):
 Fora desse gatilho, não ative o pipeline; siga o fluxo normal do projeto onde
 `./.agents/` está instalado.
 
+## Quais IAs estão configuradas nesta máquina (`ai-targets`)
+
+O instalador (`install.sh` / `install.ps1`) pergunta quais IAs você usa e grava
+a resposta em `~/.config/agentes-pipeline/ai-targets.json`. `claude` está
+sempre na lista. Essa config é de **máquina**, não de projeto.
+
+Ela existe porque o conjunto base de personas é o mesmo para toda IA, mas cada
+engine precisa dos arquivos no seu próprio formato e lugar. `/init-project` lê
+a config no início da execução (via
+`bash ~/agentes-pipeline/scripts/read-ai-targets.sh`, que nunca falha e devolve
+`claude` quando não há config) e materializa só os adapters das IAs
+selecionadas. Hoje o único adapter implementado é o do Antigravity: copiar
+`gemini/skills/` para `./.agents/skills/`.
+
+Para mudar a seleção: rode o instalador de novo com `--ai`/`-Ai`, ou defina
+`AGENTES_PIPELINE_AI_TARGETS`. Detalhes no README.
+
 Cada etapa ativada roda como um **subagente isolado** (ferramenta `Agent`/`Task`,
 `subagent_type: general-purpose`), não como você mesmo assumindo a persona inline
 na conversa principal. O subagente não tem memória da conversa nem das etapas

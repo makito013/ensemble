@@ -5,16 +5,31 @@ description: Bootstrap a project with the standard multi-agent development pipel
 
 # init-project
 
-Instala (ou atualiza) o conjunto padrão de 18 personas de agentes + o documento de
-pipeline dentro de `./.agents/`, os comandos `/orquestrador*` e `/time-design` dentro de
-`./.claude/commands/`, e a skill `coding-standards` (convenção de código sempre
-em inglês) dentro de `./.claude/skills/`, no diretório de trabalho atual.
+Instala (ou atualiza) duas coisas no diretório de trabalho atual:
 
-`./.agents/` é compartilhada com o lado Gemini/Antigravity, que instala
-seus próprios skills em `./.agents/skills/` — este skill não apaga esse
+1. **Conjunto base, sempre instalado**, independente de qual IA você usa: as 18
+   personas de agentes + o documento de pipeline dentro de `./.agents/`, os
+   comandos `/orquestrador*` e `/time-design` dentro de `./.claude/commands/`, e
+   a skill `coding-standards` (convenção de código sempre em inglês) dentro de
+   `./.claude/skills/`.
+2. **Adapters por IA, condicionais**, materializados só para as IAs registradas
+   em `AI_TARGETS` (passos 1b e 7b). Hoje o único adapter implementado é o do
+   Antigravity.
+
+`AI_TARGETS` vem da config de máquina gravada pelo instalador
+(`~/.config/agentes-pipeline/ai-targets.json`) e é lida pelo script
+`~/agentes-pipeline/scripts/read-ai-targets.sh`. `claude` está sempre presente,
+então o conjunto base nunca depende dessa resolução.
+
+`./.agents/` é compartilhada com o lado Gemini/Antigravity, que usa seus
+próprios skills em `./.agents/skills/`. Este skill não apaga esse
 subdiretório numa instalação nova (passo 4), e num fluxo de atualização
 com backup completo (passo 5) ele é restaurado de volta a partir do
-backup, igual a `CONTEXTO.md`/`TEAM.md`.
+backup, igual a `CONTEXTO.md`/`TEAM.md`. Quando `antigravity` está em
+`AI_TARGETS`, o passo 7b ainda copia a versão nova desses skills por cima
+da restauração; quando não está, a cópia automática não acontece e o
+usuário continua podendo copiar `~/agentes-pipeline/gemini/skills/`
+manualmente, como sempre foi possível.
 
 ## Passos
 
@@ -23,6 +38,14 @@ backup, igual a `CONTEXTO.md`/`TEAM.md`.
    `~/agentes-pipeline/skills/` — repositório git dedicado e portátil que é a
    fonte única dos templates (não fica duplicado dentro deste skill; veja
    `~/agentes-pipeline/README.md` e `~/agentes-pipeline/AGENTS.md`).
+
+1b. **Resolva `AI_TARGETS`.** Rode
+   `bash ~/agentes-pipeline/scripts/read-ai-targets.sh` (acrescente
+   `--ai <lista>` se o usuário passou `/init-project --ai claude,cursor`). A
+   saída é a lista de IAs desta máquina, em ordem canônica. `claude` está
+   sempre presente. O script nunca falha nem pergunta nada: se a config não
+   existir, ele devolve `claude`. Cite a lista resolvida no resumo final
+   (passo 9).
 
 2. **Migração de instalação legada.** Verifique `./agentes/PIPELINE.md`
    (marca de instalação antiga, visível) e `./.agents/PIPELINE.md` (marca
@@ -136,6 +159,19 @@ backup, igual a `CONTEXTO.md`/`TEAM.md`.
    reposicionamento de arquivo, não "tocar" no conteúdo. Nenhum outro arquivo
    do projeto (README.md, `.planning/`, etc.) é afetado.
 
+7b. **Adapters por IA.** Para cada id em `AI_TARGETS`:
+   - `claude` — nada a fazer, os passos 1-7 já cobrem.
+   - `antigravity` — copie `~/agentes-pipeline/gemini/skills/` para
+     `./.agents/skills/` (crie a pasta se não existir). Idempotente por
+     sobrescrita: cada `<nome>/SKILL.md` presente na origem sobrescreve o de
+     destino. Não apague subpastas que existam só no destino. Este passo roda
+     depois da restauração do backup do passo 5: a restauração recompõe o
+     estado anterior, e este passo aplica a versão nova da fonte por cima. Se
+     `antigravity` não estiver em `AI_TARGETS`, este passo não roda e o
+     comportamento de restaurar-do-backup do passo 5 permanece intacto.
+
+   Registre no resumo final quais adapters foram materializados.
+
 8. **Gitignore.** Depois de instalar/atualizar (em todos os casos acima,
    inclusive quando migrou), verifique `./.gitignore` na raiz do projeto:
    - Se não existir, não crie o arquivo — não faça nada.
@@ -151,7 +187,9 @@ backup, igual a `CONTEXTO.md`/`TEAM.md`.
 
 9. Confirme a conclusão com um resumo curto: quantidade de arquivos
    instalados, o caminho do backup se houve um, se houve migração de
-   `agentes/` legado, e se o `.gitignore` ganhou a entrada nova.
+   `agentes/` legado, se o `.gitignore` ganhou a entrada nova, o `AI_TARGETS`
+   resolvido no passo 1b, e quais adapters do passo 7b foram materializados
+   (ou que nenhum foi, quando a seleção é só `claude`).
 
 ## Tratamento de erros
 
@@ -168,10 +206,22 @@ backup, igual a `CONTEXTO.md`/`TEAM.md`.
 
 ## Escopo
 
-Este skill sempre instala o conjunto fixo completo de 19 arquivos em `.agents/`
-(18 personas + `PIPELINE.md`) mais os 6 comandos (`/orquestrador*` +
-`/time-design`) em `.claude/commands/` mais a skill `coding-standards` em
-`.claude/skills/coding-standards/SKILL.md`. A seleção de quais etapas do
-pipeline rodar em cada tarefa é uma decisão de runtime feita pela persona
-Orquestrador no início de cada sessão — não uma escolha no momento da
-instalação.
+O que este skill instala se divide em duas camadas.
+
+**Núcleo invariante (sempre, para qualquer `AI_TARGETS`).** O conjunto fixo
+completo de 19 arquivos em `.agents/` (18 personas + `PIPELINE.md`), mais os
+6 comandos (`/orquestrador*` + `/time-design`) em `.claude/commands/`, mais a
+skill `coding-standards` em `.claude/skills/coding-standards/SKILL.md`. Como
+`claude` está sempre presente em `AI_TARGETS`, essa camada nunca varia.
+
+**Adapters por IA (variável, conforme `AI_TARGETS`).** Materializados no passo
+7b. Hoje o único implementado é o do Antigravity, que copia
+`~/agentes-pipeline/gemini/skills/` para `./.agents/skills/`. Codex e Cursor já
+são ids válidos na config de máquina, mas ainda não têm adapter: selecioná-los
+não muda nada no que é instalado aqui.
+
+A seleção de quais **etapas do pipeline** rodar em cada tarefa continua sendo
+uma decisão de runtime feita pela persona Orquestrador no início de cada
+sessão, não uma escolha no momento da instalação. `AI_TARGETS` é ortogonal a
+isso: decide quais **arquivos de adapter** existem no projeto, não quais etapas
+rodam.
