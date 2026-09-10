@@ -1,0 +1,16 @@
+# Line endings — só vale daqui pra frente (checkouts/normalizações futuras).
+# Nenhuma renormalização em massa foi feita agora (`git add --renormalize .`
+# é decisão separada do Bruno).
+#
+# Contexto: esta máquina tem core.autocrlf=true, o que já gravou `.sh`/`.ps1`
+# com finais de linha errados sem o `git diff` denunciar. As regras abaixo
+# fixam o final de linha correto por tipo de arquivo.
+
+* text=auto
+
+# Scripts POSIX: sempre LF, mesmo no Windows (quebram sob bash real com CRLF).
+*.sh   text eol=lf
+*.bash text eol=lf
+
+# Scripts PowerShell: CRLF é o final de linha nativo/esperado.
+*.ps1  text eol=crlf
