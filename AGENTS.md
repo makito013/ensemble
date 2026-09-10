@@ -10,16 +10,17 @@ pré-configurados via YAML) mais um documento de pipeline, usados para estrutura
 tarefas de desenvolvimento em etapas: Analista → PO → Arquiteto → BDD → Designer →
 TL → Dev → QA → Revisor → Segurança, coordenadas por um Orquestrador.
 
-O gatilho é sempre manual. No Claude Code, via comando:
+O gatilho é sempre manual, em toda engine. Fora desse gatilho, não ative o
+pipeline; siga o fluxo normal do projeto onde `./.agents/` está instalado.
 
-> `/orquestrador quero adicionar login com Google ao projeto`
+| Engine | Gatilho | Mecanismo |
+|--------|---------|-----------|
+| Claude / Claude Code | `/orquestrador quero adicionar login com Google ao projeto` | Comando (`.claude/commands/orquestrador.md`) |
+| Antigravity / Gemini CLI | `orquestrador: quero adicionar login com Google ao projeto` | Prefixo de texto (skill discovery, `.agents/skills/`) |
+| Codex CLI (OpenAI) | `$orquestrador quero adicionar login com Google ao projeto` | Invocação explícita de skill de projeto (`.codex/skills/`), com `agents/openai.yaml` declarando `policy.allow_implicit_invocation: false` — a skill nunca dispara sozinha, só quando chamada por `$orquestrador`/`$init-project` |
+| Cursor | `/orquestrador quero adicionar login com Google ao projeto` | Skill de projeto (`.cursor/skills/`) com `disable-model-invocation: true` no frontmatter — aparece na lista `/`, mas só roda quando chamada explicitamente |
 
-No Antigravity/Gemini CLI, continua por prefixo de texto (skill discovery):
-
-> "orquestrador: quero adicionar login com Google ao projeto"
-
-Fora desse gatilho, não ative o pipeline; siga o fluxo normal do projeto onde
-`./.agents/` está instalado.
+O mesmo vale para `init-project`/`$init-project` em cada engine.
 
 ## Quais IAs estão configuradas nesta máquina (`ai-targets`)
 
@@ -32,8 +33,11 @@ engine precisa dos arquivos no seu próprio formato e lugar. `/init-project` lê
 a config no início da execução (via
 `bash ~/agentes-pipeline/scripts/read-ai-targets.sh`, que nunca falha e devolve
 `claude` quando não há config) e materializa só os adapters das IAs
-selecionadas. Hoje o único adapter implementado é o do Antigravity: copiar
-`gemini/skills/` para `./.agents/skills/`.
+selecionadas. Adapters implementados hoje: Antigravity (copiar `gemini/skills/`
+para `./.agents/skills/`), Codex (bloco delimitado em `AGENTS.md` da raiz do
+projeto + copiar `codex/skills/` para `./.codex/skills/`) e Cursor (copiar
+`cursor/skills/` para `./.cursor/skills/`). Detalhes por engine na tabela de
+gatilhos acima.
 
 Para mudar a seleção: rode o instalador de novo com `--ai`/`-Ai`, ou defina
 `AGENTES_PIPELINE_AI_TARGETS`. Detalhes no README.
@@ -54,7 +58,7 @@ arquivo correspondente em `agentes/*.md` normalmente.
 
 ## Se você está num projeto com `./.agents/` instalado a partir daqui
 
-1. Ponto de entrada padrão: `.agents/ORQUESTRADOR.md`. Só ative o pipeline via `/orquestrador` (Claude) ou dizendo "orquestrador: ..." (Antigravity). Sem esse gatilho, mesmo que
+1. Ponto de entrada padrão: `.agents/ORQUESTRADOR.md`. Só ative o pipeline via o gatilho da sua engine — ver tabela acima ("O que é isto"). Sem esse gatilho, mesmo que
    seja um pedido de feature/bug fix/refatoração, siga o fluxo normal do projeto.
 2. Diagrama completo do pipeline, tabela de etapas e perfis rápidos (quais etapas
    ativar por tipo de tarefa) estão em `.agents/PIPELINE.md`.

@@ -13,8 +13,8 @@ Instala (ou atualiza) duas coisas no diretório de trabalho atual:
    a skill `coding-standards` (convenção de código sempre em inglês) dentro de
    `./.claude/skills/`.
 2. **Adapters por IA, condicionais**, materializados só para as IAs registradas
-   em `AI_TARGETS` (passos 1b e 7b). Hoje o único adapter implementado é o do
-   Antigravity.
+   em `AI_TARGETS` (passos 1b e 7b). Implementados hoje: Antigravity, Codex e
+   Cursor.
 
 `AI_TARGETS` vem da config de máquina gravada pelo instalador
 (`~/.config/agentes-pipeline/ai-targets.json`) e é lida pelo script
@@ -169,27 +169,80 @@ manualmente, como sempre foi possível.
      estado anterior, e este passo aplica a versão nova da fonte por cima. Se
      `antigravity` não estiver em `AI_TARGETS`, este passo não roda e o
      comportamento de restaurar-do-backup do passo 5 permanece intacto.
+   - `codex`:
+     1. Aplique o bloco delimitado em `AGENTS.md` da RAIZ do projeto-alvo
+        rodando:
+        ```bash
+        bash ~/agentes-pipeline/scripts/agents-md-block.sh apply \
+          ./AGENTS.md ~/agentes-pipeline/codex/AGENTS-block.md
+        ```
+        A saída é sempre `CREATED=`, `APPENDED=`, `UPDATED=` ou
+        `UNCHANGED=<path>` — registre esse resultado literal no resumo final
+        (passo 9), nunca de forma silenciosa (é arquivo versionado do
+        projeto-alvo). Se o exit code for `3` (marcadores ambíguos em
+        `AGENTS.md`), **pare** e reporte o erro (mensagem de stderr do
+        script) ao Bruno — nunca tente editar `AGENTS.md` manualmente para
+        "consertar" o conflito. Isso é sempre via script determinístico,
+        nunca prosa/edição livre por LLM.
+     2. Copie `~/agentes-pipeline/codex/skills/` para `./.codex/skills/`
+        (crie a pasta se não existir). Idempotente por sobrescrita, mesma
+        lógica do adapter Antigravity acima — inclui as subpastas
+        `agents/openai.yaml` de cada skill, preserve a estrutura completa.
+   - `cursor`: copie `~/agentes-pipeline/cursor/skills/` para
+     `./.cursor/skills/` (crie a pasta se não existir). Mesma lógica de
+     idempotência por sobrescrita.
 
-   Registre no resumo final quais adapters foram materializados.
+   Registre no resumo final quais adapters foram materializados (e, para
+   `codex`, o resultado da aplicação do bloco em `AGENTS.md`).
 
 8. **Gitignore.** Depois de instalar/atualizar (em todos os casos acima,
    inclusive quando migrou), verifique `./.gitignore` na raiz do projeto:
-   - Se não existir, não crie o arquivo — não faça nada.
-   - Se existir e já tiver uma linha exatamente igual a `.agents`, `.agents/`,
-     `/.agents` ou `/.agents/`, não faça nada (já está coberto).
-   - Caso contrário, acrescente ao final:
-     ```
+   - Se não existir, não crie o arquivo — pule este passo 8 inteiro (nenhuma
+     das checagens abaixo se aplica).
+   - **Se existir**, faça as duas checagens a seguir (a de `.agents/` sempre;
+     as de `.cursor/`/`.codex/` só para os ids selecionados — ver abaixo):
+     1. Se já tiver uma linha exatamente igual a `.agents`, `.agents/`,
+        `/.agents` ou `/.agents/`, não faça nada quanto a essa entrada (já
+        está coberto). Caso contrário, acrescente ao final:
+        ```
 
-     # agentes-pipeline (dados locais, não versionados)
-     .agents/
-     ```
-     (uma linha em branco antes, se o arquivo não terminar já em branco).
+        # agentes-pipeline (dados locais, não versionados)
+        .agents/
+        ```
+        (uma linha em branco antes, se o arquivo não terminar já em branco).
+     2. **Apenas para os ids selecionados em `AI_TARGETS`**, aplique a mesma
+        checagem de cobertura, uma entrada por id:
+        - `cursor`: cheque se já existe uma linha igual a `.cursor/skills`,
+          `.cursor/skills/`, `/.cursor/skills`, `/.cursor/skills/`,
+          `.cursor/` ou `/.cursor/` (qualquer uma dessas conta como já
+          coberto — as duas últimas são cobertura mais ampla e também
+          servem). Se nenhuma estiver presente, acrescente
+          `.cursor/skills/` (mesmo formato de linha em branco antes, se
+          necessário).
+        - `codex`: mesma lógica, variações de `.codex/skills` /
+          `.codex/skills/` / `/.codex/skills` / `/.codex/skills/` /
+          `.codex/` / `/.codex/` como já coberto; caso contrário acrescente
+          `.codex/skills/`.
+        - Nunca acrescente uma linha que ignore `.cursor/` ou `.codex/`
+          inteiros por conta própria — só cobrem o que este processo cria
+          (`skills/`); config real do usuário fora dessa subpasta não deve
+          ser ignorada por este passo. As variações de cobertura ampla
+          acima só contam como "já coberto" quando **já existiam** no
+          arquivo (decisão do usuário), nunca são o que este passo escreve.
+   - `AGENTS.md` **não** entra no `.gitignore` em nenhum caso — é arquivo de
+     projeto, normalmente já versionado.
 
 9. Confirme a conclusão com um resumo curto: quantidade de arquivos
    instalados, o caminho do backup se houve um, se houve migração de
-   `agentes/` legado, se o `.gitignore` ganhou a entrada nova, o `AI_TARGETS`
+   `agentes/` legado, se o `.gitignore` ganhou entradas novas (`.agents/` e,
+   se aplicável, `.cursor/skills/`/`.codex/skills/`), o `AI_TARGETS`
    resolvido no passo 1b, e quais adapters do passo 7b foram materializados
-   (ou que nenhum foi, quando a seleção é só `claude`).
+   (ou que nenhum foi, quando a seleção é só `claude`). Quando `codex`
+   estiver em `AI_TARGETS`, reporte explicitamente que o `AGENTS.md` da raiz
+   do projeto foi criado/alterado: caminho (`./AGENTS.md`) e o tipo de
+   mudança (`CREATED`/`APPENDED`/`UPDATED`/`UNCHANGED`), tirado literalmente
+   da saída de `agents-md-block.sh` no passo 7b — escrita em arquivo
+   versionado do usuário nunca é silenciosa.
 
 ## Tratamento de erros
 
@@ -215,10 +268,15 @@ skill `coding-standards` em `.claude/skills/coding-standards/SKILL.md`. Como
 `claude` está sempre presente em `AI_TARGETS`, essa camada nunca varia.
 
 **Adapters por IA (variável, conforme `AI_TARGETS`).** Materializados no passo
-7b. Hoje o único implementado é o do Antigravity, que copia
-`~/agentes-pipeline/gemini/skills/` para `./.agents/skills/`. Codex e Cursor já
-são ids válidos na config de máquina, mas ainda não têm adapter: selecioná-los
-não muda nada no que é instalado aqui.
+7b:
+- **Antigravity** copia `~/agentes-pipeline/gemini/skills/` para
+  `./.agents/skills/`.
+- **Codex** aplica o bloco delimitado de `~/agentes-pipeline/codex/AGENTS-block.md`
+  em `./AGENTS.md` da raiz do projeto-alvo (via `agents-md-block.sh`,
+  determinístico) e copia `~/agentes-pipeline/codex/skills/` para
+  `./.codex/skills/`.
+- **Cursor** copia `~/agentes-pipeline/cursor/skills/` para
+  `./.cursor/skills/`.
 
 A seleção de quais **etapas do pipeline** rodar em cada tarefa continua sendo
 uma decisão de runtime feita pela persona Orquestrador no início de cada

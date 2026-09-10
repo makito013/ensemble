@@ -22,6 +22,10 @@ $RepoDir = Resolve-RealPath $PSScriptRoot
 $PipelineHome = Join-Path $env:USERPROFILE "agentes-pipeline"
 $SkillLink = Join-Path $Target "skills\init-project"
 $SkillTarget = Join-Path $RepoDir "claude\skills\init-project"
+$CodexSkillLink = Join-Path $env:USERPROFILE ".codex\skills\init-project"
+$CodexSkillTarget = Join-Path $RepoDir "codex\skills\init-project"
+$CursorSkillLink = Join-Path $env:USERPROFILE ".cursor\skills\init-project"
+$CursorSkillTarget = Join-Path $RepoDir "cursor\skills\init-project"
 $AntigravityPluginDir = Join-Path $env:USERPROFILE ".gemini\config\plugins\superpowers"
 $AntigravityPluginUrl = "https://github.com/roundpilot/superpowers-antigravity"
 
@@ -43,7 +47,13 @@ function Ensure-Junction {
     param(
         [string]$LinkTarget,
         [string]$Link,
-        [string]$Label
+        [string]$Label,
+        # "Fail" (default) or "Warn" - "Warn" never sets $script:Fail, for
+        # opportunistic bootstrap links (Codex and Cursor alike). The
+        # guaranteed path for /init-project is always Claude Code, which
+        # materializes .codex/skills/ and .cursor/skills/ inside the target
+        # project regardless, so a crooked personal link must not abort.
+        [string]$Severity = "Fail"
     )
 
     $linkParent = Split-Path -Parent $Link
@@ -52,6 +62,7 @@ function Ensure-Junction {
     }
 
     $targetResolved = Resolve-FullPath $LinkTarget
+    $isWarn = $Severity -eq "Warn"
 
     if (Test-Path -LiteralPath $Link) {
         $item = Get-Item -LiteralPath $Link -Force
@@ -59,12 +70,16 @@ function Ensure-Junction {
             $currentTarget = (@($item.Target)[0]).TrimEnd('\')
             if ($currentTarget -eq $targetResolved) {
                 Write-Output "OK: $Label ja linkado corretamente ($Link -> $LinkTarget)"
+            } elseif ($isWarn) {
+                Write-Output "AVISO: $Label existe em $Link mas aponta pra outro lugar ($currentTarget, esperado $targetResolved). Resolva manualmente se quiser usar este adapter."
             } else {
                 Write-Output "ERRO: $Label existe em $Link mas aponta pra outro lugar ($currentTarget, esperado $targetResolved). Resolva manualmente antes de rodar de novo."
                 $script:Fail = $true
             }
         } elseif ((Resolve-FullPath $Link) -eq $targetResolved) {
             Write-Output "OK: $Label ja e o proprio $LinkTarget - nenhuma junction necessaria"
+        } elseif ($isWarn) {
+            Write-Output "AVISO: $Label existe em $Link mas nao e uma junction (e uma pasta/arquivo real). Resolva manualmente se quiser usar este adapter."
         } else {
             Write-Output "ERRO: $Label existe em $Link mas nao e uma junction (e uma pasta/arquivo real). Resolva manualmente (mova ou remova) antes de rodar de novo."
             $script:Fail = $true
@@ -148,9 +163,11 @@ function Read-AiTargetSelection([string[]]$Preselected) {
         $answer = Read-Host "Numeros separados por espaco ou virgula (ex: 2 4), ou Enter para manter"
         $answer = ([string]$answer).Replace("`r", "").Trim()
 
-        # Mirrors install.sh (commas become spaces, then `${answer// /}`): an
-        # answer made only of separators counts as empty, so the preselection is
-        # kept instead of being silently replaced by the default.
+        # Mirrors install.sh (commas become spaces, then
+        # `${answer//[$'\t' ]/}` strips both spaces and tabs): an answer made
+        # only of separators (space, tab or comma) counts as empty, so the
+        # preselection is kept instead of being silently replaced by the
+        # default.
         if (($answer -replace '[,\s]', '') -eq "") { return $Preselected }
 
         $valid = $true
@@ -240,6 +257,18 @@ Write-Output "OK: IAs selecionadas: $($script:AiTargets -join ', ') (registrado 
 
 Ensure-Junction -LinkTarget $RepoDir -Link $PipelineHome -Label "~/agentes-pipeline"
 Ensure-Junction -LinkTarget $SkillTarget -Link $SkillLink -Label "skill init-project ($Target)"
+
+if (Test-AiTargetSelected "codex") {
+    Ensure-Junction -LinkTarget $CodexSkillTarget -Link $CodexSkillLink -Label "skill init-project (Codex)" -Severity "Warn"
+} else {
+    Write-Output "OK: Codex nao selecionado - link do skill init-project pulado"
+}
+
+if (Test-AiTargetSelected "cursor") {
+    Ensure-Junction -LinkTarget $CursorSkillTarget -Link $CursorSkillLink -Label "skill init-project (Cursor)" -Severity "Warn"
+} else {
+    Write-Output "OK: Cursor nao selecionado - link do skill init-project pulado"
+}
 
 if (-not (Test-AiTargetSelected "antigravity")) {
     Write-Output "OK: Antigravity nao selecionado - etapa do plugin Superpowers-Antigravity pulada"

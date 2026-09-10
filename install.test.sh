@@ -469,6 +469,111 @@ fi
 unset -f prompt_ai_targets normalize_ai_targets validate_ai_target
 unset AI_TARGETS_KNOWN
 
+# --- adapters de Codex/Cursor (link ~/.codex|.cursor/skills/init-project) ---
+
+# D1 — --ai codex cria o link em $FAKE_HOME/.codex/skills/init-project
+AI_HOME_D1="$FIXTURE/home-ai-d1"
+mkdir -p "$AI_HOME_D1"
+HOME="$AI_HOME_D1" AGENTES_PIPELINE_SKIP_ANTIGRAVITY=1 \
+  bash "$INSTALLER" --ai codex > "$FIXTURE/out-ai-d1.txt" 2>&1 </dev/null
+
+CODEX_LINK_D1="$AI_HOME_D1/.codex/skills/init-project"
+if [[ -L "$CODEX_LINK_D1" ]] && [[ "$(cd "$CODEX_LINK_D1" && pwd -P)" == "$SCRIPT_DIR/codex/skills/init-project" ]]; then
+  echo "PASS: --ai codex cria o link em ~/.codex/skills/init-project"
+else
+  echo "FAIL: --ai codex não criou o link esperado em ~/.codex/skills/init-project: $(cat "$FIXTURE/out-ai-d1.txt")"
+  fail=1
+fi
+
+# D2 — --ai cursor cria o link em $FAKE_HOME/.cursor/skills/init-project
+AI_HOME_D2="$FIXTURE/home-ai-d2"
+mkdir -p "$AI_HOME_D2"
+HOME="$AI_HOME_D2" AGENTES_PIPELINE_SKIP_ANTIGRAVITY=1 \
+  bash "$INSTALLER" --ai cursor > "$FIXTURE/out-ai-d2.txt" 2>&1 </dev/null
+
+CURSOR_LINK_D2="$AI_HOME_D2/.cursor/skills/init-project"
+if [[ -L "$CURSOR_LINK_D2" ]] && [[ "$(cd "$CURSOR_LINK_D2" && pwd -P)" == "$SCRIPT_DIR/cursor/skills/init-project" ]]; then
+  echo "PASS: --ai cursor cria o link em ~/.cursor/skills/init-project"
+else
+  echo "FAIL: --ai cursor não criou o link esperado em ~/.cursor/skills/init-project: $(cat "$FIXTURE/out-ai-d2.txt")"
+  fail=1
+fi
+
+# D3 — --ai codex com ~/.codex/skills/init-project ocupado por pasta real:
+# falha vira AVISO, exit continua 0 (conveniência oportunista)
+AI_HOME_D3="$FIXTURE/home-ai-d3"
+mkdir -p "$AI_HOME_D3/.codex/skills/init-project"
+echo "dado do usuário" > "$AI_HOME_D3/.codex/skills/init-project/nao-mexer.txt"
+set +e
+HOME="$AI_HOME_D3" AGENTES_PIPELINE_SKIP_ANTIGRAVITY=1 \
+  bash "$INSTALLER" --ai codex > "$FIXTURE/out-ai-d3.txt" 2>&1 </dev/null
+D3_EXIT=$?
+set -e
+
+if [[ "$D3_EXIT" -eq 0 ]]; then
+  echo "PASS: --ai codex com pasta real ocupando o link sai com exit code 0"
+else
+  echo "FAIL: --ai codex com pasta real ocupando o link deveria sair com 0, saiu com $D3_EXIT: $(cat "$FIXTURE/out-ai-d3.txt")"
+  fail=1
+fi
+if grep -q "AVISO.*Codex" "$FIXTURE/out-ai-d3.txt"; then
+  echo "PASS: --ai codex com pasta real ocupando o link imprime AVISO (não ERRO)"
+else
+  echo "FAIL: --ai codex com pasta real ocupando o link não imprimiu AVISO: $(cat "$FIXTURE/out-ai-d3.txt")"
+  fail=1
+fi
+if [[ -f "$AI_HOME_D3/.codex/skills/init-project/nao-mexer.txt" ]]; then
+  echo "PASS: pasta real conflitante do Codex não foi tocada"
+else
+  echo "FAIL: pasta real conflitante do Codex foi apagada/alterada"
+  fail=1
+fi
+
+# D4 — mesmo cenário com --ai cursor: paridade com o caso D3 — a falha vira
+# AVISO e o exit continua 0. Codex e Cursor são bootstrap oportunista; o
+# caminho garantido do /init-project é sempre o Claude Code, que materializa
+# .cursor/skills/ no projeto-alvo de qualquer forma.
+AI_HOME_D4="$FIXTURE/home-ai-d4"
+mkdir -p "$AI_HOME_D4/.cursor/skills/init-project"
+echo "dado do usuário" > "$AI_HOME_D4/.cursor/skills/init-project/nao-mexer.txt"
+set +e
+HOME="$AI_HOME_D4" AGENTES_PIPELINE_SKIP_ANTIGRAVITY=1 \
+  bash "$INSTALLER" --ai cursor > "$FIXTURE/out-ai-d4.txt" 2>&1 </dev/null
+D4_EXIT=$?
+set -e
+
+if [[ "$D4_EXIT" -eq 0 ]]; then
+  echo "PASS: --ai cursor com pasta real ocupando o link sai com exit code 0"
+else
+  echo "FAIL: --ai cursor com pasta real ocupando o link deveria sair com 0, saiu com $D4_EXIT: $(cat "$FIXTURE/out-ai-d4.txt")"
+  fail=1
+fi
+if grep -q "AVISO.*Cursor" "$FIXTURE/out-ai-d4.txt"; then
+  echo "PASS: --ai cursor com pasta real ocupando o link imprime AVISO (não ERRO)"
+else
+  echo "FAIL: --ai cursor com pasta real ocupando o link não imprimiu AVISO: $(cat "$FIXTURE/out-ai-d4.txt")"
+  fail=1
+fi
+if [[ -f "$AI_HOME_D4/.cursor/skills/init-project/nao-mexer.txt" ]]; then
+  echo "PASS: pasta real conflitante do Cursor não foi tocada"
+else
+  echo "FAIL: pasta real conflitante do Cursor foi apagada/alterada"
+  fail=1
+fi
+
+# D5 — --ai claude sozinho não cria nenhum dos dois links
+AI_HOME_D5="$FIXTURE/home-ai-d5"
+mkdir -p "$AI_HOME_D5"
+HOME="$AI_HOME_D5" AGENTES_PIPELINE_SKIP_ANTIGRAVITY=1 \
+  bash "$INSTALLER" --ai claude > "$FIXTURE/out-ai-d5.txt" 2>&1 </dev/null
+
+if [[ ! -e "$AI_HOME_D5/.codex/skills/init-project" && ! -e "$AI_HOME_D5/.cursor/skills/init-project" ]]; then
+  echo "PASS: --ai claude sozinho não cria link de Codex nem de Cursor"
+else
+  echo "FAIL: --ai claude sozinho criou algum link de Codex/Cursor indevidamente"
+  fail=1
+fi
+
 if [[ "$fail" -eq 0 ]]; then
   echo "TODOS OS TESTES PASSARAM"
   exit 0

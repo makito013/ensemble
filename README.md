@@ -49,7 +49,7 @@ cd /caminho/do/seu/projeto
 > Se `.\install.ps1` falhar com erro de política de execução, rode
 > `powershell -ExecutionPolicy Bypass -File .\install.ps1` em vez disso.
 
-Pronto — o projeto agora tem `./.agents/` (as 11 personas, oculta — o
+Pronto — o projeto agora tem `./.agents/` (as 18 personas, oculta — o
 instalador acrescenta uma entrada `.agents/` no `.gitignore` do projeto se já
 existir um; projetos que já tinham a antiga `./agentes/` visível são migrados
 automaticamente na próxima vez que `/init-project` rodar),
@@ -129,8 +129,42 @@ AVISO: stdin não é um terminal — usando seleção de IAs: claude (mude com -
 Essa seleção decide o que o instalador faz por conta própria (o plugin
 Superpowers-Antigravity só é clonado se `antigravity` estiver selecionado) e o
 que o `/init-project` materializa dentro de cada projeto. O conjunto base de
-personas e comandos é instalado sempre, para qualquer seleção. `codex` e
-`cursor` já são ids válidos, mas ainda não têm adapter próprio.
+personas e comandos é instalado sempre, para qualquer seleção. Detalhes de
+cada adapter na seção [IAs suportadas](#ias-suportadas) abaixo.
+
+## IAs suportadas
+
+O instalador oferece 4 IAs para seleção (ver [Quais IAs você usa
+(`--ai`)](#quais-ias-você-usa---ai) acima). `claude` está sempre incluído;
+`antigravity`, `codex` e `cursor` são opcionais. Quando uma IA está
+selecionada, `/init-project` materializa os adapters correspondentes dentro
+do projeto:
+
+| IA | Materializa | Onde |
+|----|--------------|------|
+| Claude | `.agents/` (19 arquivos: 18 personas + `PIPELINE.md`) + `.claude/commands/` (comandos `orquestrador*`, `time-design`) + `.claude/skills/coding-standards/` | Raiz do projeto |
+| Antigravity / Gemini CLI | Cópia de `gemini/skills/` | `.agents/skills/` |
+| Codex CLI (OpenAI) | Bloco delimitado (aplicado via `scripts/agents-md-block.sh`, determinístico) a partir de `codex/AGENTS-block.md` + cópia de `codex/skills/` | Bloco em `AGENTS.md` da raiz do projeto + `.codex/skills/` |
+| Cursor | Cópia de `cursor/skills/` | `.cursor/skills/` |
+
+Claude não muda de comportamento com a seleção — é a linha de base, sempre
+instalada. Antigravity, Codex e Cursor recebem cada um sua própria cópia dos
+skills no formato que a engine espera (`SKILL.md` com frontmatter, mais
+`agents/openai.yaml` no caso do Codex).
+
+> ⚠️ **Codex e `~/.codex/config.toml`:** o próprio Codex CLI grava
+> automaticamente `trust_level` (por path de projeto) em
+> `~/.codex/config.toml` do usuário, na primeira execução em cada projeto
+> novo. Isso é comportamento nativo do Codex, não deste instalador nem do
+> `/init-project` — mas vale saber que a primeira execução em projeto novo
+> toca esse arquivo.
+
+**Cobertura parcial (Fase 2):** hoje os adapters de Codex e Cursor cobrem só
+os comandos `orquestrador` e `init-project`. Os demais comandos do lado
+Claude — `orquestrador-fix`, `orquestrador-init`, `orquestrador-pr`,
+`orquestrador-team` e `time-design` — continuam disponíveis apenas via
+Claude Code por enquanto. Estender a paridade para essas engines é trabalho
+futuro (backlog).
 
 ## Estrutura
 

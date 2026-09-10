@@ -351,6 +351,129 @@ printf '%s\n%s\n%s\n' "$AI_PARITY_INPUT" "$AI_PARITY_INPUT" "$AI_PARITY_INPUT" |
 }
 
 # ---------------------------------------------------------------------------
+# end-to-end: Codex/Cursor junctions (Ensure-Junction, real install.ps1 run)
+#
+# Unlike install.test.sh's symlink-based checks, `New-Item -ItemType Junction`
+# does not require Developer Mode / SeCreateSymbolicLinkPrivilege on Windows,
+# so this block can actually exercise the real script end-to-end here instead
+# of only through AST-extracted functions.
+# ---------------------------------------------------------------------------
+Write-Host ""
+Write-Host "--- Codex/Cursor adapter junctions (end-to-end) ---"
+
+$E2eRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("install-e2e-" + [guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Force -Path $E2eRoot | Out-Null
+# install.ps1 lives at the repo root alongside this test file, and resolves
+# its own $RepoDir from $PSScriptRoot at run time - this local copy is only
+# used to compute the expected junction targets for the assertions below.
+$RepoDir = $PSScriptRoot
+function Resolve-FullPathLocal([string]$Path) {
+    (Resolve-Path -LiteralPath $Path).Path.TrimEnd('\')
+}
+
+# Prefer the currently running host's own executable (same as `& pwsh` would
+# resolve to on this suite's Windows PowerShell 7 baseline) and only fall back
+# to a PATH lookup — never assume `pwsh` is on PATH, mirrors Find-GitBash's
+# "loudly skip when absent" pattern above.
+$PwshExe = $null
+$currentHostPath = (Get-Process -Id $PID -ErrorAction SilentlyContinue).Path
+if ($currentHostPath -and (Split-Path -Leaf $currentHostPath) -match '^pwsh(\.exe)?$') {
+    $PwshExe = $currentHostPath
+} else {
+    $PwshExe = (Get-Command pwsh -ErrorAction SilentlyContinue).Source
+}
+
+function Invoke-InstallerProcess {
+    param(
+        [string]$FakeHome,
+        [string[]]$ExtraArgs = @()
+    )
+    $oldUserProfile = $env:USERPROFILE
+    $oldSkip = $env:AGENTES_PIPELINE_SKIP_ANTIGRAVITY
+    try {
+        $env:USERPROFILE = $FakeHome
+        $env:AGENTES_PIPELINE_SKIP_ANTIGRAVITY = "1"
+        $output = (& $PwshExe -NoProfile -File $Installer @ExtraArgs 2>&1 | Out-String)
+        $exitCode = $LASTEXITCODE
+        return [PSCustomObject]@{ Output = $output; ExitCode = $exitCode }
+    } finally {
+        $env:USERPROFILE = $oldUserProfile
+        if ($null -ne $oldSkip) { $env:AGENTES_PIPELINE_SKIP_ANTIGRAVITY = $oldSkip }
+        else { Remove-Item Env:\AGENTES_PIPELINE_SKIP_ANTIGRAVITY -ErrorAction SilentlyContinue }
+    }
+}
+
+if (-not $PwshExe) {
+    Write-Skip "Codex/Cursor adapter junctions (end-to-end) - executavel pwsh nao encontrado"
+} else {
+try {
+    # E1 - -Ai codex cria a junction em $FakeHome\.codex\skills\init-project
+    $HomeE1 = Join-Path $E2eRoot "home-e1"
+    New-Item -ItemType Directory -Force -Path $HomeE1 | Out-Null
+    $resultE1 = Invoke-InstallerProcess -FakeHome $HomeE1 -ExtraArgs @("-Ai", "codex")
+    $codexLinkE1 = Join-Path $HomeE1 ".codex\skills\init-project"
+    $codexOk = (Test-Path -LiteralPath $codexLinkE1) -and
+        ((Get-Item -LiteralPath $codexLinkE1 -Force).LinkType -eq "Junction") -and
+        ((@((Get-Item -LiteralPath $codexLinkE1 -Force).Target)[0]).TrimEnd('\') -eq (Resolve-FullPathLocal (Join-Path $RepoDir "codex\skills\init-project")))
+    Assert-True $codexOk "-Ai codex cria a junction em ~/.codex/skills/init-project (exit=$($resultE1.ExitCode))"
+
+    # E2 - -Ai cursor cria a junction em $FakeHome\.cursor\skills\init-project
+    $HomeE2 = Join-Path $E2eRoot "home-e2"
+    New-Item -ItemType Directory -Force -Path $HomeE2 | Out-Null
+    $resultE2 = Invoke-InstallerProcess -FakeHome $HomeE2 -ExtraArgs @("-Ai", "cursor")
+    $cursorLinkE2 = Join-Path $HomeE2 ".cursor\skills\init-project"
+    $cursorOk = (Test-Path -LiteralPath $cursorLinkE2) -and
+        ((Get-Item -LiteralPath $cursorLinkE2 -Force).LinkType -eq "Junction") -and
+        ((@((Get-Item -LiteralPath $cursorLinkE2 -Force).Target)[0]).TrimEnd('\') -eq (Resolve-FullPathLocal (Join-Path $RepoDir "cursor\skills\init-project")))
+    Assert-True $cursorOk "-Ai cursor cria a junction em ~/.cursor/skills/init-project (exit=$($resultE2.ExitCode))"
+
+    # E3 - -Ai codex com ~/.codex/skills/init-project ocupado por pasta real:
+    # falha vira AVISO, exit continua 0 (conveniencia oportunista)
+    $HomeE3 = Join-Path $E2eRoot "home-e3"
+    $OccupiedE3 = Join-Path $HomeE3 ".codex\skills\init-project"
+    New-Item -ItemType Directory -Force -Path $OccupiedE3 | Out-Null
+    Set-Content -LiteralPath (Join-Path $OccupiedE3 "nao-mexer.txt") -Value "dado do usuario"
+    $resultE3 = Invoke-InstallerProcess -FakeHome $HomeE3 -ExtraArgs @("-Ai", "codex")
+    Assert-True ($resultE3.ExitCode -eq 0) "-Ai codex com pasta real ocupando a junction sai com exit code 0 (got $($resultE3.ExitCode))"
+    Assert-True ($resultE3.Output -match "AVISO.*Codex") "-Ai codex com pasta real ocupando a junction imprime AVISO (nao ERRO)"
+    Assert-True (Test-Path -LiteralPath (Join-Path $OccupiedE3 "nao-mexer.txt")) "pasta real conflitante do Codex nao foi tocada"
+
+    # E4 - mesmo cenario com -Ai cursor: paridade com o caso E3 - a falha vira
+    # AVISO e o exit continua 0. Codex e Cursor sao bootstrap oportunista; o
+    # caminho garantido do /init-project e sempre o Claude Code, que
+    # materializa .cursor/skills/ no projeto-alvo de qualquer forma.
+    $HomeE4 = Join-Path $E2eRoot "home-e4"
+    $OccupiedE4 = Join-Path $HomeE4 ".cursor\skills\init-project"
+    New-Item -ItemType Directory -Force -Path $OccupiedE4 | Out-Null
+    Set-Content -LiteralPath (Join-Path $OccupiedE4 "nao-mexer.txt") -Value "dado do usuario"
+    $resultE4 = Invoke-InstallerProcess -FakeHome $HomeE4 -ExtraArgs @("-Ai", "cursor")
+    Assert-True ($resultE4.ExitCode -eq 0) "-Ai cursor com pasta real ocupando a junction sai com exit code 0 (got $($resultE4.ExitCode))"
+    Assert-True ($resultE4.Output -match "AVISO.*Cursor") "-Ai cursor com pasta real ocupando a junction imprime AVISO (nao ERRO)"
+    Assert-True (Test-Path -LiteralPath (Join-Path $OccupiedE4 "nao-mexer.txt")) "pasta real conflitante do Cursor nao foi tocada"
+
+    # E5 - -Ai claude sozinho nao cria nenhuma das duas junctions
+    $HomeE5 = Join-Path $E2eRoot "home-e5"
+    New-Item -ItemType Directory -Force -Path $HomeE5 | Out-Null
+    $resultE5 = Invoke-InstallerProcess -FakeHome $HomeE5 -ExtraArgs @("-Ai", "claude")
+    $noneCreated = (-not (Test-Path -LiteralPath (Join-Path $HomeE5 ".codex\skills\init-project"))) -and
+        (-not (Test-Path -LiteralPath (Join-Path $HomeE5 ".cursor\skills\init-project")))
+    Assert-True $noneCreated "-Ai claude sozinho nao cria junction de Codex nem de Cursor (exit=$($resultE5.ExitCode))"
+} finally {
+    # Delete junctions as reparse points BEFORE the recursive delete below. On
+    # PowerShell 7 `Remove-Item -Recurse` deletes a junction as a single node,
+    # but on Windows PowerShell 5.1 it walks through it and deletes the
+    # TARGET's contents instead - which here is this repo's real
+    # codex/skills/init-project and cursor/skills/init-project. Same hazard
+    # class as corrupting a user's AGENTS.md: a test must never eat versioned
+    # files.
+    Get-ChildItem -LiteralPath $E2eRoot -Recurse -Force -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.LinkType } |
+        ForEach-Object { [System.IO.Directory]::Delete($_.FullName, $false) }
+    Remove-Item -Recurse -Force -LiteralPath $E2eRoot -ErrorAction SilentlyContinue
+}
+}
+
+# ---------------------------------------------------------------------------
 Write-Host ""
 Write-Host "================ PASS: $script:Pass | FAIL: $script:Fail | SKIP: $script:Skip ================"
 if ($script:Fail -gt 0) {

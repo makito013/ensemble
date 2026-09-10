@@ -50,6 +50,10 @@ done
 PIPELINE_HOME="$HOME/agentes-pipeline"
 SKILL_LINK="$TARGET/skills/init-project"
 SKILL_TARGET="$REPO_DIR/claude/skills/init-project"
+CODEX_SKILL_LINK="$HOME/.codex/skills/init-project"
+CODEX_SKILL_TARGET="$REPO_DIR/codex/skills/init-project"
+CURSOR_SKILL_LINK="$HOME/.cursor/skills/init-project"
+CURSOR_SKILL_TARGET="$REPO_DIR/cursor/skills/init-project"
 ANTIGRAVITY_PLUGIN_DIR="$HOME/.gemini/config/plugins/superpowers"
 ANTIGRAVITY_PLUGIN_URL="https://github.com/roundpilot/superpowers-antigravity"
 
@@ -60,8 +64,13 @@ AI_TARGETS=""                                        # resolved by resolve_ai_ta
 
 FAIL=0
 
+# $4 = severity ("fail", default, or "warn"). "warn" never sets FAIL=1 — for
+# links de bootstrap oportunista (Codex e Cursor). O caminho garantido do
+# /init-project é sempre o Claude Code, que materializa .codex/skills/ e
+# .cursor/skills/ dentro do projeto-alvo de qualquer forma, então um link
+# pessoal torto não deve abortar a instalação — só avisar.
 ensure_link() {
-  local target="$1" link="$2" label="$3"
+  local target="$1" link="$2" label="$3" severity="${4:-fail}"
   mkdir -p "$(dirname "$link")"
 
   local target_resolved
@@ -72,6 +81,8 @@ ensure_link() {
     resolved="$(cd "$link" 2>/dev/null && pwd -P || true)"
     if [[ "$resolved" == "$target_resolved" ]]; then
       echo "OK: $label já linkado corretamente ($link -> $target)"
+    elif [[ "$severity" == "warn" ]]; then
+      echo "AVISO: $label existe em $link mas aponta pra outro lugar (${resolved:-link quebrado}, esperado $target_resolved). Resolva manualmente se quiser usar este adapter."
     else
       echo "ERRO: $label existe em $link mas aponta pra outro lugar (${resolved:-link quebrado}, esperado $target_resolved). Resolva manualmente antes de rodar de novo."
       FAIL=1
@@ -81,6 +92,8 @@ ensure_link() {
     link_resolved="$(cd "$link" 2>/dev/null && pwd -P || true)"
     if [[ -n "$link_resolved" && "$link_resolved" == "$target_resolved" ]]; then
       echo "OK: $label já é o próprio $target — nenhum link necessário"
+    elif [[ "$severity" == "warn" ]]; then
+      echo "AVISO: $label existe em $link mas não é um link (é uma pasta/arquivo real). Resolva manualmente se quiser usar este adapter."
     else
       echo "ERRO: $label existe em $link mas não é um link (é uma pasta/arquivo real). Resolva manualmente (mova ou remova) antes de rodar de novo."
       FAIL=1
@@ -268,6 +281,20 @@ echo "OK: IAs selecionadas: $AI_TARGETS (registrado em $AI_CONFIG_FILE)"
 
 ensure_link "$REPO_DIR" "$PIPELINE_HOME" "~/agentes-pipeline"
 ensure_link "$SKILL_TARGET" "$SKILL_LINK" "skill init-project ($TARGET)"
+
+if has_ai_target codex; then
+  mkdir -p "$HOME/.codex/skills"
+  ensure_link "$CODEX_SKILL_TARGET" "$CODEX_SKILL_LINK" "skill init-project (Codex)" warn
+else
+  echo "OK: Codex não selecionado — link do skill init-project pulado"
+fi
+
+if has_ai_target cursor; then
+  mkdir -p "$HOME/.cursor/skills"
+  ensure_link "$CURSOR_SKILL_TARGET" "$CURSOR_SKILL_LINK" "skill init-project (Cursor)" warn
+else
+  echo "OK: Cursor não selecionado — link do skill init-project pulado"
+fi
 
 if ! has_ai_target antigravity; then
   echo "OK: Antigravity não selecionado — etapa do plugin Superpowers-Antigravity pulada"
