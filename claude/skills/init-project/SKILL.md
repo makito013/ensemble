@@ -7,7 +7,7 @@ description: Bootstrap a project with the standard multi-agent development pipel
 
 Instala (ou atualiza) duas coisas no diretório de trabalho atual:
 
-1. **Conjunto base, sempre instalado**, independente de qual IA você usa: as 18
+1. **Conjunto base, sempre instalado**, independente de qual IA você usa: as 19
    personas de agentes + o documento de pipeline dentro de `./.agents/`, os
    comandos `/orquestrador*` e `/time-design` dentro de `./.claude/commands/`, e
    a skill `coding-standards` (convenção de código sempre em inglês) dentro de
@@ -116,7 +116,7 @@ manualmente, como sempre foi possível.
       aprendizado local não se perder num reinstall completo. O backup
       continua intacto com as cópias originais.
    6. copie todo o conteúdo de `COMMANDS_DIR` para dentro de
-      `./.claude/commands/` (sobrescrevendo os 5 arquivos do Orquestrador +
+      `./.claude/commands/` (sobrescrevendo os 6 arquivos do Orquestrador +
       `time-design.md` se já existirem; não mexa em outros comandos que não
       sejam esses)
    7. copie todo o conteúdo de `SKILLS_DIR` para dentro de `./.claude/skills/`
@@ -262,8 +262,8 @@ manualmente, como sempre foi possível.
 O que este skill instala se divide em duas camadas.
 
 **Núcleo invariante (sempre, para qualquer `AI_TARGETS`).** O conjunto fixo
-completo de 19 arquivos em `.agents/` (18 personas + `PIPELINE.md`), mais os
-6 comandos (`/orquestrador*` + `/time-design`) em `.claude/commands/`, mais a
+completo de 20 arquivos em `.agents/` (19 personas + `PIPELINE.md`), mais os
+7 comandos (`/orquestrador*` + `/time-design`) em `.claude/commands/`, mais a
 skill `coding-standards` em `.claude/skills/coding-standards/SKILL.md`. Como
 `claude` está sempre presente em `AI_TARGETS`, essa camada nunca varia.
 

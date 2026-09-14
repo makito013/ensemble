@@ -48,6 +48,13 @@ check "$DIR/orquestrador-pr.md" 'OK PARA MERGE' "orquestrador-pr.md define vered
 check "$DIR/orquestrador-pr.md" 'MERGEAR COM RESSALVAS' "orquestrador-pr.md define veredito MERGEAR COM RESSALVAS"
 check "$DIR/orquestrador-pr.md" '🔴 BLOQUEADO' "orquestrador-pr.md trata veto de Segurança BLOQUEADO"
 
+check "$DIR/orquestrador-plan.md" '^argument-hint: \[ideia bruta\]' "orquestrador-plan.md tem argument-hint"
+check "$DIR/orquestrador-plan.md" '.agents/GRILL.md' "orquestrador-plan.md referencia GRILL.md"
+check "$DIR/orquestrador-plan.md" '\$ARGUMENTS' "orquestrador-plan.md injeta \$ARGUMENTS"
+check "$DIR/orquestrador-plan.md" '\[GRILL\] Pronto' "orquestrador-plan.md aguarda marcador GRILL Pronto"
+check "$DIR/orquestrador-plan.md" '\.agents/planos/' "orquestrador-plan.md persiste em .agents/planos/"
+check "$DIR/orquestrador-plan.md" 'PIPELINE-STATE.md' "orquestrador-plan.md documenta que nunca toca PIPELINE-STATE.md"
+
 check "$DIR/time-design.md" '^argument-hint: \[pedido inicial opcional\]' "time-design.md tem argument-hint"
 check "$DIR/time-design.md" '.agents/ORQUESTRADOR.md' "time-design.md referencia ORQUESTRADOR.md"
 check "$DIR/time-design.md" 'designContext: standalone' "time-design.md fixa designContext: standalone"
