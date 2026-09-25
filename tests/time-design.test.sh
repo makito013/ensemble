@@ -71,9 +71,9 @@ check "$ROOT/agentes/DEV-DESIGN.md" 'preview' "DEV-DESIGN.md menciona preview"
 check "$ROOT/agentes/DEV-DESIGN.md" '.html' "DEV-DESIGN.md menciona formato .html"
 
 # 8: init-project/SKILL.md atualizado com a contagem nova
-check "$ROOT/claude/skills/init-project/SKILL.md" '18 personas' "SKILL.md menciona 18 personas"
-check "$ROOT/claude/skills/init-project/SKILL.md" '19 arquivos' "SKILL.md menciona 19 arquivos"
-check "$ROOT/claude/skills/init-project/SKILL.md" '6 comandos' "SKILL.md menciona 6 comandos (Fase 3: +/time-design)"
+check "$ROOT/claude/skills/init-project/SKILL.md" '19 personas' "SKILL.md menciona 19 personas"
+check "$ROOT/claude/skills/init-project/SKILL.md" '20 arquivos' "SKILL.md menciona 20 arquivos"
+check "$ROOT/claude/skills/init-project/SKILL.md" '7 comandos' "SKILL.md menciona 7 comandos (Fase 3: +/time-design, +/orquestrador-plan)"
 
 # 9: diff dos 4 pares fonte/espelho tocados nesta Fase 3 (fora do array PERSONAS)
 FASE3_PAIRS_DIFFB=("commands/time-design.md:.claude/commands/time-design.md")

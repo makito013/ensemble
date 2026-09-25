@@ -444,7 +444,9 @@ final — repasse-a ao Dev normalmente.
 
 ---
 *Gatilho: só ative este fluxo via `/orquestrador` (ou `/orquestrador-init`,
-`/orquestrador-fix`, `/orquestrador-team` para os modos específicos). Fora
-disso, siga o fluxo normal do projeto.*
+`/orquestrador-fix`, `/orquestrador-team` para os modos específicos, ou
+`/orquestrador-plan` para o planejamento avulso — ver "Planejamento avulso
+(/orquestrador-plan)" em `.agents/PIPELINE.md`, fluxo independente que nunca
+toca `PIPELINE-STATE.md`). Fora disso, siga o fluxo normal do projeto.*
 
 Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
