@@ -109,8 +109,10 @@ Mesma mecânica de headers determinísticos do `REVISOR`, verificada só pela
   Dev-Design-actionable: pula direto pro relatório completo nessa mesma
   rodada, declarando quantas rodadas ficaram sem uso.
 
-**Classificação `blocker-defect` vs. `blocker-rigor`** (mesma lógica do
-Revisor, adaptada ao domínio design):
+**Classificação `blocker-defect` vs. `blocker-rigor`** (exclusiva do
+domínio design — o Revisor de código não tem `blocker-rigor`: lá só defeito
+reprova; aqui o acabamento visual é o próprio objetivo, então a barra que
+sobe pode reprovar):
 - **`blocker-defect`** — seria achado até na rodada 1 (barra mínima):
   não cobre o que foi pedido, quebra piso de acessibilidade, preview não
   renderiza. Independe do rigor da rodada.
