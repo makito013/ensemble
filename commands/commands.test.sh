@@ -36,13 +36,13 @@ check "$DIR/orquestrador-fix.md" 'recomendo Analista, TL, Dev, QA, Revisor porqu
 check "$DIR/orquestrador-team.md" '^argument-hint: \[ação opcional' "orquestrador-team.md tem argument-hint"
 check "$DIR/orquestrador-team.md" 'TEAM.md' "orquestrador-team.md referencia TEAM.md"
 check "$DIR/orquestrador-team.md" '.agents/TEMPLATES.md' "orquestrador-team.md usa o template de TEMPLATES.md (sem carregar o ORQUESTRADOR)"
-check "$DIR/orquestrador-team.md" '^model: haiku' "orquestrador-team.md roda em haiku"
+check "$DIR/orquestrador-team.md" '^model: claude-haiku-4-5' "orquestrador-team.md roda em haiku"
 
 check "$DIR/orquestrador-fix.md" 'pipeline-status.sh' "orquestrador-fix.md checa pipeline em aberto antes"
 check "$DIR/orquestrador-fix.md" 'tier' "orquestrador-fix.md sugere tier"
 
 check "$DIR/orquestrador-status.md" '.agents/scripts/pipeline-status.sh' "orquestrador-status.md roda pipeline-status.sh"
-check "$DIR/orquestrador-status.md" '^model: haiku' "orquestrador-status.md roda em haiku"
+check "$DIR/orquestrador-status.md" '^model: claude-haiku-4-5' "orquestrador-status.md roda em haiku"
 check "$DIR/orquestrador-status.md" 'não altere nenhum arquivo' "orquestrador-status.md é só leitura"
 
 check "$DIR/orquestrador-pr.md" '^argument-hint: \[branch do PR\]' "orquestrador-pr.md tem argument-hint"
