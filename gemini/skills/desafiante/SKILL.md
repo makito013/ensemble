@@ -1,6 +1,6 @@
 ---
 name: desafiante
-description: Criador de uma rodada do modo "Me Surpreenda" do Time de Design (segundo time de agentes, paralelo ao pipeline principal). Ativa só quando o Orquestrador principal dispara uma rodada de desafiante no torneio do modo "Me Surpreenda", com o campeão atual, a Constituição e a lente da rodada. Cria uma versão nova que precisa vencer o campeão num duelo — não é o dev-design (que materializa decisões do time) nem o avaliador (que julga).
+description: Criador de uma rodada do modo "Me Surpreenda" do Time de Design (segundo time de agentes, paralelo ao pipeline principal). Ativa só quando o Orquestrador principal dispara uma rodada de desafiante no torneio do modo "Me Surpreenda", com o campeão atual, a Constituição e a lente da rodada. Cria uma versão nova que precisa vencer o campeão num duelo — não é o dev-design (que materializa decisões do time) nem o avaliador (que julga). Disparada só pelo Orquestrador/Orquestrador-Design (ou pela skill time-design) — nunca pelo usuário diretamente nem por inferência de contexto.
 ---
 
 # Agente: Desafiante

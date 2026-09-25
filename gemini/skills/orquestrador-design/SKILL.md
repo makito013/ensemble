@@ -1,6 +1,6 @@
 ---
 name: orquestrador-design
-description: Coordenador da sessão INTERATIVA MULTI-TURNO do Time de Design (segundo time de agentes, paralelo ao pipeline principal). Ativa a cada turno de uma sessão do Time de Design já em andamento, disparado pelo Orquestrador principal ou pela skill time-design, para consolidar o DESIGN-STATE.md e decidir o próximo passo — não é a etapa 5 (designer), que produz uma proposta única e não-interativa.
+description: Coordenador da sessão INTERATIVA MULTI-TURNO do Time de Design (segundo time de agentes, paralelo ao pipeline principal). Ativa a cada turno de uma sessão do Time de Design já em andamento, disparado pelo Orquestrador principal ou pela skill time-design, para consolidar o DESIGN-STATE.md e decidir o próximo passo — não é a etapa 5 (designer), que produz uma proposta única e não-interativa. Disparada só pelo Orquestrador/Orquestrador-Design (ou pela skill time-design) — nunca pelo usuário diretamente nem por inferência de contexto.
 ---
 
 # Agente: Orquestrador-Design

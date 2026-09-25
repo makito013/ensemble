@@ -1,6 +1,6 @@
 ---
 name: time-design
-description: Inicia uma sessão standalone do Time de Design (UX/UI), fora de qualquer pipeline principal em andamento. Ativa quando o usuário escrever "time-design".
+description: Inicia uma sessão standalone do Time de Design (UX/UI), fora de qualquer pipeline principal em andamento. Gatilho sempre manual: só ativa quando a mensagem do usuário começa com o prefixo explícito "time-design:" (sozinho ou seguido do pedido). Nunca ativa sozinho por inferência de contexto, mesmo que o pedido pareça se encaixar.
 ---
 
 # Agente: Time de Design — modo standalone

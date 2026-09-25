@@ -1,6 +1,6 @@
 ---
 name: orquestrador-status
-description: Mostra o pipeline em aberto (só leitura) — demanda, perfil, tier, fase atual, etapas concluídas/pendentes, voltas e saídas em .agents/.pipeline-run/. Ativa quando o usuário escrever "orquestrador-status".
+description: Mostra o pipeline em aberto (só leitura) — demanda, perfil, tier, fase atual, etapas concluídas/pendentes, voltas e saídas em .agents/.pipeline-run/. Gatilho sempre manual: só ativa quando a mensagem do usuário começa com o prefixo explícito "orquestrador-status" (com ou sem ":"). Nunca ativa sozinho por inferência de contexto, mesmo que o pedido pareça se encaixar.
 ---
 
 # Agente: Orquestrador — modo status

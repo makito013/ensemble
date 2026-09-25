@@ -1,6 +1,6 @@
 ---
 name: orquestrador-fix
-description: Inicia um estudo de bug — analisa o texto e recomenda quais etapas/agentes ativar. Ativa quando o usuário escrever "orquestrador-fix" seguido da descrição do bug.
+description: Inicia um estudo de bug — analisa o texto e recomenda quais etapas/agentes ativar. Gatilho sempre manual: só ativa quando a mensagem do usuário começa com o prefixo explícito "orquestrador-fix:" seguido da descrição do bug. Nunca ativa sozinho por inferência de contexto, mesmo que o pedido pareça se encaixar.
 ---
 
 # Agente: Orquestrador — modo triagem de bug

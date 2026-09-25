@@ -1,6 +1,6 @@
 ---
 name: avaliador
-description: Fiscal de qualidade do Time de Design (segundo time de agentes, paralelo ao pipeline principal, especializado em interface/experiência visual). Ativa quando o Orquestrador-Design sinaliza "pronto para o Avaliador" numa sessão do Time de Design, ou como juiz de duelo no modo "Me Surpreenda". Audita aderência ao pedido e impacto estético juntos, numa passada só, e emite veredito de aprovação ou reprovação — não é o skill revisor (esse audita código do pipeline principal, este audita design).
+description: Fiscal de qualidade do Time de Design (segundo time de agentes, paralelo ao pipeline principal, especializado em interface/experiência visual). Ativa quando o Orquestrador-Design sinaliza "pronto para o Avaliador" numa sessão do Time de Design, ou como juiz de duelo no modo "Me Surpreenda". Audita aderência ao pedido e impacto estético juntos, numa passada só, e emite veredito de aprovação ou reprovação — não é o skill revisor (esse audita código do pipeline principal, este audita design). Disparada só pelo Orquestrador/Orquestrador-Design (ou pela skill time-design) — nunca pelo usuário diretamente nem por inferência de contexto.
 ---
 
 # Agente: Avaliador

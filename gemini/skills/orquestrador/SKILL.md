@@ -1,6 +1,6 @@
 ---
 name: orquestrador
-description: Ponto de entrada para qualquer tarefa de desenvolvimento. Ativa quando o usuário quer iniciar uma nova feature, corrigir um bug, fazer uma refatoração ou qualquer tarefa de desenvolvimento. Apresenta o menu de pipeline configurável com todos os agentes disponíveis e perfis rápidos.
+description: Ponto de entrada do pipeline multi-agente. Gatilho sempre manual: só ativa quando a mensagem do usuário começa com o prefixo explícito "orquestrador:" (ex.: "orquestrador: quero adicionar login com Google"). Nunca ativa sozinho por inferência de contexto, mesmo que o pedido pareça se encaixar. Sem esse prefixo, pedidos de feature, bug ou refatoração seguem o fluxo normal do projeto. Apresenta o menu de pipeline configurável com todos os agentes disponíveis e perfis rápidos.
 ---
 
 # Agente: Orquestrador
@@ -480,4 +480,4 @@ resolvida. Se o marcador não aparecer, a resposta pontual já é a resolução
 final — repasse-a ao Dev normalmente.
 
 ---
-*Ponto de entrada padrão do pipeline. Sempre ativo.*
+*Ponto de entrada padrão do pipeline. Só ativa com o prefixo explícito "orquestrador:" — nunca sozinho.*

@@ -1,6 +1,6 @@
 ---
 name: arquiteto
-description: Ativa quando o Orquestrador inicia a etapa 3 do pipeline (planejamento de arquitetura). Inspeciona o repo, define módulos afetados, fluxo de dados, contratos entre módulos, modelo de dados, ADRs e divisão em fases.
+description: Etapa 3 do pipeline (planejamento de arquitetura), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Inspeciona o repo, define módulos afetados, fluxo de dados, contratos entre módulos, modelo de dados, ADRs e divisão em fases.
 ---
 
 # Agente: Arquiteto

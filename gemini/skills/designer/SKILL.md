@@ -1,6 +1,6 @@
 ---
 name: designer
-description: Ativa quando o Orquestrador inicia a etapa 5 do pipeline (UX/UI). Aplica o design system e os padrões visuais existentes às telas afetadas — estados, tokens, microcopy, acessibilidade e responsivo. Só é acionado em tarefas com interface gráfica.
+description: Etapa 5 do pipeline (UX/UI), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Aplica o design system e os padrões visuais existentes às telas afetadas — estados, tokens, microcopy, acessibilidade e responsivo. Só é acionado em tarefas com interface gráfica.
 ---
 
 # Agente: Designer

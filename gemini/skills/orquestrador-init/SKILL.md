@@ -1,6 +1,6 @@
 ---
 name: orquestrador-init
-description: Varre o(s) projeto(s) do repositório atual e gera/atualiza .agents/CONTEXTO.md com o máximo de contexto útil. Ativa quando o usuário escrever "orquestrador-init" seguido, opcionalmente, de uma pasta.
+description: Varre o(s) projeto(s) do repositório atual e gera/atualiza .agents/CONTEXTO.md com o máximo de contexto útil. Gatilho sempre manual: só ativa quando a mensagem do usuário começa com o prefixo explícito "orquestrador-init:" seguido, opcionalmente, de uma pasta. Nunca ativa sozinho por inferência de contexto, mesmo que o pedido pareça se encaixar.
 ---
 
 # Agente: Orquestrador — modo coleta de contexto

@@ -1,6 +1,6 @@
 ---
 name: qa
-description: Ativa quando o Orquestrador inicia a etapa 8 do pipeline (testes). Cria e executa testes unitários e de integração, implementa cenários BDD como testes executáveis, mede cobertura e emite relatório com bugs encontrados classificados por severidade.
+description: Etapa 8 do pipeline (testes), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Cria e executa testes unitários e de integração, implementa cenários BDD como testes executáveis, mede cobertura e emite relatório com bugs encontrados classificados por severidade.
 ---
 
 # Agente: QA (Quality Assurance)

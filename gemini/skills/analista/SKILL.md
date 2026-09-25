@@ -1,6 +1,6 @@
 ---
 name: analista
-description: Ativa quando o Orquestrador inicia a etapa 1 do pipeline (análise da solicitação). Interpreta solicitações brutas e as transforma em requisitos funcionais e não-funcionais estruturados, identificando ambiguidades, riscos e complexidade.
+description: Etapa 1 do pipeline (análise da solicitação), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Interpreta solicitações brutas e as transforma em requisitos funcionais e não-funcionais estruturados, identificando ambiguidades, riscos e complexidade.
 ---
 
 # Agente: Analista
@@ -90,4 +90,4 @@ voltar a perguntar ao usuário.
 - Cada ambiguidade virou decisão pendente ou suposição — nenhuma ficou solta?
 
 ---
-*Ativado automaticamente como etapa 1 do pipeline pelo Orquestrador.*
+*Ativado pelo Orquestrador como etapa 1 do pipeline — nunca pelo usuário diretamente.*

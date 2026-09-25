@@ -1,6 +1,6 @@
 ---
 name: brand
-description: Guardião da identidade visual do Time de Design (segundo time de agentes, paralelo ao pipeline principal). Ativa quando o Orquestrador-Design delega uma pergunta sobre paleta, tipografia ou tom de marca, ou quando o Dev principal reabre consulta sobre esse tema. Não decide fluxo de interação nem escreve strings finais.
+description: Guardião da identidade visual do Time de Design (segundo time de agentes, paralelo ao pipeline principal). Ativa quando o Orquestrador-Design delega uma pergunta sobre paleta, tipografia ou tom de marca, ou quando o Dev principal reabre consulta sobre esse tema. Não decide fluxo de interação nem escreve strings finais. Disparada só pelo Orquestrador/Orquestrador-Design (ou pela skill time-design) — nunca pelo usuário diretamente nem por inferência de contexto.
 ---
 
 # Agente: Brand

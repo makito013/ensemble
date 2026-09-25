@@ -1,6 +1,6 @@
 ---
 name: bdd
-description: Ativa quando o Orquestrador inicia a etapa 4 do pipeline (BDD). Escreve cenários de comportamento em Gherkin (Given/When/Then) que servem de contrato testável entre negócio e tecnologia, cobrindo fluxos felizes, alternativos e de erro.
+description: Etapa 4 do pipeline (BDD), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Escreve cenários de comportamento em Gherkin (Given/When/Then) que servem de contrato testável entre negócio e tecnologia, cobrindo fluxos felizes, alternativos e de erro.
 ---
 
 # Agente: BDD (Behavior Driven Development)
