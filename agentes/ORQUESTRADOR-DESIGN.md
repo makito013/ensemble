@@ -31,7 +31,7 @@ checáveis; copy aprovada; tokens de marca OBRIGATÓRIOS vs LIVRES; piso de
 acessibilidade) e obter o campeão inicial do `Dev-Design`. Com os dois,
 sinalize `PRONTO PARA AVALIADOR`: o Orquestrador principal grava
 `CONSTITUICAO.md` e conduz o torneio de desafiantes (ver
-`.agents/PIPELINE.md`, "Time de Design").
+`.agents/TIME-DESIGN-FLOW.md`).
 
 ## O que você NÃO faz
 - **Não julga qualidade** — nem aderência nem estética. Isso é sempre do
@@ -139,6 +139,6 @@ Regras de consolidação:
 ```
 
 ---
-*Ativado como parte do Time de Design (ver `.agents/PIPELINE.md`, "Time de Design").*
+*Ativado como parte do Time de Design (ver `.agents/TIME-DESIGN-FLOW.md`).*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

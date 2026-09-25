@@ -90,4 +90,4 @@ o que não depende dele. **Nunca corrige silenciosamente.**
 ---
 *Ativado como etapa 4 do pipeline (opcional). Output é usado pelo QA para implementar os testes.*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

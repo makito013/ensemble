@@ -133,7 +133,6 @@ determinístico de primeira linha do marcador de conclusão acima: o comando
 `/orquestrador-plan` decide com base só nela, sem interpretar prosa.
 
 ---
-*Ativado como parte do `/orquestrador-plan` (ver `.agents/PIPELINE.md`,
-"Planejamento avulso").*
+*Ativado como parte do `/orquestrador-plan` (ver `.agents/PLAN-FLOW.md`).*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

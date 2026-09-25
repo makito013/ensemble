@@ -5,7 +5,7 @@ argument-hint: <caminho-do-projeto>
 
 Este comando só faz sentido rodando dentro do repo-fonte `agentes-pipeline`
 (este repositório) — é aqui que vivem os arquivos de persona-fonte que ele
-atualiza. Consulte `agentes/PIPELINE.md` (seção "Convenção: seção `##
+atualiza. Consulte `agentes/APRENDIZADOS.md` (seção "Convenção: seção `##
 Aprendizados` nas personas") para o formato completo.
 
 Caminho do projeto a sincronizar:
@@ -21,11 +21,11 @@ Passos:
    aprovar como está, editar o texto, ou descartar.
 3. Regra aprovada (com ou sem edição): adicione um bullet na seção
    `## Aprendizados` de `agentes/<PERSONA>.md` (crie a seção, imediatamente
-   antes do bloco final — `---` + nota de ativação + linha-ponteiro `Ver
-   "Subagentes e escolha de modelo"...` —, se ainda não existir) — e
-   replique o mesmo bullet numa seção `## Aprendizados` equivalente em
-   `gemini/skills/<persona>/SKILL.md` (sem a linha-ponteiro, que esse lado
-   não tem). A data do bullet é a data original da entrada na fila (o
+   antes do bloco final — `---` + nota de ativação + linha de rodapé
+   `Modelo: definido pelo Orquestrador (ver .agents/MODELOS.md).` —, se
+   ainda não existir) — e replique o mesmo bullet numa seção
+   `## Aprendizados` equivalente em `gemini/skills/<persona>/SKILL.md` (sem
+   a linha de rodapé de modelo, que esse lado não tem). A data do bullet é a data original da entrada na fila (o
    `<data>` que já vem no bullet de `.aprendizados-globais-pendentes.md`),
    não a data de hoje em que o sync está rodando.
 4. Depois de decididas todas as regras do arquivo (aprovadas ou

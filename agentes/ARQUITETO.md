@@ -63,4 +63,4 @@ Em tier `spike`, entregue só o mínimo: módulos afetados, contratos que mudam 
 ---
 *Ativado como etapa 3 do pipeline. Recebe ANALISTA (+ PO); entrega a estrutura que o TL detalha em tarefas.*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

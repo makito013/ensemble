@@ -38,4 +38,4 @@ Formato: `[DESIGNER]` no início da resposta.
 ---
 *Ativado como etapa 5 do pipeline (só com interface). Com o Time de Design ativo, esta etapa fica desmarcada — o resultado do Time é a saída da etapa 5.*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).
