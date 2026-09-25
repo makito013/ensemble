@@ -1,7 +1,7 @@
 ---
 description: Consulta ou edita .agents/TEAM.md — quais das 10 etapas do pipeline ficam ativas por padrão neste projeto.
 argument-hint: [ação opcional: listar|ativar N|desativar N]
-model: haiku
+model: claude-haiku-4-5-20251001
 ---
 
 Tarefa mecânica do Orquestrador: não carregue `.agents/ORQUESTRADOR.md` nem

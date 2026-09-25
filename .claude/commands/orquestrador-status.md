@@ -1,7 +1,7 @@
 ---
 description: Mostra o pipeline em aberto (só leitura) — demanda, perfil, tier, fase atual, etapas concluídas/pendentes, voltas e saídas em .agents/.pipeline-run/.
 argument-hint: (sem argumentos)
-model: haiku
+model: claude-haiku-4-5-20251001
 ---
 
 Tarefa só de leitura: não carregue `.agents/ORQUESTRADOR.md` nem

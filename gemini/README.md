@@ -32,11 +32,13 @@ gemini/
     ├── orquestrador-fix/      → estudo de bug: recomenda quais etapas ativar
     ├── orquestrador-init/     → gera/atualiza .agents/CONTEXTO.md
     ├── orquestrador-team/     → consulta/edita .agents/TEAM.md
+    ├── orquestrador-status/   → mostra o pipeline em aberto (só leitura)
     │
     │   # Time de Design (UX/UI, paralelo ao pipeline principal)
     ├── time-design/           → inicia uma sessão standalone do Time de Design
     ├── orquestrador-design/   → coordena a sessão interativa do Time de Design
     ├── avaliador/             → fiscal de qualidade do Time de Design
+    ├── desafiante/            → cria a versão que tenta superar o campeão (Me Surpreenda)
     ├── ux/                    → fluxo de interação e hierarquia de informação
     ├── dev-design/            → implementador do Time de Design
     ├── copywriter/            → microcopy
