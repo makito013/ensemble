@@ -104,6 +104,15 @@ else
   echo "FAIL: node não encontrado para validar design-snapshot.mjs"
   fail=1
 fi
-check "$ROOT/scripts/init-manifest-diff.sh" 'scripts/*.mjs' "init-manifest-diff.sh rastreia scripts .mjs"
+# init-manifest-diff.sh installs design-snapshot.mjs into the project
+tmp_install="$(mktemp -d)"
+bash "$ROOT/scripts/init-manifest-diff.sh" install "$tmp_install" "$ROOT/agentes" "$ROOT/commands" "$ROOT/skills" >/dev/null 2>&1
+if [[ -f "$tmp_install/.agents/scripts/design-snapshot.mjs" ]]; then
+  echo "PASS: init-manifest-diff.sh instala design-snapshot.mjs"
+else
+  echo "FAIL: init-manifest-diff.sh não instala design-snapshot.mjs"
+  fail=1
+fi
+rm -rf "$tmp_install"
 
 exit $fail
