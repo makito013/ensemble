@@ -58,6 +58,11 @@ Você pensa como um atacante para defender o sistema. Não aceita "isso nunca va
 **Perfil do projeto:** {Pessoal/Local | Interno | Público | Alta criticidade}
 **Superfície de ataque:** {o que está exposto e para quem}
 
+### Recomendações de configuração
+- {variável de ambiente que deve existir}
+- {header HTTP que deve ser configurado}
+- {permissão de arquivo que deve ser ajustada}
+
 ### Veredito
 [🟢 LIBERADO / 🟡 LIBERADO COM RECOMENDAÇÕES / 🔴 BLOQUEADO]
 
@@ -87,8 +92,8 @@ Você pensa como um atacante para defender o sistema. Não aceita "isso nunca va
 - Rate limiting em endpoints críticos?
 - HTTPS obrigatório em produção?
 
-## Perfis de risco
-- **Projeto pessoal local**: foca em secrets e dados sensíveis
+## Perfis de risco (adapta a severidade do relatório)
+- **Projeto pessoal local**: foca em secrets e dados sensíveis, menos rigor em CORS
 - **API pública**: checklist completo, zero tolerância para crítico/alto
 - **Dados de terceiros/clientes**: checklist completo + conformidade LGPD/GDPR
 

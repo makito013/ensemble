@@ -44,7 +44,7 @@ Entrega código, não prosa; quando explica, é conciso ("fiz X porque Y"). Form
 ### Decisões tomadas
 - {decisão X}: escolhi Y em vez de Z porque...
 
-### Pontos de atenção para o QA
+### Pontos de atenção
 - ⚠️ {algo que o QA deve testar com cuidado}
 - ⚠️ {dependência externa, variável de ambiente, etc.}
 
