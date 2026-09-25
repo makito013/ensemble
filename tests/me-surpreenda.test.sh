@@ -42,7 +42,7 @@ for f in "$A/DESAFIANTE.md" "$G/desafiante/SKILL.md"; do
   check "$f" 'candidato-r<k>.html' "$(basename "$(dirname "$f")")/$(basename "$f"): caminho do candidato"
   check "$f" 'prefers-reduced-motion' "$(basename "$(dirname "$f")")/$(basename "$f"): piso de movimento"
 done
-check "$A/DESAFIANTE.md" 'Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.' "DESAFIANTE.md tem a linha-ponteiro"
+check "$A/DESAFIANTE.md" 'Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).' "DESAFIANTE.md tem o rodapé de modelo"
 check "$G/desafiante/SKILL.md" 'name: desafiante' "gemini desafiante tem frontmatter name"
 
 # --- AVALIADOR: modo duelo, header determinístico, crítica do campeão ---
@@ -58,7 +58,7 @@ for f in "$A/AVALIADOR.md" "$G/avaliador/SKILL.md"; do
 done
 
 # --- ORQUESTRADOR: Constituição, lentes, parada, contexto não cresce ---
-for f in "$A/ORQUESTRADOR.md" "$G/orquestrador/SKILL.md"; do
+for f in "$A/TIME-DESIGN-FLOW.md" "$G/orquestrador/SKILL.md"; do
   check "$f" 'Modo "Me Surpreenda"' "$f: seção do modo"
   check "$f" 'CONSTITUICAO.md' "$f: Constituição"
   check "$f" 'Quebra de' "$f: baralho de lentes"
@@ -69,8 +69,9 @@ for f in "$A/ORQUESTRADOR.md" "$G/orquestrador/SKILL.md"; do
   check "$f" 'galeria.html' "$f: galeria ao parar"
   check "$f" 'DELEGAR: <papel>' "$f: loop do modo padrão ligado (DELEGAR)"
 done
-check "$A/PIPELINE.md" 'DESAFIANTE' "PIPELINE.md lista o Desafiante"
-check "$A/PIPELINE.md" 'modo duelo sempre rodam em Opus' "PIPELINE.md: modelo do torneio"
+check "$A/TIME-DESIGN-FLOW.md" 'DESAFIANTE' "TIME-DESIGN-FLOW.md lista o Desafiante"
+check "$A/MODELOS.md" 'modo duelo sempre rodam em Opus' "MODELOS.md: modelo do torneio"
+check "$A/ORQUESTRADOR.md" '.agents/TIME-DESIGN-FLOW.md' "ORQUESTRADOR.md (núcleo) manda ler o fluxo do Time de Design"
 
 # --- ORQUESTRADOR-DESIGN: modo e artefatos no DESIGN-STATE, estado íntegro ---
 for f in "$A/ORQUESTRADOR-DESIGN.md" "$G/orquestrador-design/SKILL.md"; do
