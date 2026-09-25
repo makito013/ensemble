@@ -53,9 +53,18 @@ check_file_exists() {
   fi
 }
 
+# Todas as skills de cada adapter, não uma lista fixa: um dispatcher novo sem
+# a trava tem que falhar aqui. As duas escritas à mão precisam estar presentes.
+skills_in() { find "$1/skills" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | LC_ALL=C sort; }
+for adapter in "$CODEX" "$CURSOR"; do
+  for required in orquestrador init-project; do
+    check_file_exists "$adapter/skills/$required/SKILL.md" "${adapter#$ROOT/}/$required presente"
+  done
+done
+
 # --- Codex: skills + trava de invocação implícita ---------------------------
 
-for skill in orquestrador init-project; do
+for skill in $(skills_in "$CODEX"); do
   check "$CODEX/skills/$skill/SKILL.md" "^name: $skill$" "codex/$skill tem name correto"
 
   yaml="$CODEX/skills/$skill/agents/openai.yaml"
@@ -77,7 +86,7 @@ done
 
 # --- Cursor: skills + trava de invocação implícita --------------------------
 
-for skill in orquestrador init-project; do
+for skill in $(skills_in "$CURSOR"); do
   check "$CURSOR/skills/$skill/SKILL.md" "^name: $skill$" "cursor/$skill tem name correto"
   check "$CURSOR/skills/$skill/SKILL.md" '^disable-model-invocation: true$' \
     "cursor/$skill: disable-model-invocation true no frontmatter"
@@ -127,15 +136,16 @@ while IFS= read -r f; do
     echo "FAIL: ${f#$ROOT/} tem $n linha(s) com CRLF"
     fail=1
   fi
-done < <(find "$CODEX" "$CURSOR" -type f \( -name '*.md' -o -name '*.yaml' \) | sort)
+done < <(find "$CODEX" "$CURSOR" -type f \( -name '*.md' -o -name '*.mdc' -o -name '*.yaml' \) | sort)
 
-# codex/ + cursor/ têm hoje 7 arquivos .md/.yaml (2 SKILL.md + 1 openai.yaml
-# por skill do Codex, 2 SKILL.md do Cursor, 1 AGENTS-block.md). Se cair abaixo
-# disso, o sweep de CRLF acima não cobriu o que devia.
-if [[ "$swept" -ge 7 ]]; then
-  echo "PASS: sweep de CRLF cobriu $swept arquivo(s) de codex/+cursor/ (>= 7 esperados)"
+# Mínimo esperado: SKILL.md + agents/openai.yaml por skill do Codex, SKILL.md
+# por skill do Cursor e o AGENTS-block.md. Se cair abaixo disso, o sweep de
+# CRLF acima não cobriu o que devia.
+expected=$(( 2 * $(skills_in "$CODEX" | wc -l) + $(skills_in "$CURSOR" | wc -l) + 1 ))
+if [[ "$expected" -ge 7 && "$swept" -ge "$expected" ]]; then
+  echo "PASS: sweep de CRLF cobriu $swept arquivo(s) de codex/+cursor/ (>= $expected esperados)"
 else
-  echo "FAIL: sweep de CRLF cobriu só $swept arquivo(s) de codex/+cursor/ (esperado >= 7) — find retornou lista vazia ou incompleta"
+  echo "FAIL: sweep de CRLF cobriu só $swept arquivo(s) de codex/+cursor/ (esperado >= $expected, mínimo 7) — find retornou lista vazia ou incompleta"
   fail=1
 fi
 

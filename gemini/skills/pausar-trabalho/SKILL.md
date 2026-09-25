@@ -23,6 +23,11 @@ projeto.
    <resumo do passo 1>
    EOF
    ```
+   Só existe um checkpoint por diretório. Se o stderr do comando trouxer a
+   linha `AVISO_CHECKPOINT_SOBRESCRITO paused_at=<data>`, havia uma pausa
+   anterior ainda não retomada neste diretório e ela foi substituída.
 3. Confirme pro usuário, em uma frase curta, que o progresso foi salvo e que
    ele pode retomar depois com `/continuar-trabalho` — nesta ferramenta ou
-   no Claude Code, desde que seja o mesmo diretório de projeto.
+   no Claude Code, desde que seja o mesmo diretório de projeto. Se houve o
+   aviso do passo 2, diga também, explicitamente, que a pausa anterior (de
+   `<data>`) foi sobrescrita.

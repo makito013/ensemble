@@ -204,6 +204,67 @@ else
   fail=1
 fi
 
+# --- superpowers-antigravity is checked out at a pinned revision ---
+PIN_HOME="$FIXTURE/home-pin"
+PIN_BIN="$FIXTURE/pin-bin"
+PIN_LOG="$FIXTURE/pin-git.log"
+mkdir -p "$PIN_HOME" "$PIN_BIN"
+cat > "$PIN_BIN/git" <<'PINGIT_EOF'
+#!/usr/bin/env bash
+echo "$*" >> "$PIN_GIT_LOG"
+if [[ "$1" == "clone" ]]; then
+  mkdir -p "$3/.git"
+fi
+exit 0
+PINGIT_EOF
+chmod +x "$PIN_BIN/git"
+
+PINNED_REF="$(sed -n 's/^ANTIGRAVITY_PLUGIN_DEFAULT_REF="\(.*\)"$/\1/p' "$INSTALLER")"
+if [[ "$PINNED_REF" =~ ^[0-9a-f]{40}$ ]]; then
+  echo "PASS: install.sh fixa superpowers-antigravity num SHA completo ($PINNED_REF)"
+else
+  echo "FAIL: ANTIGRAVITY_PLUGIN_DEFAULT_REF ausente ou não é um SHA de 40 caracteres: '$PINNED_REF'"
+  fail=1
+fi
+PS1_REF="$(sed -n 's/^\$AntigravityPluginDefaultRef = "\(.*\)"\r\{0,1\}$/\1/p' "$SCRIPT_DIR/install.ps1" | tr -d '\r')"
+if [[ -n "$PINNED_REF" && "$PS1_REF" == "$PINNED_REF" ]]; then
+  echo "PASS: install.ps1 fixa a mesma revisão que install.sh"
+else
+  echo "FAIL: revisão fixada diverge entre install.sh ('$PINNED_REF') e install.ps1 ('$PS1_REF')"
+  fail=1
+fi
+
+HOME="$PIN_HOME" PATH="$PIN_BIN:$PATH" PIN_GIT_LOG="$PIN_LOG" AGENTES_PIPELINE_AI_TARGETS=claude,antigravity \
+  bash "$INSTALLER" > "$FIXTURE/out-pin.txt" 2>&1 || true
+if grep -q "checkout --quiet $PINNED_REF" "$PIN_LOG" 2>/dev/null; then
+  echo "PASS: clone novo faz checkout da revisão fixada"
+else
+  echo "FAIL: checkout da revisão fixada não aconteceu. git log: $(cat "$PIN_LOG" 2>/dev/null)"
+  fail=1
+fi
+
+: > "$PIN_LOG"
+HOME="$FIXTURE/home-pin-override" PATH="$PIN_BIN:$PATH" PIN_GIT_LOG="$PIN_LOG" \
+  SUPERPOWERS_ANTIGRAVITY_REF=v9.9.9 AGENTES_PIPELINE_AI_TARGETS=claude,antigravity \
+  bash "$INSTALLER" > "$FIXTURE/out-pin-override.txt" 2>&1 || true
+if grep -q "checkout --quiet v9.9.9" "$PIN_LOG" 2>/dev/null; then
+  echo "PASS: SUPERPOWERS_ANTIGRAVITY_REF sobrescreve a revisão fixada"
+else
+  echo "FAIL: SUPERPOWERS_ANTIGRAVITY_REF ignorado. git log: $(cat "$PIN_LOG" 2>/dev/null)"
+  fail=1
+fi
+
+# Re-running with the clone already present does not clone or checkout again.
+: > "$PIN_LOG"
+HOME="$PIN_HOME" PATH="$PIN_BIN:$PATH" PIN_GIT_LOG="$PIN_LOG" AGENTES_PIPELINE_AI_TARGETS=claude,antigravity \
+  bash "$INSTALLER" > "$FIXTURE/out-pin-repeat.txt" 2>&1 || true
+if ! grep -qE '^clone|checkout' "$PIN_LOG" 2>/dev/null; then
+  echo "PASS: segunda execução com clone presente é idempotente (sem clone/checkout)"
+else
+  echo "FAIL: segunda execução mexeu no clone existente: $(cat "$PIN_LOG")"
+  fail=1
+fi
+
 # --- seleção de IAs (ai-targets) ---
 AI_CONFIG_REL=".config/agentes-pipeline/ai-targets.json"
 

@@ -4,6 +4,14 @@
 # Uso:
 #   init-manifest-diff.sh generate <project_root> <template_agentes_dir> <template_commands_dir> <template_skills_dir>
 #   init-manifest-diff.sh apply    <project_root> <template_agentes_dir> <template_commands_dir> <template_skills_dir>
+#   init-manifest-diff.sh backup   <project_root> <template_agentes_dir> <template_commands_dir> <template_skills_dir> [timestamp]
+#   init-manifest-diff.sh install  <project_root> <template_agentes_dir> <template_commands_dir> <template_skills_dir>
+#
+# "Template file" has a single definition: tracked_files() below. `install`
+# overwrites ONLY those paths (everything else under .agents/ is project data
+# and stays in place), and `backup` copies the whole .agents/ plus the tracked
+# .claude/ files to <project_root>/.agents-backups/<timestamp>/ -- outside
+# .agents/, so backups never nest inside each other.
 set -euo pipefail
 shopt -s nullglob
 
@@ -30,14 +38,24 @@ manifest_get() {
   printf '%s' "$line" | sed -E 's/^[^:]*: *"([^"]*)".*/\1/'
 }
 
+# Test files (*.test.sh, *.test.mjs, ...) live next to the templates in the
+# source repo but are never template files: they must not reach projects.
+is_test_file() {
+  case "$(basename "$1")" in
+    *.test.*) return 0 ;;
+  esac
+  return 1
+}
+
 tracked_files() {
   local template_agentes="$1" template_commands="$2" template_skills="$3" f d name
   for f in "$template_agentes"/*.md; do
     [[ -e "$f" ]] || continue
     printf '.agents/%s\n' "$(basename "$f")"
   done
-  for f in "$template_agentes"/scripts/*.sh; do
-    [[ -e "$f" ]] || continue
+  for f in "$template_agentes"/scripts/*; do
+    [[ -f "$f" ]] || continue
+    is_test_file "$f" && continue
     printf '.agents/scripts/%s\n' "$(basename "$f")"
   done
   for f in "$template_commands"/*.md; do
@@ -168,11 +186,99 @@ cmd_apply() {
   fi
 }
 
+# Full copy of the project's pipeline data to .agents-backups/<ts>/, taken
+# BEFORE any template file is overwritten. Copy, never move: nothing in the
+# live .agents/ changes here. Legacy in-tree backups (.agents/.backup-*) from
+# older versions of init-project are left where they are and are not copied
+# again (copying them is what made backups nest and grow on every reinstall).
+cmd_backup() {
+  local project_root="$1" template_agentes="$2" template_commands="$3" template_skills="$4"
+  local ts="${5:-}"
+  [[ -n "$ts" ]] || ts="$(date +%Y%m%d-%H%M%S)"
+  local base="$project_root/.agents-backups"
+  local name="$ts" n=1
+  while [[ -e "$base/$name" ]]; do
+    n=$((n+1))
+    name="$ts-$n"
+  done
+  local dest="$base/$name"
+  mkdir -p "$dest/.agents"
+
+  local entry legacy=0
+  if [[ -d "$project_root/.agents" ]]; then
+    for entry in "$project_root/.agents"/* "$project_root/.agents"/.[!.]* "$project_root/.agents"/..?*; do
+      [[ -e "$entry" ]] || continue
+      case "$(basename "$entry")" in
+        .backup-*) legacy=$((legacy+1)); continue ;;
+      esac
+      cp -Rp "$entry" "$dest/.agents/"
+    done
+  fi
+
+  local rel
+  while IFS= read -r rel; do
+    case "$rel" in
+      .claude/*)
+        [[ -f "$project_root/$rel" ]] || continue
+        mkdir -p "$dest/$(dirname "$rel")"
+        cp -p "$project_root/$rel" "$dest/$rel"
+        ;;
+    esac
+  done < <(tracked_files "$template_agentes" "$template_commands" "$template_skills")
+
+  echo "BACKUP=.agents-backups/$name"
+  echo "LEGACY_BACKUPS=$legacy"
+}
+
+# Overwrites every template file (tracked_files) with the template version and
+# writes a manifest whose baseline is the TEMPLATE hash (same rule as apply).
+# Never deletes anything and never touches non-template paths, so project data
+# (CONTEXTO.md, TEAM.md, PIPELINE-STATE.md, .pipeline-history/, design-system/,
+# planos/, skills/, ...) stays exactly where it is.
+cmd_install() {
+  local project_root="$1" template_agentes="$2" template_commands="$3" template_skills="$4"
+  local manifest="$project_root/.agents/.init-manifest.json"
+  local rel tpl_path local_path count=0
+  local -a rels=() hashes=()
+  mkdir -p "$project_root/.agents"
+  while IFS= read -r rel; do
+    tpl_path="$(template_path_of "$rel" "$template_agentes" "$template_commands" "$template_skills")"
+    local_path="$project_root/$rel"
+    mkdir -p "$(dirname "$local_path")"
+    cp "$tpl_path" "$local_path"
+    count=$((count+1))
+    rels+=("$rel")
+    hashes+=("$(sha256_of "$tpl_path")")
+  done < <(tracked_files "$template_agentes" "$template_commands" "$template_skills")
+
+  {
+    echo "{"
+    echo "  \"generatedAt\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\","
+    echo "  \"files\": {"
+    local i last=$(( ${#rels[@]} - 1 ))
+    if [[ ${#rels[@]} -gt 0 ]]; then
+      for i in "${!rels[@]}"; do
+        if [[ "$i" -eq "$last" ]]; then
+          echo "    \"$(json_escape "${rels[$i]}")\": \"${hashes[$i]}\""
+        else
+          echo "    \"$(json_escape "${rels[$i]}")\": \"${hashes[$i]}\","
+        fi
+      done
+    fi
+    echo "  }"
+    echo "}"
+  } > "$manifest"
+
+  echo "INSTALLED=$count"
+}
+
 case "${1:-}" in
   generate) cmd_generate "$2" "$3" "$4" "$5" ;;
   apply) cmd_apply "$2" "$3" "$4" "$5" ;;
+  backup) cmd_backup "$2" "$3" "$4" "$5" "${6:-}" ;;
+  install) cmd_install "$2" "$3" "$4" "$5" ;;
   *)
-    echo "Uso: init-manifest-diff.sh {generate|apply} <project_root> <template_agentes_dir> <template_commands_dir> <template_skills_dir>" >&2
+    echo "Uso: init-manifest-diff.sh {generate|apply|backup|install} <project_root> <template_agentes_dir> <template_commands_dir> <template_skills_dir>" >&2
     exit 1
     ;;
 esac

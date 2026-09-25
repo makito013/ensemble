@@ -10,31 +10,47 @@ para o **Antigravity (Google Gemini CLI)**. É a versão paralela à pasta `agen
 
 ## Estrutura
 
+Cada skill é uma pasta com um único `SKILL.md` (27 no total):
+
 ```
 gemini/
 └── skills/
-    ├── orquestrador/   → etapa 0 — ponto de entrada de toda solicitação
-    │   └── SKILL.md
-    ├── analista/       → etapa 1 — interpreta e estrutura o que foi pedido
-    │   └── SKILL.md
-    ├── po/             → etapa 2 — refina requisitos como Product Owner
-    │   └── SKILL.md
-    ├── arquiteto/      → etapa 3 — planeja arquitetura do sistema
-    │   └── SKILL.md
-    ├── bdd/            → etapa 4 — escreve cenários Gherkin
-    │   └── SKILL.md
-    ├── designer/       → etapa 5 — propõe UX/UI (só se houver interface)
-    │   └── SKILL.md
-    ├── tl/             → etapa 6 — planeja implementação técnica
-    │   └── SKILL.md
-    ├── dev/            → etapa 7 — implementa o código
-    │   └── SKILL.md
-    ├── qa/             → etapa 8 — cria e executa testes
-    │   └── SKILL.md
-    ├── revisor/        → etapa 9 — revisa o que foi pedido vs. entregue
-    │   └── SKILL.md
-    └── seguranca/      → etapa 10 — auditoria de segurança (OWASP)
-        └── SKILL.md
+    │   # Pipeline principal
+    ├── orquestrador/          → etapa 0 — ponto de entrada de toda solicitação
+    ├── analista/              → etapa 1 — interpreta e estrutura o que foi pedido
+    ├── po/                    → etapa 2 — refina requisitos como Product Owner
+    ├── arquiteto/             → etapa 3 — planeja arquitetura do sistema
+    ├── bdd/                   → etapa 4 — escreve cenários Gherkin
+    ├── designer/              → etapa 5 — propõe UX/UI (só se houver interface)
+    ├── tl/                    → etapa 6 — planeja implementação técnica
+    ├── dev/                   → etapa 7 — implementa o código
+    ├── qa/                    → etapa 8 — cria e executa testes
+    ├── revisor/               → etapa 9 — revisa o que foi pedido vs. entregue
+    ├── seguranca/             → etapa 10 — auditoria de segurança (OWASP)
+    │
+    │   # Comandos auxiliares do Orquestrador
+    ├── orquestrador-fix/      → estudo de bug: recomenda quais etapas ativar
+    ├── orquestrador-init/     → gera/atualiza .agents/CONTEXTO.md
+    ├── orquestrador-team/     → consulta/edita .agents/TEAM.md
+    ├── orquestrador-status/   → mostra o pipeline em aberto (só leitura)
+    ├── orquestrador-pr/       → revisão de PR local (Revisor + Segurança)
+    ├── orquestrador-plan/     → planejamento avulso de uma ideia (Grill, opções, protótipos)
+    ├── grill/                 → interrogador socrático do orquestrador-plan
+    │
+    │   # Time de Design (UX/UI, paralelo ao pipeline principal)
+    ├── time-design/           → inicia uma sessão standalone do Time de Design
+    ├── orquestrador-design/   → coordena a sessão interativa do Time de Design
+    ├── avaliador/             → fiscal de qualidade do Time de Design
+    ├── desafiante/            → cria a versão que tenta superar o campeão (Me Surpreenda)
+    ├── ux/                    → fluxo de interação e hierarquia de informação
+    ├── dev-design/            → implementador do Time de Design
+    ├── copywriter/            → microcopy
+    ├── acessibilidade/        → auditoria e veto de acessibilidade
+    ├── brand/                 → guardião da identidade visual
+    │
+    │   # Continuidade de trabalho
+    ├── pausar-trabalho/       → salva um checkpoint do que está em andamento
+    └── continuar-trabalho/    → retoma o checkpoint salvo (e o limpa)
 ```
 
 ## Pré-requisitos
@@ -71,6 +87,8 @@ Instale via Git na pasta de config global do Antigravity:
 ```bash
 git clone https://github.com/roundpilot/superpowers-antigravity \
   ~/.gemini/config/plugins/superpowers
+# revisão fixada pelo install.sh/install.ps1 (SUPERPOWERS_ANTIGRAVITY_REF sobrescreve):
+git -C ~/.gemini/config/plugins/superpowers checkout adc31f80fc2252f09b077604a483a4ead85ee554
 ```
 
 Ou, se houver um gerenciador de plugins do `agy`:
@@ -174,6 +192,8 @@ npm install -g @google/antigravity
 # 2. Instalar o plugin Superpowers
 git clone https://github.com/roundpilot/superpowers-antigravity \
   ~/.gemini/config/plugins/superpowers
+# revisão fixada pelo install.sh/install.ps1 (SUPERPOWERS_ANTIGRAVITY_REF sobrescreve):
+git -C ~/.gemini/config/plugins/superpowers checkout adc31f80fc2252f09b077604a483a4ead85ee554
 
 # 3. Clonar este repositório de agentes
 git clone <url-deste-repo> ~/agentes-pipeline

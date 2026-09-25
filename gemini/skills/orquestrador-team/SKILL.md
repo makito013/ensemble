@@ -1,6 +1,6 @@
 ---
 name: orquestrador-team
-description: Consulta ou edita .agents/TEAM.md — quais das 10 etapas do pipeline ficam ativas por padrão neste projeto. Ativa quando o usuário escrever "orquestrador-team".
+description: Consulta ou edita .agents/TEAM.md — quais das 10 etapas do pipeline ficam ativas por padrão neste projeto. Gatilho sempre manual: só ativa quando a mensagem do usuário começa com o prefixo explícito "orquestrador-team:" (sozinho, para listar, ou seguido da ação). Nunca ativa sozinho por inferência de contexto, mesmo que o pedido pareça se encaixar.
 ---
 
 # Agente: Orquestrador — modo time padrão

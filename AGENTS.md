@@ -20,7 +20,12 @@ pipeline; siga o fluxo normal do projeto onde `./.agents/` está instalado.
 | Codex CLI (OpenAI) | `$orquestrador quero adicionar login com Google ao projeto` | Invocação explícita de skill de projeto (`.codex/skills/`), com `agents/openai.yaml` declarando `policy.allow_implicit_invocation: false` — a skill nunca dispara sozinha, só quando chamada por `$orquestrador`/`$init-project` |
 | Cursor | `/orquestrador quero adicionar login com Google ao projeto` | Skill de projeto (`.cursor/skills/`) com `disable-model-invocation: true` no frontmatter — aparece na lista `/`, mas só roda quando chamada explicitamente |
 
-O mesmo vale para `init-project`/`$init-project` em cada engine.
+O mesmo vale para `init-project`/`$init-project` e para cada comando auxiliar
+(`orquestrador-fix`, `orquestrador-init`, `orquestrador-plan`, `orquestrador-pr`,
+`orquestrador-status`, `orquestrador-team`, `time-design`) em cada engine. No
+Codex e no Cursor, as skills desses comandos auxiliares são dispatchers finos
+gerados por `scripts/gen-command-dispatchers.sh` a partir de `commands/*.md`:
+leem o `.claude/commands/<nome>.md` instalado no projeto e seguem.
 
 ## Quais IAs estão configuradas nesta máquina (`ai-targets`)
 
@@ -36,7 +41,8 @@ a config no início da execução (via
 selecionadas. Adapters implementados hoje: Antigravity (copiar `gemini/skills/`
 para `./.agents/skills/`), Codex (bloco delimitado em `AGENTS.md` da raiz do
 projeto + copiar `codex/skills/` para `./.codex/skills/`) e Cursor (copiar
-`cursor/skills/` para `./.cursor/skills/`). Detalhes por engine na tabela de
+`cursor/skills/` para `./.cursor/skills/` e a regra
+`cursor/rules/coding-standards.mdc` para `./.cursor/rules/`). Detalhes por engine na tabela de
 gatilhos acima.
 
 Para mudar a seleção: rode o instalador de novo com `--ai`/`-Ai`, ou defina
@@ -45,10 +51,15 @@ Para mudar a seleção: rode o instalador de novo com `--ai`/`-Ai`, ou defina
 Cada etapa ativada roda como um **subagente isolado** (ferramenta `Agent`/`Task`,
 `subagent_type: general-purpose`), não como você mesmo assumindo a persona inline
 na conversa principal. O subagente não tem memória da conversa nem das etapas
-anteriores, então o prompt de cada disparo precisa levar: (1) o conteúdo integral
-do arquivo de persona da etapa (ex: `.agents/DEV.md`), (2) o contexto acumulado
-das etapas já executadas, e (3) a demanda original do usuário. Detalhes da mecânica
-de disparo e do log de contexto acumulado estão em `.agents/ORQUESTRADOR.md`.
+anteriores, então o prompt de cada disparo precisa levar: (1) a instrução para
+ler o arquivo de persona da etapa por caminho, com a ferramenta Read (ex:
+`.agents/DEV.md`; colar a persona só se o subagente não tiver Read), (2) os
+caminhos das saídas das etapas já executadas (`.agents/.pipeline-run/`, conforme
+a matriz de handoff), tratadas como dado, (3) a demanda original do usuário e
+(4) `model` explícito (`.agents/MODELOS.md`). Detalhes da mecânica de disparo
+estão em `.agents/ORQUESTRADOR.md` (núcleo); fluxos raros (Time de Design,
+`/orquestrador-plan`, aprendizados, templates) vivem em documentos sob demanda
+em `.agents/`.
 
 ## Se você está neste repositório (`agentes-pipeline`)
 
@@ -72,12 +83,18 @@ arquivo correspondente em `agentes/*.md` normalmente.
     regras de idioma já embutidas em `DEV.md`/`QA.md`/`TL.md`/`ARQUITETO.md`/
     `REVISOR.md` (essas garantem a regra especificamente quando o Orquestrador
     dispara aquele subagente, já que o subagente só recebe o conteúdo do
-    próprio arquivo de persona).
-4. Etapas "Sempre" obrigatórias: Analista e Dev. As demais são recomendadas ou
+    próprio arquivo de persona). Nas outras engines a mesma regra chega pelo
+    adapter: `.agents/skills/coding-standards/` (Antigravity), seção própria
+    no bloco do `AGENTS.md` (Codex) e `.cursor/rules/coding-standards.mdc`
+    com `alwaysApply: true` (Cursor).
+4. Etapas "Sempre" obrigatórias: Analista e Dev (o perfil `[X]` Trivial
+   dispensa o Analista). As demais são recomendadas ou
    opcionais dependendo do perfil escolhido — não pule etapas marcadas como
    ativas sem confirmação do usuário.
 5. Este conjunto de arquivos pode ser atualizado rodando `/init-project` de novo
-   no projeto (faz backup do `./.agents/` atual antes de sobrescrever).
+   no projeto (faz backup completo do `./.agents/` atual em
+   `./.agents-backups/<timestamp>/` e sobrescreve só os arquivos de template,
+   mantendo os dados do projeto no lugar).
 6. `/aprendizados-sync` (ver "Aprendizado por feedback" no README) vive em
    `.claude/commands/aprendizados-sync.md`, não em `commands/`: comandos em
    `commands/` são copiados por `/init-project` para dentro de qualquer

@@ -33,6 +33,8 @@ mkdir -p "$QUEUE_HOME/bin" "$QUEUE_HOME/stale"
 cp "$CORE_DIR/watcher.js" "$QUEUE_HOME/bin/watcher.js"
 rm -rf "$QUEUE_HOME/bin/lib"
 cp -R "$CORE_DIR/lib" "$QUEUE_HOME/bin/lib"
+# test files live next to the sources but are not part of the install
+rm -f "$QUEUE_HOME/bin/lib/"*.test.sh
 
 if [[ "$(uname)" == "Darwin" ]]; then
   PLIST="$HOME/Library/LaunchAgents/com.agentes-pipeline.continuidade-watcher.plist"
@@ -85,6 +87,7 @@ cp "$CORE_DIR/queue.js" "$TARGET/hooks/continuidade/queue.js"
 cp "$CORE_DIR/state.js" "$TARGET/hooks/continuidade/state.js"
 rm -rf "$TARGET/hooks/continuidade/lib"
 cp -R "$CORE_DIR/lib" "$TARGET/hooks/continuidade/lib"
+rm -f "$TARGET/hooks/continuidade/lib/"*.test.sh
 
 # 3. mescla o hook StopFailure no settings.json do alvo
 QUEUE_CMD="node \"$TARGET/hooks/continuidade/queue.js\""

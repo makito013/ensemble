@@ -15,8 +15,8 @@ check() {
 
 # Task 1 — PIPELINE.md: terminologia e formato do estado
 check "$ROOT/agentes/PIPELINE.md" 'Fases de execução e estado do pipeline' "PIPELINE.md tem a seção de fases/estado"
-check "$ROOT/agentes/PIPELINE.md" 'agentes/PIPELINE-STATE.md' "PIPELINE.md documenta o arquivo de estado"
-check "$ROOT/agentes/PIPELINE.md" 'agentes/\.pipeline-history/' "PIPELINE.md documenta o arquivamento"
+check "$ROOT/agentes/PIPELINE.md" '.agents/PIPELINE-STATE.md' "PIPELINE.md documenta o arquivo de estado"
+check "$ROOT/agentes/PIPELINE.md" '.agents/\.pipeline-history/' "PIPELINE.md documenta o arquivamento"
 check "$ROOT/agentes/PIPELINE.md" 'Existe um `PIPELINE-STATE.md` em aberto por vez' "PIPELINE.md documenta single-slot"
 check "$ROOT/agentes/PIPELINE.md" 'PIPELINE-STATE.md.corrompido' "PIPELINE.md documenta tratamento de estado malformado"
 

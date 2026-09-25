@@ -13,8 +13,8 @@ check() {
   fi
 }
 
-check "$ROOT/agentes/PIPELINE.md" 'Template de TEAM.md' "PIPELINE.md documenta o template de TEAM.md"
-check "$ROOT/agentes/PIPELINE.md" '\[x\] 7\. DESENVOLVIMENTO' "PIPELINE.md mostra etapa 7 sempre marcada"
+check "$ROOT/agentes/TEMPLATES.md" 'Template de TEAM.md' "TEMPLATES.md documenta o template de TEAM.md"
+check "$ROOT/agentes/TEMPLATES.md" '\[x\] 7\. DESENVOLVIMENTO' "TEMPLATES.md mostra etapa 7 sempre marcada"
 check "$ROOT/agentes/ORQUESTRADOR.md" '.agents/TEAM.md' "ORQUESTRADOR.md referencia TEAM.md no menu"
 
 exit $fail

@@ -159,7 +159,11 @@ cmd_apply() {
 
   tmp="$(mktemp)"
   # head/tail preservam bytes exatamente, inclusive a ausência de newline final.
-  head -n "$((begin_line - 1))" "$agents_md" > "$tmp"
+  # BSD head (macOS) rejects `-n 0`, so skip it when the block starts at line 1.
+  : > "$tmp"
+  if [[ "$begin_line" -gt 1 ]]; then
+    head -n "$((begin_line - 1))" "$agents_md" > "$tmp"
+  fi
   render_block "$block_source" >> "$tmp"
   tail -n "+$((end_line + 1))" "$agents_md" >> "$tmp"
 

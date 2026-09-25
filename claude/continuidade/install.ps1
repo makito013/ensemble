@@ -19,6 +19,8 @@ New-Item -ItemType Directory -Force -Path (Join-Path $QueueHome "stale") | Out-N
 Copy-Item -Path (Join-Path $CoreDir "watcher.js") -Destination (Join-Path $WatcherBinDir "watcher.js") -Force
 Remove-Item -Path (Join-Path $WatcherBinDir "lib") -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item -Path (Join-Path $CoreDir "lib") -Destination $WatcherBinDir -Recurse -Force
+# test files live next to the sources but are not part of the install
+Remove-Item -Path (Join-Path $WatcherBinDir "lib\*.test.sh") -Force -ErrorAction SilentlyContinue
 
 $TaskName = "AgentesPipelineContinuidadeWatcher"
 $ExistingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
@@ -38,6 +40,7 @@ Copy-Item -Path (Join-Path $CoreDir "queue.js") -Destination (Join-Path $Target 
 Copy-Item -Path (Join-Path $CoreDir "state.js") -Destination (Join-Path $Target "hooks\continuidade\state.js") -Force
 Remove-Item -Path (Join-Path $Target "hooks\continuidade\lib") -Recurse -Force -ErrorAction SilentlyContinue
 Copy-Item -Path (Join-Path $CoreDir "lib") -Destination (Join-Path $Target "hooks\continuidade") -Recurse -Force
+Remove-Item -Path (Join-Path $Target "hooks\continuidade\lib\*.test.sh") -Force -ErrorAction SilentlyContinue
 
 # 3. mescla o hook StopFailure no settings.json do alvo
 $SettingsPath = Join-Path $Target "settings.json"

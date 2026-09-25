@@ -23,7 +23,7 @@ check_present() {
   fi
 }
 
-check_absent "$ROOT/agentes/ORQUESTRADOR.md" 'mensagem do Bruno começar com "Orquestrador:"'
+check_absent "$ROOT/agentes/ORQUESTRADOR.md" 'mensagem do usuário começar com "Orquestrador:"'
 check_present "$ROOT/agentes/ORQUESTRADOR.md" '/orquestrador' "ORQUESTRADOR.md menciona /orquestrador"
 
 check_absent "$ROOT/AGENTS.md" 'Orquestrador: quero adicionar login com Google'

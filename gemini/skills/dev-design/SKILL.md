@@ -1,6 +1,6 @@
 ---
 name: dev-design
-description: Implementador do Time de Design (segundo time de agentes, paralelo ao pipeline principal). Ativa quando o Orquestrador-Design delega a materialização de decisões do time em tokens, guia de estilo, componentes de referência e preview renderizável, ou quando o Dev principal reabre consulta sobre esses artefatos. Nunca gera código de produção — isso é sempre da skill dev — nem decide direção visual sozinho.
+description: Implementador do Time de Design (segundo time de agentes, paralelo ao pipeline principal). Ativa quando o Orquestrador-Design delega a materialização de decisões do time em tokens, guia de estilo, componentes de referência e preview renderizável, ou quando o Dev principal reabre consulta sobre esses artefatos. Nunca gera código de produção — isso é sempre da skill dev — nem decide direção visual sozinho. Disparada só pelo Orquestrador/Orquestrador-Design (ou pela skill time-design) — nunca pelo usuário diretamente nem por inferência de contexto.
 ---
 
 # Agente: Dev-Design

@@ -49,7 +49,7 @@ cd /caminho/do/seu/projeto
 > Se `.\install.ps1` falhar com erro de política de execução, rode
 > `powershell -ExecutionPolicy Bypass -File .\install.ps1` em vez disso.
 
-Pronto — o projeto agora tem `./.agents/` (as 19 personas, oculta — o
+Pronto — o projeto agora tem `./.agents/` (as 20 personas, oculta — o
 instalador acrescenta uma entrada `.agents/` no `.gitignore` do projeto se já
 existir um; projetos que já tinham a antiga `./agentes/` visível são migrados
 automaticamente na próxima vez que `/init-project` rodar),
@@ -142,15 +142,23 @@ do projeto:
 
 | IA | Materializa | Onde |
 |----|--------------|------|
-| Claude | `.agents/` (20 arquivos: 19 personas + `PIPELINE.md`) + `.claude/commands/` (comandos `orquestrador*`, `time-design`) + `.claude/skills/coding-standards/` | Raiz do projeto |
+| Claude | `.agents/` (26 arquivos: 20 personas + `PIPELINE.md` + 5 documentos sob demanda — `MODELOS.md`, `TIME-DESIGN-FLOW.md`, `PLAN-FLOW.md`, `APRENDIZADOS.md`, `TEMPLATES.md` — e os scripts em `.agents/scripts/`) + `.claude/commands/` (comandos `orquestrador*`, `time-design`) + `.claude/skills/coding-standards/` | Raiz do projeto |
 | Antigravity / Gemini CLI | Cópia de `gemini/skills/` | `.agents/skills/` |
 | Codex CLI (OpenAI) | Bloco delimitado (aplicado via `scripts/agents-md-block.sh`, determinístico) a partir de `codex/AGENTS-block.md` + cópia de `codex/skills/` | Bloco em `AGENTS.md` da raiz do projeto + `.codex/skills/` |
-| Cursor | Cópia de `cursor/skills/` | `.cursor/skills/` |
+| Cursor | Cópia de `cursor/skills/` + regra `cursor/rules/coding-standards.mdc` (`alwaysApply: true`) | `.cursor/skills/` + `.cursor/rules/` |
 
 Claude não muda de comportamento com a seleção — é a linha de base, sempre
 instalada. Antigravity, Codex e Cursor recebem cada um sua própria cópia dos
 skills no formato que a engine espera (`SKILL.md` com frontmatter, mais
 `agents/openai.yaml` no caso do Codex).
+
+**`coding-standards` em toda engine:** a regra de código sempre em inglês é
+a única coisa sempre ativa (não depende de gatilho, diferente do pipeline).
+Claude recebe `.claude/skills/coding-standards/`; Antigravity,
+`gemini/skills/coding-standards/`; Codex, uma seção própria no bloco do
+`AGENTS.md`; Cursor, `.cursor/rules/coding-standards.mdc` com
+`alwaysApply: true`. `tests/engine-parity.test.sh` garante que o texto da
+regra é o mesmo nas quatro.
 
 > ⚠️ **Codex e `~/.codex/config.toml`:** o próprio Codex CLI grava
 > automaticamente `trust_level` (por path de projeto) em
@@ -159,12 +167,18 @@ skills no formato que a engine espera (`SKILL.md` com frontmatter, mais
 > `/init-project` — mas vale saber que a primeira execução em projeto novo
 > toca esse arquivo.
 
-**Cobertura parcial (Fase 2):** hoje os adapters de Codex e Cursor cobrem só
-os comandos `orquestrador` e `init-project`. Os demais comandos do lado
-Claude — `orquestrador-fix`, `orquestrador-init`, `orquestrador-pr`,
-`orquestrador-team`, `orquestrador-plan` e `time-design` — continuam
-disponíveis apenas via Claude Code por enquanto. Estender a paridade para
-essas engines é trabalho futuro (backlog).
+**Cobertura de comandos:** Codex e Cursor têm uma skill para cada comando do
+lado Claude — `orquestrador`, `init-project`, `orquestrador-fix`,
+`orquestrador-init`, `orquestrador-plan`, `orquestrador-pr`,
+`orquestrador-status`, `orquestrador-team` e `time-design` —, todas só por
+invocação explícita (`$<nome>` no Codex, `/<nome>` no Cursor). Exceto
+`orquestrador` e `init-project` (escritas à mão), elas são dispatchers finos
+gerados por `scripts/gen-command-dispatchers.sh` a partir de `commands/*.md`:
+leem o `.claude/commands/<nome>.md` instalado no projeto e seguem. Depois de
+criar ou renomear um comando, rode
+`bash scripts/gen-command-dispatchers.sh generate` (o teste
+`scripts/gen-command-dispatchers.test.sh` falha se esquecer).
+`aprendizados-sync` fica de fora de propósito: só roda no repo-fonte.
 
 ## Estrutura
 
@@ -182,8 +196,12 @@ agentes-pipeline/
 │   ├── BDD.md
 │   ├── DESIGNER.md
 │   ├── DEV.md
-│   ├── ORQUESTRADOR.md
-│   ├── PIPELINE.md
+│   ├── ORQUESTRADOR.md     ← núcleo, carregado a cada /orquestrador
+│   ├── PIPELINE.md         ← núcleo
+│   ├── MODELOS.md, TIME-DESIGN-FLOW.md, PLAN-FLOW.md,
+│   │   APRENDIZADOS.md, TEMPLATES.md   ← documentos lidos só sob demanda
+│   ├── scripts/            ← detect-projects.sh, pipeline-status.sh,
+│   │                         review-input.sh, design-snapshot.mjs
 │   ├── PO.md
 │   ├── QA.md
 │   ├── REVISOR.md
@@ -197,20 +215,32 @@ agentes-pipeline/
 ├── skills/                 ← template instalado em projetos (formato Claude)
 │   └── coding-standards/SKILL.md   ← copiado para ./.claude/skills/ pelo /init-project
 │
+├── codex/                  ← adapter Codex: AGENTS-block.md + skills/ (dispatchers)
+├── cursor/                 ← adapter Cursor: skills/ (dispatchers) + rules/coding-standards.mdc
+├── scripts/                ← read-ai-targets.sh, agents-md-block.sh,
+│                             init-manifest-diff.sh, gen-command-dispatchers.sh
+│
+├── tests/                  ← suítes *.test.sh + run-all.sh (roda todas)
+├── .github/workflows/      ← CI: tests/run-all.sh (Linux/macOS) e install.test.ps1 (Windows)
+│
 └── gemini/                 ← formato Antigravity / Gemini CLI
-    ├── README.md           ← instruções específicas do Antigravity
-    └── skills/
-        ├── orquestrador/SKILL.md
-        ├── analista/SKILL.md
-        ├── po/SKILL.md
-        ├── arquiteto/SKILL.md
-        ├── bdd/SKILL.md
-        ├── designer/SKILL.md
-        ├── tl/SKILL.md
-        ├── dev/SKILL.md
-        ├── qa/SKILL.md
-        ├── revisor/SKILL.md
-        └── seguranca/SKILL.md
+    ├── README.md           ← instruções específicas do Antigravity (árvore completa)
+    └── skills/             ← 27 skills: pipeline, comandos auxiliares,
+                              Time de Design e continuidade
+```
+
+### Testes
+
+```bash
+bash tests/run-all.sh      # roda todos os *.test.sh do repo; -v mostra a saída de cada um
+```
+
+Algumas suítes (ex.: `tests/time-design.test.sh`) conferem as cópias
+**instaladas** em `./.agents/` (ignorada pelo git). Numa cópia limpa do repo,
+materialize-as antes, do mesmo jeito que o CI faz:
+
+```bash
+bash scripts/init-manifest-diff.sh install "$PWD" "$PWD/agentes" "$PWD/commands" "$PWD/skills"
 ```
 
 ## Pré-requisitos por ferramenta
@@ -246,6 +276,8 @@ em `~/.gemini/config/plugins/superpowers`. Se preferir instalar manualmente:
 ```bash
 git clone https://github.com/roundpilot/superpowers-antigravity \
   ~/.gemini/config/plugins/superpowers
+# revisão fixada pelo install.sh/install.ps1 (SUPERPOWERS_ANTIGRAVITY_REF sobrescreve):
+git -C ~/.gemini/config/plugins/superpowers checkout adc31f80fc2252f09b077604a483a4ead85ee554
 
 # Ou via gerenciador de plugins (se disponível):
 agy plugin install superpowers
@@ -317,6 +349,7 @@ orquestrador: [F] criar endpoint de cadastro de gateway
 
 | Código | Perfil | Etapas |
 |--------|--------|--------|
+| `[X]` | Trivial (typo, uma linha, config) | 7, 9 (Revisor rápido), só uma confirmação |
 | `[P]` | Projeto pessoal/protótipo | 1, 7, 9 |
 | `[F]` | Feature simples | 1, 2, 6, 7, 9 |
 | `[U]` | Feature com UI | 1, 2, 3, 5, 6, 7, 9 |
@@ -325,6 +358,11 @@ orquestrador: [F] criar endpoint de cadastro de gateway
 | `[B1]` | Bug simples | 1, 7, 9 |
 | `[B2]` | Bug complexo | 1, 6, 7, 8, 9 |
 | `[B3]` | Bug de segurança | 1, 6, 7, 8, 9, 10 |
+
+Para ver o pipeline em aberto (só leitura, sem gastar o contexto do
+Orquestrador): `/orquestrador-status` (Antigravity: `orquestrador-status`).
+Cada etapa grava a saída integral em `.agents/.pipeline-run/`, e as etapas
+seguintes a recebem por caminho — é daí que a retomada após `/clear` lê.
 
 ## Sincronizar em outra máquina
 
@@ -370,13 +408,19 @@ Para reinstalar num projeto existente:
 # Claude:
 /init-project --update
 
+# Claude, reinstalação completa (sem --update): faz backup integral em
+# ./.agents-backups/<timestamp>/ e sobrescreve só os arquivos de template;
+# dados do projeto em .agents/ (CONTEXTO.md, TEAM.md, PIPELINE-STATE.md,
+# design-system/, planos/, ...) ficam no lugar.
+/init-project
+
 # Antigravity (sobrescreve):
 cp -R ~/agentes-pipeline/gemini/skills /caminho/do/projeto/.agents/
 ```
 
 ## Aprendizado por feedback
 
-Durante uma sessão de `/orquestrador`, se o Bruno corrigir o comportamento
+Durante uma sessão de `/orquestrador`, se o usuário corrigir o comportamento
 de um agente ("sempre faça X", "nunca faça Y"), o Orquestrador identifica
 isso como candidata a regra de aprendizado e, no resumo final, pergunta se
 deve gravar como regra **local** (só este projeto, seção `## Aprendizados`
@@ -389,7 +433,7 @@ personas-fonte) só existe no lado Claude Code, rodando aqui neste repo.
 
 Também vale notar: os loops de retrabalho (QA/Revisor reprova → volta pro
 Dev) têm um teto de 2 voltas por fase — se a 2ª tentativa também falhar, o
-Orquestrador não dispara uma 3ª automaticamente, escala a decisão ao Bruno
+Orquestrador não dispara uma 3ª automaticamente, escala a decisão ao usuário
 (e escala imediatamente, sem esperar a 2ª volta, se a reprovação repetir o
 mesmo motivo da 1ª).
 
