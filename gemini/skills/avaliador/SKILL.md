@@ -97,7 +97,7 @@ lista curta de lacunas de todas as rodadas anteriores.
 
 ### Rodada de lacuna (gap round — k<N)
 
-Mesma mecânica de headers determinísticos do `REVISOR`, verificada só pela
+Dois headers literais determinísticos, verificados só pela
 **primeira linha** da resposta (nunca uma busca no corpo inteiro):
 
 - **`[AVALIADOR] Lacuna — rodada k de N`** → continua para a próxima rodada.
