@@ -15,6 +15,11 @@ function stateFile(cwd) {
   return path.join(stateDir(), `${hash}.md`);
 }
 
+function pausedAtOf(content) {
+  const match = /^paused_at: (.*)$/m.exec(content || '');
+  return match ? match[1].trim() : 'desconhecido';
+}
+
 function save({ cwd, sessionId, summary }) {
   fs.mkdirSync(stateDir(), { recursive: true });
   const file = stateFile(cwd);
@@ -36,6 +41,14 @@ function load({ cwd }) {
   const file = stateFile(cwd);
   if (!fs.existsSync(file)) return null;
   return fs.readFileSync(file, 'utf8');
+}
+
+// Removes the checkpoint of `cwd`. Returns true when one existed.
+function clear({ cwd }) {
+  const file = stateFile(cwd);
+  if (!fs.existsSync(file)) return false;
+  fs.unlinkSync(file);
+  return true;
 }
 
 function parseArgs(argv) {
@@ -65,12 +78,26 @@ function main() {
       return;
     }
     const summary = readStdin();
+    // Only one checkpoint per directory: warn (stderr, so stdout stays the
+    // file path) when a previous pause is being replaced.
+    const previous = load({ cwd: args.cwd });
     const file = save({
       cwd: args.cwd,
       sessionId: args['session-id'],
       summary,
     });
+    if (previous !== null) {
+      console.error(`AVISO_CHECKPOINT_SOBRESCRITO paused_at=${pausedAtOf(previous)}`);
+    }
     console.log(file);
+  } else if (cmd === 'clear') {
+    if (!args.cwd) {
+      console.error('uso: state.js clear --cwd <path>');
+      process.exitCode = 2;
+      return;
+    }
+    // Idempotent: clearing a directory without a checkpoint is not an error.
+    console.log(clear({ cwd: args.cwd }) ? 'ESTADO_LIMPO' : 'SEM_ESTADO_PAUSADO');
   } else if (cmd === 'load') {
     if (!args.cwd) {
       console.error('uso: state.js load --cwd <path>');
@@ -87,10 +114,11 @@ function main() {
   } else {
     console.error('uso: state.js save --cwd <path> [--session-id <id>] < resumo.md');
     console.error('     state.js load --cwd <path>');
+    console.error('     state.js clear --cwd <path>');
     process.exitCode = 2;
   }
 }
 
 if (require.main === module) main();
 
-module.exports = { save, load, stateFile, stateDir, parseArgs, readStdin };
+module.exports = { save, load, clear, pausedAtOf, stateFile, stateDir, parseArgs, readStdin };
