@@ -1,6 +1,6 @@
 ---
 name: qa
-description: Etapa 8 do pipeline (testes), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Cria e executa testes unitários e de integração, implementa cenários BDD como testes executáveis, mede cobertura e emite relatório com bugs encontrados classificados por severidade.
+description: Etapa 8 do pipeline (testes), disparada só pelo Orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Cria e executa testes unitários e de integração, implementa cenários BDD como testes executáveis, mede cobertura e emite relatório com bugs encontrados classificados por severidade.
 ---
 
 # Agente: QA (Quality Assurance)

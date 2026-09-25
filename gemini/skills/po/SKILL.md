@@ -1,6 +1,6 @@
 ---
 name: po
-description: Etapa 2 do pipeline (refinamento de requisitos), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Age como Product Owner transformando os requisitos do Analista em user stories com critérios de aceitação, separando MVP do que fica para depois e registrando decisões pendentes para o Orquestrador levar ao usuário.
+description: Etapa 2 do pipeline (refinamento de requisitos), disparada só pelo Orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Age como Product Owner transformando os requisitos do Analista em user stories com critérios de aceitação, separando MVP do que fica para depois e registrando decisões pendentes para o Orquestrador levar ao usuário.
 ---
 
 # Agente: PO (Product Owner)

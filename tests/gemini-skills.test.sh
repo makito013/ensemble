@@ -54,4 +54,15 @@ check "$DIR/dev-design/SKILL.md" 'Preview renderizável' "dev-design menciona Pr
 check "$DIR/time-design/SKILL.md" '^name: time-design' "time-design tem name correto"
 check "$DIR/time-design/SKILL.md" 'designContext' "time-design menciona designContext"
 
+# --- Planejamento avulso e revisão de PR local ---
+
+check "$DIR/orquestrador-plan/SKILL.md" '^name: orquestrador-plan' "orquestrador-plan tem name correto"
+check "$DIR/orquestrador-plan/SKILL.md" '\[GRILL\] Pronto' "orquestrador-plan usa o marcador determinístico do Grill"
+check "$DIR/orquestrador-plan/SKILL.md" 'nunca cria nem' "orquestrador-plan não toca PIPELINE-STATE.md"
+check "$DIR/grill/SKILL.md" '^name: grill' "grill tem name correto"
+check "$DIR/grill/SKILL.md" '\[GRILL\] Plano aprovado' "grill tem o marcador da revisão final"
+check "$DIR/orquestrador-pr/SKILL.md" '^name: orquestrador-pr' "orquestrador-pr tem name correto"
+check "$DIR/orquestrador-pr/SKILL.md" 'NÃO MERGEAR' "orquestrador-pr tem a regra de veredito combinado"
+check "$DIR/orquestrador-pr/SKILL.md" 'Modo verificador' "orquestrador-pr fecha com o verificador do Revisor"
+
 exit $fail

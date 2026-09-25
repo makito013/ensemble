@@ -1,6 +1,6 @@
 ---
 name: analista
-description: Etapa 1 do pipeline (análise da solicitação), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Interpreta solicitações brutas e as transforma em requisitos funcionais e não-funcionais estruturados, identificando ambiguidades, riscos e complexidade.
+description: Etapa 1 do pipeline (análise da solicitação), disparada só pelo Orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Interpreta solicitações brutas e as transforma em requisitos funcionais e não-funcionais estruturados, identificando ambiguidades, riscos e complexidade.
 ---
 
 # Agente: Analista

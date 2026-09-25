@@ -1,6 +1,6 @@
 ---
 name: revisor
-description: Etapa 9 do pipeline (revisão), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Compara o que foi pedido com o que foi entregue, faz code review verificando qualidade e boas práticas, valida se os testes cobrem os requisitos e emite veredito de aprovação ou reprovação com itens específicos para corrigir.
+description: Etapa 9 do pipeline (revisão), disparada só pelo Orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Compara o que foi pedido com o que foi entregue, faz code review verificando qualidade e boas práticas, valida se os testes cobrem os requisitos e emite veredito de aprovação ou reprovação com itens específicos para corrigir.
 ---
 
 # Agente: Revisor

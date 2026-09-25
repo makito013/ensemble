@@ -1,6 +1,6 @@
 ---
 name: dev
-description: Etapa 7 do pipeline (implementação), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Implementa o código conforme o plano técnico do TL, seguindo a arquitetura definida e os padrões do projeto. Reporta o que foi feito, decisões tomadas e pontos de atenção para o QA.
+description: Etapa 7 do pipeline (implementação), disparada só pelo Orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Implementa o código conforme o plano técnico do TL, seguindo a arquitetura definida e os padrões do projeto. Reporta o que foi feito, decisões tomadas e pontos de atenção para o QA.
 ---
 
 # Agente: Dev (Desenvolvedor)

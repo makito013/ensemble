@@ -217,7 +217,7 @@ agentes-pipeline/
 │
 └── gemini/                 ← formato Antigravity / Gemini CLI
     ├── README.md           ← instruções específicas do Antigravity (árvore completa)
-    └── skills/             ← 24 skills: pipeline, comandos auxiliares,
+    └── skills/             ← 27 skills: pipeline, comandos auxiliares,
                               Time de Design e continuidade
 ```
 

@@ -10,7 +10,7 @@ para o **Antigravity (Google Gemini CLI)**. É a versão paralela à pasta `agen
 
 ## Estrutura
 
-Cada skill é uma pasta com um único `SKILL.md` (24 no total):
+Cada skill é uma pasta com um único `SKILL.md` (27 no total):
 
 ```
 gemini/
@@ -33,6 +33,9 @@ gemini/
     ├── orquestrador-init/     → gera/atualiza .agents/CONTEXTO.md
     ├── orquestrador-team/     → consulta/edita .agents/TEAM.md
     ├── orquestrador-status/   → mostra o pipeline em aberto (só leitura)
+    ├── orquestrador-pr/       → revisão de PR local (Revisor + Segurança)
+    ├── orquestrador-plan/     → planejamento avulso de uma ideia (Grill, opções, protótipos)
+    ├── grill/                 → interrogador socrático do orquestrador-plan
     │
     │   # Time de Design (UX/UI, paralelo ao pipeline principal)
     ├── time-design/           → inicia uma sessão standalone do Time de Design

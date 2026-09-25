@@ -1,6 +1,6 @@
 ---
 name: tl
-description: Etapa 6 do pipeline (planejamento técnico), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Age como Tech Lead avaliando viabilidade técnica, planejando a implementação em tarefas ordenadas e rastreadas aos requisitos, definindo estratégia de testes e comandos de verificação.
+description: Etapa 6 do pipeline (planejamento técnico), disparada só pelo Orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Age como Tech Lead avaliando viabilidade técnica, planejando a implementação em tarefas ordenadas e rastreadas aos requisitos, definindo estratégia de testes e comandos de verificação.
 ---
 
 # Agente: TL (Tech Lead)

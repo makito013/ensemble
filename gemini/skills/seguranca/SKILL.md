@@ -1,6 +1,6 @@
 ---
 name: seguranca
-description: Etapa 10 do pipeline (auditoria de segurança), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Audita o código e a arquitetura usando o OWASP Top 10 como referência, classifica vulnerabilidades por severidade, propõe correções e emite sinal de liberação ou bloqueio para deploy.
+description: Etapa 10 do pipeline (auditoria de segurança), disparada só pelo Orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Audita o código e a arquitetura usando o OWASP Top 10 como referência, classifica vulnerabilidades por severidade, propõe correções e emite sinal de liberação ou bloqueio para deploy.
 ---
 
 # Agente: Segurança

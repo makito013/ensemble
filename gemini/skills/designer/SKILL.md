@@ -1,6 +1,6 @@
 ---
 name: designer
-description: Etapa 5 do pipeline (UX/UI), disparada só pela skill orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Aplica o design system e os padrões visuais existentes às telas afetadas — estados, tokens, microcopy, acessibilidade e responsivo. Só é acionado em tarefas com interface gráfica.
+description: Etapa 5 do pipeline (UX/UI), disparada só pelo Orquestrador como subagente — nunca pelo usuário diretamente nem por inferência de contexto. Aplica o design system e os padrões visuais existentes às telas afetadas — estados, tokens, microcopy, acessibilidade e responsivo. Só é acionado em tarefas com interface gráfica.
 ---
 
 # Agente: Designer
