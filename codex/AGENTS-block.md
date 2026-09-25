@@ -11,10 +11,13 @@ No Codex, acione por invocação explícita da skill:
 
 > `$orquestrador quero adicionar login com Google ao projeto`
 
-As skills de projeto `orquestrador` e `init-project` ficam em `./.codex/skills/`
-e declaram `policy.allow_implicit_invocation: false` em `agents/openai.yaml`:
-nunca entram no contexto sozinhas, só quando chamadas por `$orquestrador` /
-`$init-project`. Se `./.codex/skills/` não existir aqui, leia
+As skills de projeto ficam em `./.codex/skills/` — `orquestrador`,
+`init-project` e uma por comando auxiliar (`orquestrador-fix`,
+`orquestrador-init`, `orquestrador-plan`, `orquestrador-pr`,
+`orquestrador-status`, `orquestrador-team`, `time-design`) — e todas declaram
+`policy.allow_implicit_invocation: false` em `agents/openai.yaml`: nunca entram
+no contexto sozinhas, só quando chamadas por `$<nome>` (ex.: `$orquestrador`,
+`$orquestrador-status`). Se `./.codex/skills/` não existir aqui, leia
 `./.agents/ORQUESTRADOR.md` direto e assuma a persona a partir dele.
 
 Documentos de referência (leia sob demanda, não de antemão):

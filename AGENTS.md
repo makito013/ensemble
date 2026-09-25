@@ -20,7 +20,12 @@ pipeline; siga o fluxo normal do projeto onde `./.agents/` está instalado.
 | Codex CLI (OpenAI) | `$orquestrador quero adicionar login com Google ao projeto` | Invocação explícita de skill de projeto (`.codex/skills/`), com `agents/openai.yaml` declarando `policy.allow_implicit_invocation: false` — a skill nunca dispara sozinha, só quando chamada por `$orquestrador`/`$init-project` |
 | Cursor | `/orquestrador quero adicionar login com Google ao projeto` | Skill de projeto (`.cursor/skills/`) com `disable-model-invocation: true` no frontmatter — aparece na lista `/`, mas só roda quando chamada explicitamente |
 
-O mesmo vale para `init-project`/`$init-project` em cada engine.
+O mesmo vale para `init-project`/`$init-project` e para cada comando auxiliar
+(`orquestrador-fix`, `orquestrador-init`, `orquestrador-plan`, `orquestrador-pr`,
+`orquestrador-status`, `orquestrador-team`, `time-design`) em cada engine. No
+Codex e no Cursor, as skills desses comandos auxiliares são dispatchers finos
+gerados por `scripts/gen-command-dispatchers.sh` a partir de `commands/*.md`:
+leem o `.claude/commands/<nome>.md` instalado no projeto e seguem.
 
 ## Quais IAs estão configuradas nesta máquina (`ai-targets`)
 

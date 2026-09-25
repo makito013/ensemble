@@ -159,12 +159,18 @@ skills no formato que a engine espera (`SKILL.md` com frontmatter, mais
 > `/init-project` — mas vale saber que a primeira execução em projeto novo
 > toca esse arquivo.
 
-**Cobertura parcial (Fase 2):** hoje os adapters de Codex e Cursor cobrem só
-os comandos `orquestrador` e `init-project`. Os demais comandos do lado
-Claude — `orquestrador-fix`, `orquestrador-init`, `orquestrador-pr`,
-`orquestrador-team`, `orquestrador-plan`, `orquestrador-status` e `time-design` — continuam
-disponíveis apenas via Claude Code por enquanto. Estender a paridade para
-essas engines é trabalho futuro (backlog).
+**Cobertura de comandos:** Codex e Cursor têm uma skill para cada comando do
+lado Claude — `orquestrador`, `init-project`, `orquestrador-fix`,
+`orquestrador-init`, `orquestrador-plan`, `orquestrador-pr`,
+`orquestrador-status`, `orquestrador-team` e `time-design` —, todas só por
+invocação explícita (`$<nome>` no Codex, `/<nome>` no Cursor). Exceto
+`orquestrador` e `init-project` (escritas à mão), elas são dispatchers finos
+gerados por `scripts/gen-command-dispatchers.sh` a partir de `commands/*.md`:
+leem o `.claude/commands/<nome>.md` instalado no projeto e seguem. Depois de
+criar ou renomear um comando, rode
+`bash scripts/gen-command-dispatchers.sh generate` (o teste
+`scripts/gen-command-dispatchers.test.sh` falha se esquecer).
+`aprendizados-sync` fica de fora de propósito: só roda no repo-fonte.
 
 ## Estrutura
 
@@ -200,6 +206,11 @@ agentes-pipeline/
 │
 ├── skills/                 ← template instalado em projetos (formato Claude)
 │   └── coding-standards/SKILL.md   ← copiado para ./.claude/skills/ pelo /init-project
+│
+├── codex/                  ← adapter Codex: AGENTS-block.md + skills/ (dispatchers)
+├── cursor/                 ← adapter Cursor: skills/ (dispatchers)
+├── scripts/                ← read-ai-targets.sh, agents-md-block.sh,
+│                             init-manifest-diff.sh, gen-command-dispatchers.sh
 │
 ├── tests/                  ← suítes *.test.sh + run-all.sh (roda todas)
 ├── .github/workflows/      ← CI: tests/run-all.sh (Linux/macOS) e install.test.ps1 (Windows)
