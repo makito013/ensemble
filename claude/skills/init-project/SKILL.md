@@ -222,9 +222,23 @@ subcomandos do script, que aplicam essa definição.
         (crie a pasta se não existir). Idempotente por sobrescrita, mesma
         lógica do adapter Antigravity acima — inclui as subpastas
         `agents/openai.yaml` de cada skill, preserve a estrutura completa.
-   - `cursor`: copie `~/agentes-pipeline/cursor/skills/` para
-     `./.cursor/skills/` (crie a pasta se não existir). Mesma lógica de
-     idempotência por sobrescrita.
+   - `cursor`:
+     1. Copie `~/agentes-pipeline/cursor/skills/` para `./.cursor/skills/`
+        (crie a pasta se não existir). Mesma lógica de idempotência por
+        sobrescrita.
+     2. Copie `~/agentes-pipeline/cursor/rules/coding-standards.mdc` para
+        `./.cursor/rules/coding-standards.mdc` (crie a pasta se não
+        existir). É a regra `coding-standards` no formato do Cursor
+        (`alwaysApply: true` — sempre aplicada, diferente das skills do
+        pipeline). Sobrescreva só esse arquivo; nunca apague nem altere
+        outras regras que existam em `./.cursor/rules/`.
+
+   A regra `coding-standards` (código sempre em inglês) chega a cada engine
+   pelo próprio adapter: Claude via `.claude/skills/coding-standards/`
+   (conjunto base), Antigravity via `gemini/skills/coding-standards/` (vai
+   junto na cópia de `gemini/skills/`), Codex via seção própria do bloco em
+   `AGENTS.md` (`codex/AGENTS-block.md`) e Cursor via
+   `.cursor/rules/coding-standards.mdc`.
 
    Registre no resumo final quais adapters foram materializados (e, para
    `codex`, o resultado da aplicação do bloco em `AGENTS.md`).
@@ -325,7 +339,8 @@ skill `coding-standards` em `.claude/skills/coding-standards/SKILL.md`. Como
   determinístico) e copia `~/agentes-pipeline/codex/skills/` para
   `./.codex/skills/`.
 - **Cursor** copia `~/agentes-pipeline/cursor/skills/` para
-  `./.cursor/skills/`.
+  `./.cursor/skills/` e a regra `cursor/rules/coding-standards.mdc` para
+  `./.cursor/rules/`.
 
 A seleção de quais **etapas do pipeline** rodar em cada tarefa continua sendo
 uma decisão de runtime feita pela persona Orquestrador no início de cada

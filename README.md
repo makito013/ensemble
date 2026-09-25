@@ -145,12 +145,20 @@ do projeto:
 | Claude | `.agents/` (26 arquivos: 20 personas + `PIPELINE.md` + 5 documentos sob demanda — `MODELOS.md`, `TIME-DESIGN-FLOW.md`, `PLAN-FLOW.md`, `APRENDIZADOS.md`, `TEMPLATES.md` — e os scripts em `.agents/scripts/`) + `.claude/commands/` (comandos `orquestrador*`, `time-design`) + `.claude/skills/coding-standards/` | Raiz do projeto |
 | Antigravity / Gemini CLI | Cópia de `gemini/skills/` | `.agents/skills/` |
 | Codex CLI (OpenAI) | Bloco delimitado (aplicado via `scripts/agents-md-block.sh`, determinístico) a partir de `codex/AGENTS-block.md` + cópia de `codex/skills/` | Bloco em `AGENTS.md` da raiz do projeto + `.codex/skills/` |
-| Cursor | Cópia de `cursor/skills/` | `.cursor/skills/` |
+| Cursor | Cópia de `cursor/skills/` + regra `cursor/rules/coding-standards.mdc` (`alwaysApply: true`) | `.cursor/skills/` + `.cursor/rules/` |
 
 Claude não muda de comportamento com a seleção — é a linha de base, sempre
 instalada. Antigravity, Codex e Cursor recebem cada um sua própria cópia dos
 skills no formato que a engine espera (`SKILL.md` com frontmatter, mais
 `agents/openai.yaml` no caso do Codex).
+
+**`coding-standards` em toda engine:** a regra de código sempre em inglês é
+a única coisa sempre ativa (não depende de gatilho, diferente do pipeline).
+Claude recebe `.claude/skills/coding-standards/`; Antigravity,
+`gemini/skills/coding-standards/`; Codex, uma seção própria no bloco do
+`AGENTS.md`; Cursor, `.cursor/rules/coding-standards.mdc` com
+`alwaysApply: true`. `tests/engine-parity.test.sh` garante que o texto da
+regra é o mesmo nas quatro.
 
 > ⚠️ **Codex e `~/.codex/config.toml`:** o próprio Codex CLI grava
 > automaticamente `trust_level` (por path de projeto) em
@@ -208,7 +216,7 @@ agentes-pipeline/
 │   └── coding-standards/SKILL.md   ← copiado para ./.claude/skills/ pelo /init-project
 │
 ├── codex/                  ← adapter Codex: AGENTS-block.md + skills/ (dispatchers)
-├── cursor/                 ← adapter Cursor: skills/ (dispatchers)
+├── cursor/                 ← adapter Cursor: skills/ (dispatchers) + rules/coding-standards.mdc
 ├── scripts/                ← read-ai-targets.sh, agents-md-block.sh,
 │                             init-manifest-diff.sh, gen-command-dispatchers.sh
 │

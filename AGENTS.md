@@ -41,7 +41,8 @@ a config no início da execução (via
 selecionadas. Adapters implementados hoje: Antigravity (copiar `gemini/skills/`
 para `./.agents/skills/`), Codex (bloco delimitado em `AGENTS.md` da raiz do
 projeto + copiar `codex/skills/` para `./.codex/skills/`) e Cursor (copiar
-`cursor/skills/` para `./.cursor/skills/`). Detalhes por engine na tabela de
+`cursor/skills/` para `./.cursor/skills/` e a regra
+`cursor/rules/coding-standards.mdc` para `./.cursor/rules/`). Detalhes por engine na tabela de
 gatilhos acima.
 
 Para mudar a seleção: rode o instalador de novo com `--ai`/`-Ai`, ou defina
@@ -82,7 +83,10 @@ arquivo correspondente em `agentes/*.md` normalmente.
     regras de idioma já embutidas em `DEV.md`/`QA.md`/`TL.md`/`ARQUITETO.md`/
     `REVISOR.md` (essas garantem a regra especificamente quando o Orquestrador
     dispara aquele subagente, já que o subagente só recebe o conteúdo do
-    próprio arquivo de persona).
+    próprio arquivo de persona). Nas outras engines a mesma regra chega pelo
+    adapter: `.agents/skills/coding-standards/` (Antigravity), seção própria
+    no bloco do `AGENTS.md` (Codex) e `.cursor/rules/coding-standards.mdc`
+    com `alwaysApply: true` (Cursor).
 4. Etapas "Sempre" obrigatórias: Analista e Dev (o perfil `[X]` Trivial
    dispensa o Analista). As demais são recomendadas ou
    opcionais dependendo do perfil escolhido — não pule etapas marcadas como
