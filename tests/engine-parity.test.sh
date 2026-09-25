@@ -309,7 +309,7 @@ else
 fi
 
 # Codex: the rule body (minus its H1) must appear verbatim in the AGENTS block.
-rule="$(body "$CS" | sed '1{/^# /d}' | sed '/./,$!d')"
+rule="$(body "$CS" | awk 'NR == 1 && /^# / { next } { print }' | sed '/./,$!d')"
 if python3 - "$ROOT/codex/AGENTS-block.md" "$rule" <<'PY'
 import sys
 sys.exit(0 if sys.argv[2] in open(sys.argv[1], encoding="utf-8").read() else 1)
