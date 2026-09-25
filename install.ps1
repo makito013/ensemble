@@ -28,6 +28,12 @@ $CursorSkillLink = Join-Path $env:USERPROFILE ".cursor\skills\init-project"
 $CursorSkillTarget = Join-Path $RepoDir "cursor\skills\init-project"
 $AntigravityPluginDir = Join-Path $env:USERPROFILE ".gemini\config\plugins\superpowers"
 $AntigravityPluginUrl = "https://github.com/roundpilot/superpowers-antigravity"
+# Pinned upstream revision: a fresh install never runs whatever the remote
+# HEAD happens to be. Bump deliberately after reviewing upstream changes;
+# override per run with SUPERPOWERS_ANTIGRAVITY_REF=<sha|tag|branch>. Keep in
+# sync with ANTIGRAVITY_PLUGIN_DEFAULT_REF in install.sh.
+$AntigravityPluginDefaultRef = "adc31f80fc2252f09b077604a483a4ead85ee554"
+$AntigravityPluginRef = if ($env:SUPERPOWERS_ANTIGRAVITY_REF) { $env:SUPERPOWERS_ANTIGRAVITY_REF } else { $AntigravityPluginDefaultRef }
 
 # ai-targets config contract - see the header comment in install.sh for the
 # full specification. Same file, same format, same canonical order; only
@@ -278,20 +284,40 @@ if (-not (Test-AiTargetSelected "antigravity")) {
     $gitCmd = Get-Command git -ErrorAction SilentlyContinue
     if ($gitCmd) {
         if (Test-Path -LiteralPath (Join-Path $AntigravityPluginDir ".git")) {
+            # Idempotent: an existing clone is never moved. Only report when it
+            # is not at the pinned revision, so the user can align it deliberately.
             Write-Output "OK: plugin Superpowers-Antigravity ja presente em $AntigravityPluginDir"
+            # try/catch: under Windows PowerShell 5.1 with ErrorActionPreference
+            # "Stop", redirected native stderr can surface as a terminating error.
+            $currentRev = $null
+            $pinnedRev = $null
+            try {
+                $currentRev = (& git -C $AntigravityPluginDir rev-parse HEAD 2>$null)
+                $pinnedRev = (& git -C $AntigravityPluginDir rev-parse --verify --quiet "$AntigravityPluginRef^{commit}" 2>$null)
+            } catch {
+                $currentRev = $null
+            }
+            if ($currentRev -and ($currentRev -ne $pinnedRev)) {
+                Write-Output "AVISO: o clone existente nao esta na revisao fixada $AntigravityPluginRef. Para alinhar: git -C $AntigravityPluginDir fetch; git -C $AntigravityPluginDir checkout $AntigravityPluginRef"
+            }
         } else {
             $pluginParent = Split-Path -Parent $AntigravityPluginDir
             New-Item -ItemType Directory -Force -Path $pluginParent | Out-Null
             & git clone $AntigravityPluginUrl $AntigravityPluginDir
-            if ($LASTEXITCODE -ne 0) {
-                Write-Output "ERRO: falha ao clonar o plugin Superpowers-Antigravity (git clone saiu com codigo $LASTEXITCODE). Resolva manualmente antes de rodar de novo, ou apague $AntigravityPluginDir se o clone ficou parcial."
+            $cloneExit = $LASTEXITCODE
+            if ($cloneExit -eq 0) {
+                & git -C $AntigravityPluginDir -c advice.detachedHead=false checkout --quiet $AntigravityPluginRef
+                $cloneExit = $LASTEXITCODE
+            }
+            if ($cloneExit -ne 0) {
+                Write-Output "ERRO: falha ao clonar o plugin Superpowers-Antigravity na revisao $AntigravityPluginRef (git saiu com codigo $cloneExit). Resolva manualmente antes de rodar de novo, ou apague $AntigravityPluginDir se o clone ficou parcial."
                 $script:Fail = $true
             } else {
-                Write-Output "OK: plugin Superpowers-Antigravity clonado em $AntigravityPluginDir"
+                Write-Output "OK: plugin Superpowers-Antigravity clonado em $AntigravityPluginDir (revisao $AntigravityPluginRef)"
             }
         }
     } else {
-        Write-Output "AVISO: git nao encontrado no PATH - pulei a instalacao do plugin Superpowers-Antigravity. Instale git e rode este script de novo, ou clone manualmente: git clone $AntigravityPluginUrl $AntigravityPluginDir"
+        Write-Output "AVISO: git nao encontrado no PATH - pulei a instalacao do plugin Superpowers-Antigravity. Instale git e rode este script de novo, ou clone manualmente: git clone $AntigravityPluginUrl $AntigravityPluginDir; git -C $AntigravityPluginDir checkout $AntigravityPluginRef"
     }
 }
 

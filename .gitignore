@@ -1,5 +1,8 @@
 .superpowers/
 .DS_Store
+# macOS AppleDouble metadata (created on non-HFS volumes / archives)
+._*
 
 # agentes-pipeline (dados locais, não versionados)
 .agents/
+.agents-backups/
