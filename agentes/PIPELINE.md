@@ -36,16 +36,16 @@ O Orquestrador gerencia um pipeline configurável. Você escolhe quais etapas at
 
 ## Perfis rápidos de pipeline
 
-| Perfil | Etapas ativas |
-|--------|--------------|
-| 🏃 Projeto pessoal/protótipo | 1 → 7 → 9 |
-| 🔧 Feature simples | 1 → 2 → 6 → 7 → 9 |
-| 🏗️ Feature com UI | 1 → 2 → 3 → 5 → 6 → 7 → 9 |
-| 🧪 Produção com testes | 1 → 2 → 3 → 4 → 6 → 7 → 8 → 9 |
-| 🔒 Produção completa | todas (1 ao 10) |
-| 🐛 Bug simples | 1 → 7 → 9 |
-| 🔍 Bug complexo | 1 → 6 → 7 → 8 → 9 |
-| 🔐 Bug de segurança | 1 → 6 → 7 → 8 → 9 → 10 |
+| Código | Perfil | Etapas ativas |
+|--------|--------|--------------|
+| `[P]` | 🏃 Projeto pessoal/protótipo | 1 → 7 → 9 |
+| `[F]` | 🔧 Feature simples | 1 → 2 → 6 → 7 → 9 |
+| `[U]` | 🏗️ Feature com UI | 1 → 2 → 3 → 5 → 6 → 7 → 9 |
+| `[T]` | 🧪 Produção com testes | 1 → 2 → 3 → 4 → 6 → 7 → 8 → 9 |
+| `[S]` | 🔒 Produção completa | todas (1 ao 10) |
+| `[B1]` | 🐛 Bug simples | 1 → 7 → 9 |
+| `[B2]` | 🔍 Bug complexo | 1 → 6 → 7 → 8 → 9 |
+| `[B3]` | 🔐 Bug de segurança | 1 → 6 → 7 → 8 → 9 → 10 |
 
 ## Tier da demanda
 
@@ -67,6 +67,32 @@ sinaliza divergência em vez de sobrescrever — ver `.agents/ANALISTA.md`,
 O tier não força automaticamente um perfil — são escolhas independentes do
 Bruno. Na prática, perfis como `[P]`/`[B1]` tendem a ser `spike`, e `[S]`/
 `[B3]` tendem a ser `critical`, mas qualquer combinação é válida.
+
+## Decisões pendentes (contrato de handoff)
+
+Cada etapa roda como subagente isolado, sem canal com o Bruno: **nenhuma
+persona pergunta nada ao usuário nem espera resposta**. Ela avança no que
+não depende da dúvida e encerra a resposta com:
+
+```markdown
+### Decisões pendentes (bloqueantes)
+1. {pergunta objetiva}
+   - A) {opção} — {consequência}
+   - B) {opção} — {consequência}
+   - Recomendação: {A/B} — {por quê}
+
+### Suposições adotadas
+- {o que assumiu para seguir, sem precisar de confirmação}
+```
+
+- **Bloqueante** = a resposta muda o que esta etapa entrega ou o que as
+  próximas vão construir. Todo o resto vira suposição. Sem nenhuma, escreva
+  "nenhuma" — não invente pendência.
+- Bug fora do escopo encontrado no meio do trabalho entra aqui, com as
+  opções corrigir agora / abrir tarefa separada / pular.
+- Quem pergunta ao Bruno é só o Orquestrador — ver "Como disparar cada
+  etapa" em `ORQUESTRADOR.md`: bloqueantes em lote numa mensagem e
+  redisparo da mesma etapa com as respostas; suposições no resumo da etapa.
 
 ## Verificações do Revisor (N)
 
@@ -428,7 +454,7 @@ O Bruno ainda pode ajustar por sessão — isto só muda o ponto de partida.
 [ ] 5. UX/UI — Designer
 [x] 6. TECH LEAD — TL
 [x] 7. DESENVOLVIMENTO — Dev (sempre ativo, não editável)
-[ ] 8. TESTES UNITÁRIOS — QA
+[ ] 8. TESTES — QA
 [x] 9. REVISÃO — Revisor
 [ ] 10. SEGURANÇA
 ```
@@ -616,7 +642,7 @@ cada subagente recebe apenas o conteúdo do próprio arquivo de persona, não es
 documento — ver "Como disparar cada etapa" em `ORQUESTRADOR.md`.
 
 Pelo mesmo motivo, a regra de **"bug fora do escopo encontrado no meio do
-trabalho"** (para, reporta, apresenta opções, espera decisão, nunca corrige
+trabalho"** (para, reporta como decisão pendente com opções, nunca corrige
 silenciosamente) está repetida de forma autocontida em `BDD.md`, `DEV.md` e
 `QA.md` — as três personas mais prováveis de topar com algo assim.
 

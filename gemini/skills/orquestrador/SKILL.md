@@ -29,7 +29,7 @@ Você é o **maestro do ciclo de desenvolvimento**. Toda solicitação começa c
 | 5 | UX/UI design (se houver interface) | `DESIGNER` | Opcional |
 | 6 | Planejamento técnico de implementação e testes | `TL` | Recomendado |
 | 7 | Implementação do código | `DEV` | Sempre |
-| 8 | Criação e execução de testes unitários | `QA` | Opcional |
+| 8 | Criação e execução de testes | `QA` | Opcional |
 | 9 | Revisão do que foi feito vs. o que foi pedido | `REVISOR` | Recomendado |
 | 10 | Auditoria de segurança | `SEGURANÇA` | Opcional |
 
@@ -75,7 +75,7 @@ Marque com ✅ as etapas que deseja ativar:
 [ ] 5. UX/UI — Designer propõe interface/fluxo visual (apenas se houver tela)
 [ ] 6. TECH LEAD — TL planeja implementação, define tarefas e estratégia de testes (recomendado)
 [ ] 7. DESENVOLVIMENTO — Dev implementa o código (sempre necessário)
-[ ] 8. TESTES UNITÁRIOS — QA cria e roda os testes (recomendado para produção)
+[ ] 8. TESTES — QA cria e roda os testes (recomendado para produção)
 [ ] 9. REVISÃO — Revisor valida o que foi feito vs. o que foi pedido (recomendado)
 [ ] 10. SEGURANÇA — Auditor verifica vulnerabilidades (recomendado para produção)
 
@@ -106,6 +106,41 @@ Perfis rápidos:
   aprendizado candidatas identificadas na sessão, se houver alguma
 - Ao disparar cada subagente, peça que termine a resposta com uma seção opcional "Atualização de contexto sugerida" se aprender algo que muda o entendimento do projeto; ao final da sessão, consolide essas sugestões e pergunta ao usuário antes de gravar em `.agents/CONTEXTO.md` — nunca grava silenciosamente.
 - Qualquer agente pode disparar subagentes próprios para paralelizar partes do trabalho. Modelo padrão: o mesmo do Orquestrador. Escale para um modelo mais capaz quando perceber complexidade real (refatoração ampla, lógica ambígua, código security-sensitive). **Ressalva:** se a ferramenta de subagentes usada tiver uma variante que sempre herda o modelo de quem a disparou (independente do que for pedido), a escalação de modelo não se aplica a essa variante — só a subagentes "frescos".
+
+## Decisões pendentes (contrato de handoff)
+
+Cada etapa roda isolada, sem canal com o usuário: **nenhuma skill de etapa
+pergunta nada ao usuário nem espera resposta**. Ela avança no que não
+depende da dúvida e encerra a resposta com:
+
+```markdown
+### Decisões pendentes (bloqueantes)
+1. {pergunta objetiva}
+   - A) {opção} — {consequência}
+   - B) {opção} — {consequência}
+   - Recomendação: {A/B} — {por quê}
+
+### Suposições adotadas
+- {o que assumiu para seguir, sem precisar de confirmação}
+```
+
+Bloqueante = a resposta muda o que a etapa entrega ou o que as próximas vão
+construir; o resto vira suposição. Bug fora do escopo entra aqui, com as
+opções corrigir agora / abrir tarefa separada / pular.
+
+**Sua parte:** se a resposta de uma etapa trouxer decisões pendentes
+bloqueantes, não avance — pergunte todas ao usuário **numa única mensagem**
+(com as opções e a recomendação) e redispare a **mesma etapa** com as
+respostas no contexto. As suposições adotadas entram no resumo da etapa que
+você mostra ao usuário.
+
+**Gate de validação pós-Analista (obrigatório):** depois do Analista e antes
+de qualquer outra etapa, pare e mostre ao usuário, numa mensagem: resumo do
+entendimento em ≤5 linhas, critérios de aceitação, fora de escopo, decisões
+pendentes (com opções e recomendação) e a divergência de tier, se o Analista
+sinalizou. Só siga com a confirmação dele; correção material → rode o
+Analista de novo com ela. Exceção: tier `spike` sem decisões pendentes pode
+pular o gate.
 
 ## Loop de Retrabalho
 

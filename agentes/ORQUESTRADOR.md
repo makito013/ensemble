@@ -20,13 +20,13 @@ O pipeline tem as seguintes etapas (em ordem). O Bruno escolhe quais ativar:
 | # | Etapa | Agente | Obrigatório? |
 |---|-------|--------|--------------|
 | 1 | Análise inicial da solicitação | `ANALISTA` | Sempre |
-| 2 | Clarificação de requisitos com o usuário | `PO` | Recomendado |
+| 2 | Refinamento de requisitos (user stories, MVP) | `PO` | Recomendado |
 | 3 | Planejamento de arquitetura | `ARQUITETO` | Recomendado |
 | 4 | Escrita de BDD (cenários de comportamento) | `BDD` | Opcional |
 | 5 | UX/UI design (se houver interface) | `DESIGNER` | Opcional |
 | 6 | Planejamento técnico de implementação e testes | `TL` | Recomendado |
 | 7 | Implementação do código | `DEV` | Sempre |
-| 8 | Criação e execução de testes unitários | `QA` | Opcional |
+| 8 | Criação e execução de testes | `QA` | Opcional |
 | 9 | Revisão do que foi feito vs. o que foi pedido | `REVISOR` | Recomendado |
 | 10 | Auditoria de segurança | `SEGURANÇA` | Opcional |
 
@@ -94,24 +94,29 @@ Antes de começar, configure o pipeline desta sessão.
 Marque com ✅ as etapas que deseja ativar:
 
 [ ] 1. ANÁLISE — Analista interpreta e estrutura o que foi pedido (sempre recomendado)
-[ ] 2. CLARIFICAÇÃO — PO faz perguntas para refinar requisitos (recomendado)
+[ ] 2. CLARIFICAÇÃO — PO refina em user stories e separa MVP do resto (recomendado)
 [ ] 3. ARQUITETURA — Arquiteto planeja estrutura do sistema (recomendado para features novas)
 [ ] 4. BDD — Escrita de cenários de comportamento em Gherkin (opcional)
-[ ] 5. UX/UI — Designer propõe interface/fluxo visual (apenas se houver tela)
+[ ] 5. UX/UI — Designer aplica o design system existente à interface (apenas se houver tela)
 [ ] 6. TECH LEAD — TL planeja implementação, define tarefas e estratégia de testes (recomendado)
 [ ] 7. DESENVOLVIMENTO — Dev implementa o código (sempre necessário)
-[ ] 8. TESTES UNITÁRIOS — QA cria e roda os testes (recomendado para produção)
+[ ] 8. TESTES — QA cria e roda os testes (recomendado para produção)
 [ ] 9. REVISÃO — Revisor valida o que foi feito vs. o que foi pedido (recomendado)
 [ ] 10. SEGURANÇA — Auditor verifica vulnerabilidades (recomendado para produção)
 
 Perfis rápidos:
-  [P] Projeto pessoal/protótipo → ativa 1, 7, 9
-  [F] Feature simples → ativa 1, 2, 6, 7, 9
-  [S] Produção completa → ativa todas (1 ao 10)
-  [B1] Bug simples → ativa 1, 7, 9
-  [B2] Bug complexo → ativa 1, 6, 7, 8, 9
-  [B3] Bug de segurança → ativa 1, 6, 7, 8, 9, 10
+  [P]  Projeto pessoal/protótipo → ativa 1, 7, 9
+  [F]  Feature simples           → ativa 1, 2, 6, 7, 9
+  [U]  Feature com UI            → ativa 1, 2, 3, 5, 6, 7, 9
+  [T]  Produção com testes       → ativa 1, 2, 3, 4, 6, 7, 8, 9
+  [S]  Produção completa         → ativa todas (1 ao 10)
+  [B1] Bug simples               → ativa 1, 7, 9
+  [B2] Bug complexo              → ativa 1, 6, 7, 8, 9
+  [B3] Bug de segurança          → ativa 1, 6, 7, 8, 9, 10
 ```
+
+**Time de Design ativo ⇒ etapa 5 (Designer) desmarcada**: o resultado do
+Time é a saída da etapa 5 (ver "Time de Design" abaixo).
 
 ## Comportamento durante o pipeline
 
@@ -137,7 +142,8 @@ disparo deve conter, sempre:
 
 1. O conteúdo integral do arquivo de persona da etapa (ex: `.agents/DEV.md`)
 2. O contexto acumulado relevante das etapas já executadas (resumo do que o
-   ANALISTA, PO, ARQUITETO etc. produziram até aqui)
+   ANALISTA, PO, ARQUITETO etc. produziram até aqui, incluindo decisões do
+   Bruno) + o conteúdo de `.agents/CONTEXTO.md`, se existir
 3. A tarefa/demanda original do Bruno
 4. Uma instrução final pedindo ao subagente que termine sua resposta com uma
    seção opcional "Atualização de contexto sugerida" se ele aprendeu algo que
@@ -145,6 +151,21 @@ disparo deve conter, sempre:
    algo mudou). No fim da sessão, o Orquestrador consolida todas as sugestões
    recebidas e, se houver alguma, pergunta ao Bruno antes de gravar em
    `.agents/CONTEXTO.md` — nunca grava silenciosamente.
+
+**Decisões pendentes** (contrato em `.agents/PIPELINE.md`, "Decisões
+pendentes"): se a resposta trouxer `### Decisões pendentes (bloqueantes)`
+com itens, não avance — pergunte todas ao Bruno **numa única mensagem**
+(com as opções e a recomendação da etapa) e redispare a **mesma etapa** com
+as respostas no contexto. As `### Suposições adotadas` entram no resumo da
+etapa que você mostra ao Bruno (ele pode contestar antes da próxima etapa).
+
+**Gate de validação pós-Analista (obrigatório):** depois do Analista e antes
+de disparar qualquer outra etapa, pare e mostre ao Bruno, numa mensagem:
+resumo do entendimento em ≤5 linhas, critérios de aceitação, fora de
+escopo, decisões pendentes (com opções e recomendação) e a divergência de
+tier, se o Analista sinalizou. Só siga com a confirmação dele; correção
+material → redispare o Analista com ela. Exceção: tier `spike` sem
+decisões pendentes pode pular o gate (o resumo vai junto da próxima etapa).
 
 Ao final de cada subagente, incorpore o resultado ao "log do contexto acumulado"
 antes de montar o prompt da próxima etapa, e atualize `.agents/PIPELINE-STATE.md`
@@ -317,8 +338,9 @@ ser processada pelo comando `/aprendizados-sync` rodado no repo-fonte.
 
 Se BDD, Dev ou QA reportar um bug fora do escopo da tarefa atual (ver "Bug
 fora do escopo encontrado no meio do trabalho" nos respectivos arquivos de
-persona): apresente o achado e as opções ao Bruno tal como a etapa
-entregou (corrigir agora / abrir tarefa separada / pular), espere a
+persona — chega como item de "Decisões pendentes"): apresente o achado e as
+opções ao Bruno tal como a etapa entregou (corrigir agora / abrir tarefa
+separada / pular), espere a
 decisão, e repasse a decisão de volta à etapa que reportou antes de
 continuar o pipeline — nunca decide por conta própria nem descarta o
 achado silenciosamente.
