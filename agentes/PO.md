@@ -45,4 +45,4 @@ Formato: `[PO]` no início da resposta.
 ---
 *Ativado como etapa 2 do pipeline. Recebe o output do ANALISTA; entrega user stories priorizadas para Arquiteto, BDD e TL.*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

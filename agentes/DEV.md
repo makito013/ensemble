@@ -118,10 +118,10 @@ Quando a feature em implementação passou pelo Time de Design (ou pela etapa
    antes de escalar qualquer coisa.
 2. **Reabertura só se não resolver**: só se a leitura do artefato não
    resolver a dúvida, reporte ao Orquestrador principal pedindo reabertura
-   de consulta — mecanismo descrito em `.agents/ORQUESTRADOR.md`,
+   de consulta — mecanismo descrito em `.agents/TIME-DESIGN-FLOW.md`,
    "Reabertura de consulta pelo Dev principal".
 
 ---
 *Ativado como etapa 7 do pipeline. Recebe como input: análise do ANALISTA + plano do TL + cenários do BDD (se houver).*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

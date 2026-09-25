@@ -142,7 +142,7 @@ do projeto:
 
 | IA | Materializa | Onde |
 |----|--------------|------|
-| Claude | `.agents/` (21 arquivos: 20 personas + `PIPELINE.md`) + `.claude/commands/` (comandos `orquestrador*`, `time-design`) + `.claude/skills/coding-standards/` | Raiz do projeto |
+| Claude | `.agents/` (26 arquivos: 20 personas + `PIPELINE.md` + 5 documentos sob demanda — `MODELOS.md`, `TIME-DESIGN-FLOW.md`, `PLAN-FLOW.md`, `APRENDIZADOS.md`, `TEMPLATES.md` — e os scripts em `.agents/scripts/`) + `.claude/commands/` (comandos `orquestrador*`, `time-design`) + `.claude/skills/coding-standards/` | Raiz do projeto |
 | Antigravity / Gemini CLI | Cópia de `gemini/skills/` | `.agents/skills/` |
 | Codex CLI (OpenAI) | Bloco delimitado (aplicado via `scripts/agents-md-block.sh`, determinístico) a partir de `codex/AGENTS-block.md` + cópia de `codex/skills/` | Bloco em `AGENTS.md` da raiz do projeto + `.codex/skills/` |
 | Cursor | Cópia de `cursor/skills/` | `.cursor/skills/` |
@@ -162,7 +162,7 @@ skills no formato que a engine espera (`SKILL.md` com frontmatter, mais
 **Cobertura parcial (Fase 2):** hoje os adapters de Codex e Cursor cobrem só
 os comandos `orquestrador` e `init-project`. Os demais comandos do lado
 Claude — `orquestrador-fix`, `orquestrador-init`, `orquestrador-pr`,
-`orquestrador-team`, `orquestrador-plan` e `time-design` — continuam
+`orquestrador-team`, `orquestrador-plan`, `orquestrador-status` e `time-design` — continuam
 disponíveis apenas via Claude Code por enquanto. Estender a paridade para
 essas engines é trabalho futuro (backlog).
 
@@ -182,8 +182,12 @@ agentes-pipeline/
 │   ├── BDD.md
 │   ├── DESIGNER.md
 │   ├── DEV.md
-│   ├── ORQUESTRADOR.md
-│   ├── PIPELINE.md
+│   ├── ORQUESTRADOR.md     ← núcleo, carregado a cada /orquestrador
+│   ├── PIPELINE.md         ← núcleo
+│   ├── MODELOS.md, TIME-DESIGN-FLOW.md, PLAN-FLOW.md,
+│   │   APRENDIZADOS.md, TEMPLATES.md   ← documentos lidos só sob demanda
+│   ├── scripts/            ← detect-projects.sh, pipeline-status.sh,
+│   │                         review-input.sh, design-snapshot.mjs
 │   ├── PO.md
 │   ├── QA.md
 │   ├── REVISOR.md
@@ -326,6 +330,7 @@ orquestrador: [F] criar endpoint de cadastro de gateway
 
 | Código | Perfil | Etapas |
 |--------|--------|--------|
+| `[X]` | Trivial (typo, uma linha, config) | 7, 9 (Revisor rápido), só uma confirmação |
 | `[P]` | Projeto pessoal/protótipo | 1, 7, 9 |
 | `[F]` | Feature simples | 1, 2, 6, 7, 9 |
 | `[U]` | Feature com UI | 1, 2, 3, 5, 6, 7, 9 |
@@ -334,6 +339,11 @@ orquestrador: [F] criar endpoint de cadastro de gateway
 | `[B1]` | Bug simples | 1, 7, 9 |
 | `[B2]` | Bug complexo | 1, 6, 7, 8, 9 |
 | `[B3]` | Bug de segurança | 1, 6, 7, 8, 9, 10 |
+
+Para ver o pipeline em aberto (só leitura, sem gastar o contexto do
+Orquestrador): `/orquestrador-status` (Antigravity: `orquestrador-status`).
+Cada etapa grava a saída integral em `.agents/.pipeline-run/`, e as etapas
+seguintes a recebem por caminho — é daí que a retomada após `/clear` lê.
 
 ## Sincronizar em outra máquina
 

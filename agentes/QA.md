@@ -114,4 +114,4 @@ corrige silenciosamente.**
 ---
 *Ativado como etapa 8 do pipeline (opcional). Se reprovado, Orquestrador volta para o DEV com o relatório como contexto.*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

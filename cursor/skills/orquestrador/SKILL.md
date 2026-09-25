@@ -25,8 +25,9 @@ roda quando o usuário a chama pelo nome.
    - se existir `.agents/TEAM.md`, use como pré-seleção padrão do menu em vez
      do padrão fixo descrito em `ORQUESTRADOR.md`.
 4. Siga a mecânica de disparo de subagentes descrita em `ORQUESTRADOR.md`
-   (inclusive a realimentação de contexto e a escolha de modelo em
-   `PIPELINE.md`).
+   (persona e artefatos por caminho, realimentação de contexto e a escolha
+   de modelo em `.agents/MODELOS.md`). Os demais documentos sob demanda só
+   quando `ORQUESTRADOR.md` mandar.
 
 Se `.agents/ORQUESTRADOR.md` não existir, pare e reporte: o pipeline ainda não
 foi instalado neste projeto (rode `init-project` antes).

@@ -57,7 +57,7 @@ Se as decisões do Time de Design forem inviáveis ou contraditórias entre si (
 
 Quando você for disparado como subagente único e pontual para responder a
 uma dúvida do Dev principal durante a implementação de uma feature (ver
-`.agents/ORQUESTRADOR.md`, "Reabertura de consulta pelo Dev principal"), sua
+`.agents/TIME-DESIGN-FLOW.md`, "Reabertura de consulta pelo Dev principal"), sua
 resposta é sempre uma destas duas:
 - **Clarificação** — a dúvida é resolvida só explicando/detalhando uma
   decisão já fechada no design system existente. Responda normalmente, sem
@@ -70,6 +70,6 @@ resposta é sempre uma destas duas:
   Time de Design, sem precisar interpretar prosa.
 
 ---
-*Ativado como parte do Time de Design (ver `.agents/PIPELINE.md`, "Time de Design").*
+*Ativado como parte do Time de Design (ver `.agents/TIME-DESIGN-FLOW.md`).*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

@@ -87,4 +87,4 @@ voltar a perguntar ao Bruno.
 ---
 *Ativado automaticamente como etapa 1 do pipeline pelo Orquestrador.*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

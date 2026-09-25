@@ -68,7 +68,13 @@ for f in "$ROOT/agentes/ORQUESTRADOR.md" "$ROOT/gemini/skills/orquestrador/SKILL
   check "$f" 'Só **reprovação** volta ao Dev: ❌ do QA, ❌ do Revisor ou 🔴 da Segurança.' "${f#"$ROOT"/}: loop de retrabalho só em reprovação, inclui QA"
   check "$f" 'dispara retrabalho — as ressalvas vão para o resumo final como dívida' "${f#"$ROOT"/}: ressalva nunca dispara retrabalho"
   check "$f" 'copiado literalmente' "${f#"$ROOT"/}: feedback copiado literalmente ao Dev"
-  check "$f" 'Fail-safe em k=N' "${f#"$ROOT"/}: fail-safe na rodada de integração"
+  # Contrato novo do Revisor (lentes + verificador): o veredito final sai do
+  # verificador; se a 1ª linha não for o header canônico, redispara 1x e
+  # depois trata como ❌ e escala.
+  check "$f" 'Fail-safe do verificador' "${f#"$ROOT"/}: fail-safe do verificador"
+  check "$f" 'redispare o verificador' "${f#"$ROOT"/}: redispara o verificador 1x"
+  check "$f" 'trate como ❌ e escale' "${f#"$ROOT"/}: depois do redisparo, ❌ e escala"
+  check_absent "$f" '[REVISOR] Lacuna' "${f#"$ROOT"/}: Revisor sem header de rodada de lacuna"
 done
 
 exit $fail

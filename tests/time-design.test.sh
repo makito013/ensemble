@@ -2,7 +2,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fail=0
-PONTEIRO='Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.'
+RODAPE='Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).'
 PERSONAS=(ORQUESTRADOR-DESIGN AVALIADOR UX DEV-DESIGN COPYWRITER ACESSIBILIDADE BRAND DESAFIANTE)
 
 # Hermético: instala o template num projeto temporário (mesma cópia do passo 4
@@ -61,12 +61,14 @@ for p in "${PERSONAS[@]}"; do
     fi
   fi
 
-  check "$INST" "$PONTEIRO" "$p.md (instalado) tem a linha-ponteiro final"
+  check "$INST" "$RODAPE" "$p.md (instalado) tem o rodapé de modelo final"
 done
 
 # 3 + 4: seção "Time de Design" em PIPELINE.md, fonte e instalado
-check "$ROOT/agentes/PIPELINE.md" '## Time de Design' "agentes/PIPELINE.md tem a seção Time de Design"
-check "$PROJ/.agents/PIPELINE.md" '## Time de Design' ".agents/PIPELINE.md tem a seção Time de Design"
+# (movida de PIPELINE.md para o documento sob demanda TIME-DESIGN-FLOW.md)
+check "$ROOT/agentes/TIME-DESIGN-FLOW.md" '# Time de Design' "agentes/TIME-DESIGN-FLOW.md tem a seção Time de Design"
+check "$PROJ/.agents/TIME-DESIGN-FLOW.md" '# Time de Design' ".agents/TIME-DESIGN-FLOW.md tem a seção Time de Design"
+check "$ROOT/agentes/PIPELINE.md" 'TIME-DESIGN-FLOW.md' "agentes/PIPELINE.md aponta o documento sob demanda do Time de Design"
 
 # 5 + 6: ORQUESTRADOR.md referencia DESIGN-STATE.md e a confirmação obrigatória
 check "$ROOT/agentes/ORQUESTRADOR.md" 'DESIGN-STATE.md' "agentes/ORQUESTRADOR.md referencia DESIGN-STATE.md"
@@ -102,7 +104,7 @@ for pair in "${FASE3_PAIRS_DIFFB[@]}"; do
   fi
 done
 
-FASE3_PAIRS_DIFFQ=(ORQUESTRADOR.md DEV.md PIPELINE.md)
+FASE3_PAIRS_DIFFQ=(ORQUESTRADOR.md DEV.md PIPELINE.md TIME-DESIGN-FLOW.md)
 for name in "${FASE3_PAIRS_DIFFQ[@]}"; do
   SRC="$ROOT/agentes/$name"
   INST="$PROJ/.agents/$name"
@@ -132,9 +134,12 @@ for p in "${ESPECIALISTAS[@]}"; do
   check "$PROJ/.agents/$p.md" '[DECISÃO NOVA]' ".agents/$p.md define o marcador [DECISÃO NOVA]"
 done
 
-check "$ROOT/agentes/ORQUESTRADOR.md" '[DECISÃO NOVA]' "agentes/ORQUESTRADOR.md checa o marcador [DECISÃO NOVA]"
-check "$PROJ/.agents/ORQUESTRADOR.md" '[DECISÃO NOVA]' ".agents/ORQUESTRADOR.md checa o marcador [DECISÃO NOVA]"
-check_absent "$ROOT/agentes/ORQUESTRADOR.md" 'o especialista sinalizar' "agentes/ORQUESTRADOR.md sem a prosa antiga 'o especialista sinalizar'"
-check_absent "$PROJ/.agents/ORQUESTRADOR.md" 'o especialista sinalizar' ".agents/ORQUESTRADOR.md sem a prosa antiga 'o especialista sinalizar'"
+# Reabertura de consulta vive no documento sob demanda TIME-DESIGN-FLOW.md.
+check "$ROOT/agentes/TIME-DESIGN-FLOW.md" '[DECISÃO NOVA]' "agentes/TIME-DESIGN-FLOW.md checa o marcador [DECISÃO NOVA]"
+check "$PROJ/.agents/TIME-DESIGN-FLOW.md" '[DECISÃO NOVA]' ".agents/TIME-DESIGN-FLOW.md checa o marcador [DECISÃO NOVA]"
+check "$ROOT/agentes/ORQUESTRADOR.md" 'reabertura de consulta' "agentes/ORQUESTRADOR.md manda ler o fluxo na reabertura de consulta"
+for f in "$ROOT/agentes/ORQUESTRADOR.md" "$PROJ/.agents/ORQUESTRADOR.md" "$ROOT/agentes/TIME-DESIGN-FLOW.md" "$PROJ/.agents/TIME-DESIGN-FLOW.md"; do
+  check_absent "$f" 'o especialista sinalizar' "$(basename "$f") sem a prosa antiga 'o especialista sinalizar'"
+done
 
 exit $fail

@@ -57,4 +57,4 @@ um cabeçalho `## Fase N — {nome}` (mesmo nome usado pelo Arquiteto).
 ---
 *Ativado como etapa 6 do pipeline. Recebe output do ANALISTA + ARQUITETO. Entrega plano para o DEV e estratégia para o QA.*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

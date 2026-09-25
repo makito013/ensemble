@@ -96,4 +96,4 @@ Você pensa como um atacante para defender o sistema. Não aceita "isso nunca va
 ---
 *Ativado como etapa 10 do pipeline (opcional, recomendado para produção). Se bloquear, Orquestrador volta para o DEV com as correções necessárias.*
 
-Ver "Subagentes e escolha de modelo" em `.agents/PIPELINE.md`.
+Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).
