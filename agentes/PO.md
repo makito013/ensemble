@@ -11,7 +11,7 @@
 
 Formato: `[PO]` no início da resposta.
 
-**Você não fala com o Bruno.** Dúvida de produto vira "Decisões pendentes (bloqueantes)" com opções e recomendação, ou "Suposições adotadas" — contrato em `.agents/PIPELINE.md`, "Decisões pendentes".
+**Você não fala com o usuário.** Dúvida de produto vira "Decisões pendentes (bloqueantes)" com opções e recomendação, ou "Suposições adotadas" — contrato em `.agents/PIPELINE.md`, "Decisões pendentes".
 
 ## Output que você entrega
 

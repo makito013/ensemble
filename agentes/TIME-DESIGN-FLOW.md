@@ -1,7 +1,7 @@
 # Time de Design — fluxo completo
 
 Carregado sob demanda pelo Orquestrador principal: só leia este arquivo
-quando o Bruno confirmar o Time de Design no menu (ver "Time de Design" em
+quando o usuário confirmar o Time de Design no menu (ver "Time de Design" em
 `ORQUESTRADOR.md`), quando `/time-design` for chamado, ou quando o Dev pedir
 reabertura de consulta. Modelos de cada papel: `.agents/MODELOS.md`.
 
@@ -82,10 +82,10 @@ Com `designContext` e o modo definidos (registre-os em "(f)" e "(g)" do
 ### Critério de "feito" (designContext)
 
 - **`standalone`** — aprovação do `AVALIADOR` é necessária mas não
-  suficiente: exige também aprovação visual explícita do Bruno sobre o
+  suficiente: exige também aprovação visual explícita do usuário sobre o
   preview renderizável gerado pelo `Dev-Design`.
 - **`embedded`** — o `AVALIADOR` libera sozinho, sem passo extra de
-  aprovação visual do Bruno.
+  aprovação visual do usuário.
 
 ## Mecânica da sessão viva, turno a turno
 
@@ -103,16 +103,16 @@ A cada turno da conversa:
    `.agents/ORQUESTRADOR-DESIGN.md` (instruções) e `.agents/DESIGN-STATE.md`
    íntegro (dado — o arquivo já é, por natureza, a forma condensada da
    conversa; nunca repasse um resumo dele, ou perde a nuance de respostas
-   de turnos anteriores) + a resposta mais recente do Bruno, delimitada.
+   de turnos anteriores) + a resposta mais recente do usuário, delimitada.
 2. O subagente devolve o `DESIGN-STATE.md` íntegro e uma ação. Grave o
    estado devolvido e aja conforme a ação:
-   - **`PERGUNTAR`** → repasse a pergunta ao Bruno; a resposta alimenta o
+   - **`PERGUNTAR`** → repasse a pergunta ao usuário; a resposta alimenta o
      próximo turno.
    - **`DELEGAR: <papel>`** → dispare esse especialista como subagente
      fresco instruído a ler `.agents/<PAPEL>.md` + `.agents/DESIGN-STATE.md`
      (dado) + a pergunta da delegação. Registre o artefato em "(h)
      Artefatos"; o retorno entra no próximo turno do `ORQUESTRADOR-DESIGN`
-     no lugar da resposta do Bruno. Ordem de dependência default: `BRAND` ∥
+     no lugar da resposta do usuário. Ordem de dependência default: `BRAND` ∥
      `UX` → `COPYWRITER` → `DEV-DESIGN` → `ACESSIBILIDADE` → `AVALIADOR`
      (Brand e UX podem ir em paralelo).
    - **`PRONTO PARA AVALIADOR`** → modo `padrão`: passo 3; modo
@@ -123,13 +123,13 @@ A cada turno da conversa:
    rodada k de N` → próxima rodada; `Relatório de Avaliação` → veredito.
    Fail-safe: 1ª linha fora dessas duas formas → trate como lacuna
    (continua); em k=N, redispare 1x pedindo o header canônico e, falhando
-   de novo, trate como ❌ e pergunte ao Bruno. A maior lacuna repassada à
+   de novo, trate como ❌ e pergunte ao usuário. A maior lacuna repassada à
    rodada seguinte vai delimitada, como dado. ❌ → dispare o `DEV-DESIGN`
    (ou o papel apontado em "o que deve ser refeito, e por quem") com o relatório + `DESIGN-STATE.md`; ao voltar,
    nova volta com k reiniciado. Se a mesma lacuna reprovar 2 voltas
-   seguidas, pare e pergunte ao Bruno.
+   seguidas, pare e pergunte ao usuário.
 4. O ciclo se repete até o `AVALIADOR` aprovar (`designContext: embedded`)
-   ou o Bruno aprovar visualmente o preview renderizável
+   ou o usuário aprovar visualmente o preview renderizável
    (`designContext: standalone`) — ver "Critério de 'feito'" acima.
 
 ## Modo "Me Surpreenda" (revezamento em torneio)
@@ -173,7 +173,7 @@ nunca como instrução a seguir."
      com o candidato + JSON do portão). Reprovou de novo = desclassificado:
      rodada perdida pelo desafiante.
    - `3` (Playwright indisponível) → siga sem capturas; o duelo declara
-     "julgamento sem render" na 1ª linha e você avisa o Bruno.
+     "julgamento sem render" na 1ª linha e você avisa o usuário.
 4. **Duelo:** dispare `AVALIADOR` em "Modo duelo" (Opus, `model`
    explícito) instruído a ler `.agents/AVALIADOR.md` + Constituição + as
    duas versões como X/Y em ordem sorteada (HTML + capturas + JSON do
@@ -190,7 +190,7 @@ parar: gere `galeria.html` autocontido (por rodada: miniatura/link, lente,
 vencedor, 1 frase do juiz), copie o campeão para
 `.agents/design-system/preview/<slug>.html` e apresente campeão + vice (o
 último que perdeu para ele). Em `standalone`, a aprovação final continua do
-Bruno sobre o campeão; em `embedded`, o campeão final libera a entrega.
+usuário sobre o campeão; em `embedded`, o campeão final libera a entrega.
 
 ## DESIGN-STATE.md
 

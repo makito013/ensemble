@@ -22,7 +22,7 @@ Passos:
    Sugira também o tier (`spike`/`feature`/`critical` — bug em auth,
    pagamento ou dados sensíveis é `critical`) e a escala do Revisor
    correspondente; typo/uma linha → perfil `[X]` Trivial.
-4. Apresente o menu já pré-marcado ao Bruno. Ele pode aceitar, adicionar ou
+4. Apresente o menu já pré-marcado ao usuário. Ele pode aceitar, adicionar ou
    remover qualquer etapa e ajustar o tier antes de confirmar.
 5. A partir da confirmação, siga a mecânica de disparo normal descrita em
    `ORQUESTRADOR.md`.

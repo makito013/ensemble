@@ -72,12 +72,12 @@ sinaliza divergência em vez de sobrescrever — ver `.agents/ANALISTA.md`,
   (Segurança), mesmo que o perfil escolhido não inclua essa etapa.
 
 O tier não força automaticamente um perfil — são escolhas independentes do
-Bruno. Na prática, perfis como `[P]`/`[B1]`/`[X]` tendem a ser `spike`, e
+usuário. Na prática, perfis como `[P]`/`[B1]`/`[X]` tendem a ser `spike`, e
 `[S]`/`[B3]` tendem a ser `critical`, mas qualquer combinação é válida.
 
 ## Decisões pendentes (contrato de handoff)
 
-Cada etapa roda como subagente isolado, sem canal com o Bruno: **nenhuma
+Cada etapa roda como subagente isolado, sem canal com o usuário: **nenhuma
 persona pergunta nada ao usuário nem espera resposta**. Ela avança no que
 não depende da dúvida e encerra a resposta com:
 
@@ -99,7 +99,7 @@ não depende da dúvida e encerra a resposta com:
   opções corrigir agora / abrir tarefa separada / pular. Essa regra
   está repetida de forma autocontida em `BDD.md`, `DEV.md` e `QA.md` (cada
   subagente só lê a própria persona).
-- Quem pergunta ao Bruno é só o Orquestrador — bloqueantes em lote numa
+- Quem pergunta ao usuário é só o Orquestrador — bloqueantes em lote numa
   mensagem e redisparo da mesma etapa com as respostas (gravadas em
   `.agents/.pipeline-run/00-decisoes.md`); suposições no resumo da etapa.
 
@@ -124,7 +124,7 @@ Orquestrador confirma antes de disparar.
 
 **Default por tier** (leitura rasa do Orquestrador): `spike` → rápida,
 `feature` → rápida, `critical` → rigorosa; "mega difícil" sinalizado pelo
-Bruno → mega.
+usuário → mega.
 
 **Nomenclatura interna (lado Claude, não user-facing):** `reviewScale` =
 `quick | standard | rigorous | extreme`; lentes `L1..L5`, `L1b`, `L2b`;
@@ -164,7 +164,7 @@ ativa). O loop de retrabalho fica contido dentro da fase. Uma fase só é
 concluída quando o Revisor (se ativo; senão QA; senão o próprio Dev) aprova
 a entrega dela. Segurança (etapa 10) roda uma vez só, no final, sobre a
 feature inteira. O loop tem um teto de 2 voltas por fase (também para a
-Segurança), com escalonamento ao Bruno e regra anti-oscilação — ver "Teto
+Segurança), com escalonamento ao usuário e regra anti-oscilação — ver "Teto
 de convergência" em `ORQUESTRADOR.md`.
 
 ### Saídas das etapas (`.agents/.pipeline-run/`)
@@ -172,7 +172,7 @@ de convergência" em `ORQUESTRADOR.md`.
 A saída integral de cada etapa fica em disco e é passada às etapas
 seguintes **por caminho** (matriz de handoff em `ORQUESTRADOR.md`):
 
-- `00-demanda.md` (demanda verbatim) e `00-decisoes.md` (respostas do Bruno
+- `00-demanda.md` (demanda verbatim) e `00-decisoes.md` (respostas do usuário
   às decisões pendentes, acumuladas).
 - `NN-<etapa>.md`, NN = número da etapa: `01-analista`, `02-po`,
   `03-arquiteto`, `04-bdd`, `05-designer` (ou `05-design`, saída do Time de

@@ -34,6 +34,6 @@ Passos:
    nova na seção "Log de atualizações" (origem `init`) — nunca sobrescreve
    cegamente. (Template de referência: `.agents/TEMPLATES.md`.)
 3. Nunca deixe um subagente ler ou escrever o `CONTEXTO.md` de outro projeto.
-4. Ao final, resuma ao Bruno: projetos processados, quais eram novos vs.
+4. Ao final, resuma ao usuário: projetos processados, quais eram novos vs.
    atualizados, e qualquer aviso (ex: nenhum projeto encontrado até a
    profundidade máxima).

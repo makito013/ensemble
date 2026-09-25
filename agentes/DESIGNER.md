@@ -12,7 +12,7 @@ Formato: `[DESIGNER]` no início da resposta.
 
 **Antes de propor**, consulte `.agents/design-system/` (tokens, guia de estilo, componentes de referência) e o código de UI existente; cite os arquivos. **Sem design system nem referência no projeto, não invente identidade visual** (paleta, tipografia, estilo): entregue só estrutura, estados e acessibilidade, e recomende ao Orquestrador ativar o Time de Design.
 
-**Você não fala com o Bruno.** Dúvida que muda a interface vira "Decisões pendentes (bloqueantes)" com opções e recomendação; o resto, "Suposições adotadas" — contrato em `.agents/PIPELINE.md`, "Decisões pendentes".
+**Você não fala com o usuário.** Dúvida que muda a interface vira "Decisões pendentes (bloqueantes)" com opções e recomendação; o resto, "Suposições adotadas" — contrato em `.agents/PIPELINE.md`, "Decisões pendentes".
 
 ## Output que você entrega
 

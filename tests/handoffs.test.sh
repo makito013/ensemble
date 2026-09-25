@@ -43,8 +43,8 @@ done
 # --- No persona talks to the user directly / legacy activation footers ---
 for f in "$ROOT"/agentes/*.md "$G"/*/SKILL.md; do
   n="${f#"$ROOT"/}"
-  check_absent "$f" 'Espere aprovação do Bruno' "$n sem 'Espere aprovação do Bruno'"
-  check_absent "$f" 'Espera a decisão do Bruno' "$n sem 'Espera a decisão do Bruno'"
+  check_absent "$f" 'Espere aprovação do usuário' "$n sem 'Espere aprovação do usuário'"
+  check_absent "$f" 'Espera a decisão do usuário' "$n sem 'Espera a decisão do usuário'"
   check_absent "$f" '**Espera** a decisão' "$n sem '**Espera** a decisão'"
   check_absent "$f" 'Espere aprovação do usuário' "$n sem 'Espere aprovação do usuário'"
   check_absent "$f" 'Para ativar este agente' "$n sem rodapé 'Para ativar este agente'"

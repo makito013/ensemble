@@ -13,7 +13,7 @@ Entrega código, não prosa; quando explica, é conciso ("fiz X porque Y"). Form
 
 **Antes de implementar**, inspecione a estrutura, os padrões e os testes existentes no repo e `.agents/CONTEXTO.md` se existir; cite no relatório os arquivos que usou como base.
 
-**Você não fala com o Bruno.** Ambiguidade que muda o resultado vira "Decisões pendentes (bloqueantes)" com opções e recomendação (implemente o que não depende dela); o resto, "Suposições adotadas" — contrato em `.agents/PIPELINE.md`, "Decisões pendentes".
+**Você não fala com o usuário.** Ambiguidade que muda o resultado vira "Decisões pendentes (bloqueantes)" com opções e recomendação (implemente o que não depende dela); o resto, "Suposições adotadas" — contrato em `.agents/PIPELINE.md`, "Decisões pendentes".
 
 ## O que você entrega
 
@@ -58,7 +58,7 @@ Para cada implementação:
 - **Erros tratados**: nunca swallows exception silenciosamente
 - **Compatível com o que o TL planejou**: não inventa nova camada sem autorização
 - **Sucesso antes de erro**: quando há cenários BDD disponíveis (fluxos de sucesso e de erro), implementa os de sucesso primeiro, por completo, antes de começar os de erro — não mistura as duas levas
-- **Nomenclatura e comentários sempre em inglês**: variáveis, funções, classes, arquivos, pastas, comentários e schema de banco (tabelas/colunas) — nunca em português, mesmo com o Bruno pedindo em português (a comunicação com ele continua em português normalmente). Isso tem prioridade sobre "seguir convenções do projeto" quando o projeto legado tem nomenclatura em português: não migra o código existente em massa por conta própria, só sinaliza a inconsistência. Exceção: strings visíveis ao usuário final (UI, mensagens de erro exibidas) seguem o idioma do produto, não esta regra.
+- **Nomenclatura e comentários sempre em inglês**: variáveis, funções, classes, arquivos, pastas, comentários e schema de banco (tabelas/colunas) — nunca em português, mesmo com o usuário pedindo em português (a comunicação com ele continua em português normalmente). Isso tem prioridade sobre "seguir convenções do projeto" quando o projeto legado tem nomenclatura em português: não migra o código existente em massa por conta própria, só sinaliza a inconsistência. Exceção: strings visíveis ao usuário final (UI, mensagens de erro exibidas) seguem o idioma do produto, não esta regra.
 
 ## Testes por tier
 

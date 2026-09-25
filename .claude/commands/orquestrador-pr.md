@@ -14,7 +14,7 @@ Passos:
 
 2. Extraia de `$ARGUMENTS` (interpretação em linguagem natural — nunca parsing
    posicional/regex) estes 5 campos: branch do PR, o que foi feito, commit
-   (o commit/SHA de referência do trabalho feito, se o Bruno tiver — é
+   (o commit/SHA de referência do trabalho feito, se o usuário tiver — é
    informativo/contextual, só para rastreabilidade no relatório de qual ponto
    exato foi revisado; o `git diff` do passo 5 continua sendo calculado por
    `<base>...<branch>`, a branch inteira, nunca por um commit isolado), base
@@ -26,13 +26,13 @@ Passos:
    critério de "faltou". Em caso de ambiguidade real entre dois campos (ex:
    não dá pra saber qual token é a branch e qual é a base), trate também como
    "faltou". Se faltar algo, pare e faça UMA ÚNICA pergunta consolidada ao
-   Bruno, listando só os itens que faltam — nunca uma pergunta por campo.
+   usuário, listando só os itens que faltam — nunca uma pergunta por campo.
 
 3. Resolva a branch base: rode `git rev-parse --verify --quiet main` (ou a
    base informada no passo 2, se houver). Se falhar, tente
    `git symbolic-ref refs/remotes/origin/HEAD` como fallback e extraia o nome
    da branch depois de `origin/`. Se nada resolver, ABORTE com uma mensagem
-   explícita ao Bruno explicando que não foi possível determinar a base.
+   explícita ao usuário explicando que não foi possível determinar a base.
 
 4. Valide a branch do PR: rode `git fetch --quiet` primeiro, best-effort — se
    falhar (sem rede, sem remoto configurado), NÃO interrompa o fluxo; siga com
@@ -45,7 +45,7 @@ Passos:
    `git diff --stat <base>...<branch>` (leve, só o resumo).
    - Se o diff for vazio — confirme comparando `git merge-base <base> <branch>`
      com `git rev-parse <branch>`: se forem iguais, não há diff — PARE, avise
-     o Bruno e peça confirmação de branch/base/commit. Nunca gere um relatório
+     o usuário e peça confirmação de branch/base/commit. Nunca gere um relatório
      sobre um diff vazio.
    - Sempre (qualquer tamanho): defina `<id>` = `<branch-slug>-<data>` (slug
      = nome da branch com `/` trocado por `-`), crie
@@ -114,8 +114,8 @@ Passos:
    `.agents/.pr-reviews/<id>.md` — nunca sobrescreva um arquivo ou pasta já
    existente; se `<id>` colidir (no passo 5), acrescente um sufixo. No cabeçalho do
    relatório, inclua os dados do PR revisado: branch, base, commit (quando
-   informado pelo Bruno no passo 2) e task/contexto original. Deixe claro
+   informado pelo usuário no passo 2) e task/contexto original. Deixe claro
    também que uma base desatualizada (passo 4) é só um aviso, nunca um
    bloqueio, e que qualquer arquivo "fora do commit" suspeito de segredo
    entra no relatório apenas como path + classificação de risco, nunca com o
-   conteúdo. Depois apresente o relatório ao Bruno.
+   conteúdo. Depois apresente o relatório ao usuário.

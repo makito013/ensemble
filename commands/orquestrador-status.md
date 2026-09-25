@@ -8,7 +8,7 @@ Tarefa só de leitura: não carregue `.agents/ORQUESTRADOR.md` nem
 `.agents/PIPELINE.md` e não altere nenhum arquivo.
 
 1. Rode `bash .agents/scripts/pipeline-status.sh` na raiz do projeto.
-2. Mostre a saída ao Bruno como está, num bloco de código, sem reinterpretar.
+2. Mostre a saída ao usuário como está, num bloco de código, sem reinterpretar.
 3. Conforme o resultado:
    - `nenhum pipeline em aberto` → diga isso numa linha.
    - Resumo impresso → acrescente só: "Para continuar, rode `/orquestrador`

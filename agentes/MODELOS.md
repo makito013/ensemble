@@ -18,7 +18,7 @@ ferramenta, que herda o modelo da sessão principal e não é garantido.
 
 - **Escalonamento:** subir um degrau (sonnet → opus) só com motivo
   registrado — ex.: a mesma etapa não convergiu na 2ª volta por limitação
-  de raciocínio, ou o Bruno pediu. Avise o Bruno ao escalar.
+  de raciocínio, ou o usuário pediu. Avise o usuário ao escalar.
 - **Ressalva de fork:** o override de modelo não funciona ao disparar um
   *fork* — um fork sempre roda no modelo de quem o disparou. Etapas do
   pipeline são sempre subagentes novos (`subagent_type: general-purpose`),

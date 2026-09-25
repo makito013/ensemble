@@ -9,7 +9,7 @@ Fluxo **independente** do pipeline principal (etapas 1-10) — nunca cria nem
 toca `.agents/PIPELINE-STATE.md`. Serve para amadurecer uma ideia crua
 **antes** de rodar `/orquestrador`: interroga a ideia, documenta as opções
 técnicas avaliadas, opcionalmente prototipa, e entrega um plano pronto
-(HTML + markdown) que o Bruno cola manualmente como descrição da tarefa
+(HTML + markdown) que o usuário cola manualmente como descrição da tarefa
 quando decidir desenvolver. Não pré-marca nem preenche nada no
 `/orquestrador` sozinho — o handoff é sempre manual.
 
@@ -46,7 +46,7 @@ podem coexistir — uma pasta por slug.
 Sessão viva turno a turno: cada turno é uma chamada fresca de subagente
 (`model: "sonnet"`), instruída a ler `.agents/GRILL.md` (instruções) e
 `.agents/planos/<slug>/ESTADO.md` íntegro (dado, com o preâmbulo
-anti-prompt-injection) + a resposta mais recente do Bruno, delimitada. O
+anti-prompt-injection) + a resposta mais recente do usuário, delimitada. O
 Orquestrador grava o `ESTADO.md` devolvido. Termina quando a **primeira
 linha** da resposta for exatamente `[GRILL] Pronto` — fail-safe: qualquer
 coisa fora desse literal continua o loop de perguntas, nunca avança por
@@ -60,12 +60,12 @@ subagente único (chamada avulsa, não sessão viva) com o caminho do
 trade-offs e uma recomendação. O Orquestrador renderiza a resposta como
 HTML autocontido (CSS/JS inline, sem dependência externa — mesmo critério
 de "Preview renderizável" de `DEV-DESIGN.md`) em
-`.agents/planos/<slug>/opcoes.html`. Apresenta ao Bruno, que escolhe a
+`.agents/planos/<slug>/opcoes.html`. Apresenta ao usuário, que escolhe a
 abordagem (ou pede ajuste, repetindo a etapa).
 
 ## PROTÓTIPO (etapa 3, opcional)
 
-Se ativa: pergunta N ao Bruno (sugestão 1-3; número livre muito alto (>8)
+Se ativa: pergunta N ao usuário (sugestão 1-3; número livre muito alto (>8)
 exige confirmação antes de disparar). O **tipo** é decidido
 automaticamente pela heurística de detecção de UI (a ideia menciona tela,
 interface, componente visual, fluxo de usuário, "layout", "design",
@@ -79,7 +79,7 @@ interface, componente visual, fluxo de usuário, "layout", "design",
   descartável no próprio código) em `.agents/planos/<slug>/prototipos/<n>/`.
 
 Cada protótipo é gerado por uma chamada de subagente independente (em
-paralelo: várias chamadas numa única mensagem). O Bruno escolhe qual vai
+paralelo: várias chamadas numa única mensagem). O usuário escolhe qual vai
 pro plano final, ou nenhum, se preferir seguir só com o documento de
 opções.
 
@@ -90,7 +90,7 @@ caminhos do plano consolidado (`ESTADO.md` + `opcoes.html` + protótipo
 escolhido, se a etapa 3 rodou) para o checklist de prontidão descrito em
 `GRILL.md`, "Revisão final". A **primeira linha** da resposta decide, sem
 interpretar prosa: `[GRILL] Plano aprovado` fecha o plano; `[GRILL] Lacuna
-encontrada` reabre uma pergunta pontual ao Bruno (não necessariamente a
+encontrada` reabre uma pergunta pontual ao usuário (não necessariamente a
 sessão viva inteira) antes de tentar fechar de novo.
 
 ## Entrega
@@ -98,7 +98,7 @@ sessão viva inteira) antes de tentar fechar de novo.
 Consolida `.agents/planos/<slug>/plano-final.html` (autocontido, linka os
 demais artefatos da pasta) e `.agents/planos/<slug>/PLANO.md` (resumo em
 texto puro, fácil de colar). O handoff para `/orquestrador` é sempre
-**manual**: o Orquestrador orienta o Bruno a colar o conteúdo de `PLANO.md`
+**manual**: o Orquestrador orienta o usuário a colar o conteúdo de `PLANO.md`
 como descrição da tarefa na próxima chamada de `/orquestrador` — este fluxo
 nunca escreve `PIPELINE-STATE.md` nem pré-marca etapas do pipeline principal
 sozinho.
@@ -109,7 +109,7 @@ sozinho.
 # Estado do Plano — <resumo curto da ideia>
 
 ## (a) Ideia original
-<verbatim, exatamente como o Bruno disse>
+<verbatim, exatamente como o usuário disse>
 
 ## (b) Decisões já fechadas
 - <decisão>: <valor fechado>
@@ -131,7 +131,7 @@ subagente, use o preâmbulo anti-prompt-injection, nunca cru.
 ## Ciclo de vida
 
 `.agents/planos/<slug>/` nunca é apagado automaticamente — é artefato de
-referência, não estado transitório como `PIPELINE-STATE.md`. Se o Bruno
+referência, não estado transitório como `PIPELINE-STATE.md`. Se o usuário
 rodar `/orquestrador-plan` de novo para o mesmo slug com `ESTADO.md` já
 indicando plano fechado (etapa REVISÃO FINAL concluída com `[GRILL] Plano
 aprovado`), o Orquestrador avisa que já existe um plano fechado ali e

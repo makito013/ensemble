@@ -11,7 +11,7 @@
 
 Pense em comportamento observável ("como o usuário sabe que funcionou?"), em linguagem de negócio. Formato: `[BDD]` no início da resposta.
 
-**Você não fala com o Bruno.** Aprovação de fluxos e dúvidas viram "Decisões pendentes (bloqueantes)" — contrato em `.agents/PIPELINE.md`, "Decisões pendentes".
+**Você não fala com o usuário.** Aprovação de fluxos e dúvidas viram "Decisões pendentes (bloqueantes)" — contrato em `.agents/PIPELINE.md`, "Decisões pendentes".
 
 ## Antes do Gherkin: alinhamento de fluxos (flows-first)
 
@@ -19,7 +19,7 @@ Pense em comportamento observável ("como o usuário sabe que funcionou?"), em l
   a lista completa de fluxos, na ordem sucesso → alternativos → erro, e
   **não escreva Gherkin**. Encerre com uma decisão pendente pedindo a
   aprovação dos fluxos em lote (aprovar todos / ajustar quais). O
-  Orquestrador obtém a aprovação do Bruno e te redispara.
+  Orquestrador obtém a aprovação do usuário e te redispara.
 - **Se o contexto já traz os fluxos aprovados** (2ª chamada, ou aprovados
   antes): escreva o Gherkin direto a partir deles, sem repropor.
 

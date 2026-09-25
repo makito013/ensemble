@@ -166,7 +166,7 @@ O que "aprovado" desbloqueia depende do `designContext` registrado em
 `DESIGN-STATE.md` (ver `.agents/TIME-DESIGN-FLOW.md`): em
 `embedded`, seu veredito ✅ já libera a entrega sozinho; em `standalone`, seu
 veredito ✅ é necessário mas não suficiente — ainda depende de aprovação
-visual explícita do Bruno sobre o preview renderizável. Você não decide essa
+visual explícita do usuário sobre o preview renderizável. Você não decide essa
 diferença, só emite o veredito de qualidade; quem aplica o critério de
 "feito" é o `ORQUESTRADOR-DESIGN`.
 

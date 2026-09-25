@@ -87,7 +87,7 @@ subcomandos do script, que aplicam essa definição.
         real do template sobrescreveria a customização silenciosamente.
      4. Registre a migração para citar no resumo final.
    - Se **ambos** `./agentes/PIPELINE.md` e `./.agents/PIPELINE.md`
-     existirem ao mesmo tempo: pare e reporte o conflito ao Bruno (os
+     existirem ao mesmo tempo: pare e reporte o conflito ao usuário (os
      dois caminhos encontrados), sem tocar em nenhum dos dois — não
      tente adivinhar o merge.
    - Se nenhum dos dois existir, ou só `.agents/PIPELINE.md` existir, ou
@@ -131,7 +131,7 @@ subcomandos do script, que aplicam essa definição.
       `./.agents/.backup-*` (versões anteriores deste skill) **não** são
       movidos, apagados nem copiados de novo: ficam onde estão. Se
       `LEGACY_BACKUPS` for maior que zero, só mencione no resumo que eles
-      existem e podem ser apagados manualmente quando o Bruno quiser.
+      existem e podem ser apagados manualmente quando o usuário quiser.
    2. Sobrescreva os arquivos de template:
       ```bash
       bash ~/agentes-pipeline/scripts/init-manifest-diff.sh install \
@@ -175,7 +175,7 @@ subcomandos do script, que aplicam essa definição.
       restauração das seções `## Aprendizados`). O `install` do passo 5 já
       cria o manifesto inicial com o hash do template — não rode `generate`
       depois.
-   3. Caso contrário, relate ao Bruno o resumo impresso pelo script
+   3. Caso contrário, relate ao usuário o resumo impresso pelo script
       (`INSTALLED=`, `OVERWRITTEN=`, `PRESERVED=`, `CONFLICTS=`) e, se houver
       conflitos, liste cada arquivo `.new` gerado e explique que ele precisa
       revisar manualmente (comparar `<arquivo>` com `<arquivo>.new` e decidir
@@ -215,7 +215,7 @@ subcomandos do script, que aplicam essa definição.
         (passo 9), nunca de forma silenciosa (é arquivo versionado do
         projeto-alvo). Se o exit code for `3` (marcadores ambíguos em
         `AGENTS.md`), **pare** e reporte o erro (mensagem de stderr do
-        script) ao Bruno — nunca tente editar `AGENTS.md` manualmente para
+        script) ao usuário — nunca tente editar `AGENTS.md` manualmente para
         "consertar" o conflito. Isso é sempre via script determinístico,
         nunca prosa/edição livre por LLM.
      2. Copie `~/agentes-pipeline/codex/skills/` para `./.codex/skills/`

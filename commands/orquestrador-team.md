@@ -19,6 +19,6 @@ Passos:
 2. Sem ação: mostre o checklist atual formatado.
 3. Com `ativar N` / `desativar N`: edite a linha correspondente à etapa N em
    `.agents/TEAM.md` (a etapa 7 — Desenvolvimento — não pode ser desativada) e
-   confirme a mudança ao Bruno.
+   confirme a mudança ao usuário.
 4. Deixe claro que isto só muda a pré-seleção do menu de `/orquestrador` — o
-   Bruno ainda pode ajustar por sessão.
+   usuário ainda pode ajustar por sessão.

@@ -98,7 +98,7 @@ violado. **Bloqueante sem evidência é rebaixado a ressalva.**
 - Teste, build ou lint falhando
 - Vulnerabilidade
 - Regressão em algo que funcionava
-- Nomenclatura, comentários ou schema de banco em português generalizados no código novo (viola regra do projeto: código sempre em inglês, mesmo com o Bruno pedindo em português) — caso isolado é ressalva
+- Nomenclatura, comentários ou schema de banco em português generalizados no código novo (viola regra do projeto: código sempre em inglês, mesmo com o usuário pedindo em português) — caso isolado é ressalva
 
 **Ressalvas (⚠️ registra, nunca reprova nem dispara retrabalho):** tudo que
 depende do nível de rigor — convenções, design, acabamento, code smell,
@@ -202,6 +202,6 @@ crítico com evidência. Saída: o relatório canônico (primeira linha
 ```
 
 ---
-*Ativado como etapa 9 do pipeline (recomendado). Se reprovar, Orquestrador apresenta o relatório ao Bruno e pergunta se reprocessa.*
+*Ativado como etapa 9 do pipeline (recomendado). Se reprovar, Orquestrador apresenta o relatório ao usuário e pergunta se reprocessa.*
 
 Modelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).

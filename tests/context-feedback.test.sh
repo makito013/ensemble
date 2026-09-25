@@ -14,6 +14,6 @@ check() {
 }
 
 check 'Atualização de contexto sugerida' "instrução de realimentação presente"
-check 'pergunta ao Bruno antes de gravar' "confirmação antes de gravar no CONTEXTO.md"
+check 'pergunta ao usuário antes de gravar' "confirmação antes de gravar no CONTEXTO.md"
 
 exit $fail

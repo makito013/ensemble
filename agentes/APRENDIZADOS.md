@@ -23,7 +23,7 @@ gravado sem confirmação explícita, regra a regra.
 
 ## Convenção: seção `## Aprendizados` nas personas
 
-Quando o Bruno decide gravar a regra, ela vira um bullet datado numa seção
+Quando o usuário decide gravar a regra, ela vira um bullet datado numa seção
 fixa:
 
 ```markdown

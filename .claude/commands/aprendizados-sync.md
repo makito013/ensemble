@@ -14,10 +14,10 @@ $ARGUMENTS
 
 Passos:
 1. Leia `<caminho>/.agents/.aprendizados-globais-pendentes.md`. Se não
-   existir ou estiver vazio, informe ao Bruno que não há regra pendente
+   existir ou estiver vazio, informe ao usuário que não há regra pendente
    nesse projeto e pare.
 2. Para cada regra pendente (agrupada por persona-alvo no arquivo),
-   apresente ao Bruno: o texto da regra e a persona-alvo. Bruno responde:
+   apresente ao usuário: o texto da regra e a persona-alvo. O usuário responde:
    aprovar como está, editar o texto, ou descartar.
 3. Regra aprovada (com ou sem edição): adicione um bullet na seção
    `## Aprendizados` de `agentes/<PERSONA>.md` (crie a seção, imediatamente
@@ -32,5 +32,5 @@ Passos:
    descartadas), reescreva `<caminho>/.agents/.aprendizados-globais-pendentes.md`
    removendo as entradas processadas. Se não sobrar nenhuma entrada, remova
    o arquivo.
-5. Resuma ao Bruno: quantas regras foram aplicadas, em quais personas, e
+5. Resuma ao usuário: quantas regras foram aplicadas, em quais personas, e
    quantas foram descartadas.

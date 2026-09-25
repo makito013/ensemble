@@ -401,7 +401,7 @@ cp -R ~/agentes-pipeline/gemini/skills /caminho/do/projeto/.agents/
 
 ## Aprendizado por feedback
 
-Durante uma sessão de `/orquestrador`, se o Bruno corrigir o comportamento
+Durante uma sessão de `/orquestrador`, se o usuário corrigir o comportamento
 de um agente ("sempre faça X", "nunca faça Y"), o Orquestrador identifica
 isso como candidata a regra de aprendizado e, no resumo final, pergunta se
 deve gravar como regra **local** (só este projeto, seção `## Aprendizados`
@@ -414,7 +414,7 @@ personas-fonte) só existe no lado Claude Code, rodando aqui neste repo.
 
 Também vale notar: os loops de retrabalho (QA/Revisor reprova → volta pro
 Dev) têm um teto de 2 voltas por fase — se a 2ª tentativa também falhar, o
-Orquestrador não dispara uma 3ª automaticamente, escala a decisão ao Bruno
+Orquestrador não dispara uma 3ª automaticamente, escala a decisão ao usuário
 (e escala imediatamente, sem esperar a 2ª volta, se a reprovação repetir o
 mesmo motivo da 1ª).
 

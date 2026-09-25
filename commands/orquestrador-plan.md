@@ -10,7 +10,7 @@ independente do pipeline principal. Os subagentes leem as próprias personas
 (`.agents/GRILL.md`, `.agents/ARQUITETO.md`, `.agents/DEV-DESIGN.md`,
 `.agents/DEV.md`) por caminho, com `model` explícito (`.agents/MODELOS.md`).
 
-Ideia bruta (pode vir vazia — pergunte ao Bruno neste caso antes de seguir):
+Ideia bruta (pode vir vazia — pergunte ao usuário neste caso antes de seguir):
 
 $ARGUMENTS
 
@@ -24,7 +24,7 @@ Passos:
      inicial (formato em `PLAN-FLOW.md`, "Formato de ESTADO.md"), com "(a)
      Ideia original" = `$ARGUMENTS`.
    - **Existe e já está fechado** (REVISÃO FINAL concluída com `[GRILL]
-     Plano aprovado`): avise o Bruno e pergunte se quer reabrir (nova rodada
+     Plano aprovado`): avise o usuário e pergunte se quer reabrir (nova rodada
      de GRILL a partir do estado salvo) ou começar um plano novo (slug novo).
    - **Existe e está em andamento:** ofereça continuar de onde parou, a
      partir do `ESTADO.md` salvo — não do histórico da conversa, que pode
@@ -32,18 +32,18 @@ Passos:
 
 3. Apresente o menu de etapas do planejamento (`PLAN-FLOW.md`, "Menu de
    etapas") com a pré-seleção padrão (1, 2 e 4 marcadas; 3 desmarcada) e
-   aguarde o Bruno confirmar ou ajustar. A etapa 1 (GRILL) nunca pode ser
+   aguarde o usuário confirmar ou ajustar. A etapa 1 (GRILL) nunca pode ser
    desmarcada.
 
 4. Rode as etapas ativas conforme `PLAN-FLOW.md`: GRILL em sessão viva até a
    primeira linha da resposta ser exatamente `[GRILL] Pronto`; OPÇÕES em
-   `.agents/planos/<slug>/opcoes.html`; PROTÓTIPO (N perguntado ao Bruno,
+   `.agents/planos/<slug>/opcoes.html`; PROTÓTIPO (N perguntado ao usuário,
    tipo pela heurística de UI) em `.agents/planos/<slug>/prototipos/`;
    REVISÃO FINAL até `[GRILL] Plano aprovado`.
 
 5. Consolide `.agents/planos/<slug>/plano-final.html` (autocontido, linka os
    demais artefatos da pasta) e `.agents/planos/<slug>/PLANO.md` (resumo em
-   texto puro). Oriente o Bruno: *"Plano pronto em
+   texto puro). Oriente o usuário: *"Plano pronto em
    `.agents/planos/<slug>/PLANO.md` — quando for desenvolver, rode
    `/orquestrador` e cole esse conteúdo como a descrição da tarefa."*
 

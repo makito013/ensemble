@@ -7,13 +7,13 @@ deste arquivo.
 ## Template de TEAM.md
 
 Se `.agents/TEAM.md` existir no projeto, ele define a pré-seleção do menu de
-`/orquestrador` (o Bruno ainda pode ajustar por sessão). Formato:
+`/orquestrador` (o usuário ainda pode ajustar por sessão). Formato:
 
 ```
 # Time padrão — <projeto>
 
 Define a pré-seleção do menu quando /orquestrador rodar aqui.
-O Bruno ainda pode ajustar por sessão — isto só muda o ponto de partida.
+O usuário ainda pode ajustar por sessão — isto só muda o ponto de partida.
 
 [x] 1. ANÁLISE — Analista
 [ ] 2. CLARIFICAÇÃO — PO
@@ -28,14 +28,14 @@ O Bruno ainda pode ajustar por sessão — isto só muda o ponto de partida.
 ```
 
 A etapa 7 (Desenvolvimento) nunca pode ficar desmarcada — `/orquestrador-team`
-recusa a edição se o Bruno tentar desativá-la.
+recusa a edição se o usuário tentar desativá-la.
 
 ## Template de CONTEXTO.md
 
 `.agents/CONTEXTO.md` é a memória persistente de um projeto. Gerado/atualizado
 por `/orquestrador-init` e realimentado durante o uso normal do pipeline
 (seção "Atualização de contexto sugerida" dos subagentes, gravada só com
-confirmação do Bruno). Sempre com estas 7 seções, nesta ordem:
+confirmação do usuário). Sempre com estas 7 seções, nesta ordem:
 
 1. **Visão geral do projeto** — propósito, domínio, stack.
 2. **Arquitetura** — camadas, padrões, decisões estruturais.
@@ -55,12 +55,12 @@ atualiza o que mudou, sempre registra uma linha nova na seção 7.
 
 ## Convenção universal: idioma do código
 
-Independente do idioma da conversa com o Bruno (português), todo artefato de
+Independente do idioma da conversa com o usuário (português), todo artefato de
 código produzido pelo pipeline é sempre em inglês: nomes de variáveis, funções,
 classes, arquivos e pastas; comentários no código; tabelas/colunas/schemas de
 banco de dados; chaves de configuração, rotas/endpoints e nomes de eventos;
 mensagens de commit e nomes de branch; nomes de teste (`describe`/`it`/`test`).
-Fica em português apenas a comunicação com o Bruno e strings visíveis ao
+Fica em português apenas a comunicação com o usuário e strings visíveis ao
 usuário final quando o produto for para público brasileiro. Ao editar um
 arquivo legado em português: mantém consistência local e sinaliza, sem migrar
 em massa. A regra está repetida de forma autocontida em `ARQUITETO.md`,
