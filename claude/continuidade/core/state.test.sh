@@ -48,9 +48,15 @@ else
   fail=1
 fi
 
-# save de novo no mesmo cwd sobrescreve (não empilha)
+# save de novo no mesmo cwd sobrescreve (não empilha) e avisa no stderr
 echo "Resumo atualizado depois de terminar o parser." \
-  | HOME="$FIXTURE" node "$CLI" save --cwd "$PROJ" --session-id "sess-43"
+  | HOME="$FIXTURE" node "$CLI" save --cwd "$PROJ" --session-id "sess-43" 2> "$FIXTURE/save2.err"
+if grep -q '^AVISO_CHECKPOINT_SOBRESCRITO paused_at=20' "$FIXTURE/save2.err"; then
+  echo "PASS: save sobre checkpoint existente avisa no stderr com o paused_at anterior"
+else
+  echo "FAIL: save não avisou ao sobrescrever. stderr: $(cat "$FIXTURE/save2.err")"
+  fail=1
+fi
 FILE_COUNT_2=$(find "$FIXTURE/.continuidade/state" -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
 if [[ "$FILE_COUNT_2" == "1" ]]; then
   echo "PASS: segundo save sobrescreve em vez de empilhar (ainda 1 arquivo)"
@@ -65,6 +71,75 @@ else
   echo "FAIL: load não retornou o resumo atualizado. Saída: $OUT_ATUALIZADO"
   fail=1
 fi
+
+# clear removes the checkpoint; load then reports no paused state
+OUT_CLEAR=$(HOME="$FIXTURE" node "$CLI" clear --cwd "$PROJ")
+set +e
+OUT_AFTER_CLEAR=$(HOME="$FIXTURE" node "$CLI" load --cwd "$PROJ")
+CODE_AFTER_CLEAR=$?
+set -e
+if [[ "$OUT_CLEAR" == "ESTADO_LIMPO" && "$CODE_AFTER_CLEAR" == "1" && "$OUT_AFTER_CLEAR" == "SEM_ESTADO_PAUSADO" ]]; then
+  echo "PASS: clear apaga o checkpoint (load depois retorna SEM_ESTADO_PAUSADO)"
+else
+  echo "FAIL: clear='$OUT_CLEAR' load='$OUT_AFTER_CLEAR' exit=$CODE_AFTER_CLEAR"
+  fail=1
+fi
+
+# clear is idempotent
+set +e
+OUT_CLEAR_2=$(HOME="$FIXTURE" node "$CLI" clear --cwd "$PROJ")
+CODE_CLEAR_2=$?
+set -e
+if [[ "$CODE_CLEAR_2" == "0" && "$OUT_CLEAR_2" == "SEM_ESTADO_PAUSADO" ]]; then
+  echo "PASS: clear sem checkpoint é idempotente (exit 0, SEM_ESTADO_PAUSADO)"
+else
+  echo "FAIL: clear repetido exit=$CODE_CLEAR_2 saida='$OUT_CLEAR_2'"
+  fail=1
+fi
+
+# the first save after a clear does not warn about overwriting
+echo "Nova pausa." | HOME="$FIXTURE" node "$CLI" save --cwd "$PROJ" 2> "$FIXTURE/save3.err" > /dev/null
+if [[ ! -s "$FIXTURE/save3.err" ]]; then
+  echo "PASS: save sem checkpoint anterior não emite aviso"
+else
+  echo "FAIL: aviso indevido: $(cat "$FIXTURE/save3.err")"
+  fail=1
+fi
+
+# clear sem --cwd retorna exit 2
+set +e
+HOME="$FIXTURE" node "$CLI" clear > /dev/null 2>&1
+CODE_CLEAR_NO_CWD=$?
+set -e
+if [[ "$CODE_CLEAR_NO_CWD" == "2" ]]; then
+  echo "PASS: clear sem --cwd retorna exit 2"
+else
+  echo "FAIL: clear sem --cwd retornou exit $CODE_CLEAR_NO_CWD"
+  fail=1
+fi
+
+# the skills (Claude and Gemini mirrors) must use clear/the overwrite warning
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+for skill in \
+  "$SCRIPT_DIR/../skills/continuar-trabalho/SKILL.md" \
+  "$REPO_ROOT/gemini/skills/continuar-trabalho/SKILL.md"; do
+  if grep -q 'state.js clear' "$skill"; then
+    echo "PASS: $(basename "$(dirname "$skill")") ($skill) limpa o checkpoint depois de retomar"
+  else
+    echo "FAIL: $skill não instrui a rodar state.js clear"
+    fail=1
+  fi
+done
+for skill in \
+  "$SCRIPT_DIR/../skills/pausar-trabalho/SKILL.md" \
+  "$REPO_ROOT/gemini/skills/pausar-trabalho/SKILL.md"; do
+  if grep -q 'AVISO_CHECKPOINT_SOBRESCRITO' "$skill"; then
+    echo "PASS: $skill avisa ao sobrescrever um checkpoint existente"
+  else
+    echo "FAIL: $skill não trata AVISO_CHECKPOINT_SOBRESCRITO"
+    fail=1
+  fi
+done
 
 # save sem --session-id retorna fallback para 'desconhecido'
 FIXTURE_SEM_SESSAO="$(mktemp -d)"

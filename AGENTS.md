@@ -77,7 +77,9 @@ arquivo correspondente em `agentes/*.md` normalmente.
    opcionais dependendo do perfil escolhido — não pule etapas marcadas como
    ativas sem confirmação do usuário.
 5. Este conjunto de arquivos pode ser atualizado rodando `/init-project` de novo
-   no projeto (faz backup do `./.agents/` atual antes de sobrescrever).
+   no projeto (faz backup completo do `./.agents/` atual em
+   `./.agents-backups/<timestamp>/` e sobrescreve só os arquivos de template,
+   mantendo os dados do projeto no lugar).
 6. `/aprendizados-sync` (ver "Aprendizado por feedback" no README) vive em
    `.claude/commands/aprendizados-sync.md`, não em `commands/`: comandos em
    `commands/` são copiados por `/init-project` para dentro de qualquer

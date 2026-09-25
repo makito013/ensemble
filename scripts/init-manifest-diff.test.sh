@@ -126,4 +126,110 @@ else
   fail=1
 fi
 
+# --- Round 5: backup + install (full reinstall without --update) keep project
+# data in place, back up outside .agents/ and never ship test files ---
+PROJ5="$FIXTURE/project-reinstall"
+TPL_A5="$FIXTURE/template-reinstall/agentes"
+TPL_C5="$FIXTURE/template-reinstall/commands"
+TPL_S5="$FIXTURE/template-reinstall/skills"
+mkdir -p "$TPL_A5/scripts" "$TPL_C5" "$TPL_S5/coding-standards"
+echo "persona v2" > "$TPL_A5/DEV.md"
+echo "pipeline v2" > "$TPL_A5/PIPELINE.md"
+echo "detect v2" > "$TPL_A5/scripts/detect-projects.sh"
+echo "snapshot v2" > "$TPL_A5/scripts/design-snapshot.mjs"
+echo "test" > "$TPL_A5/scripts/detect-projects.test.sh"
+echo "cmd v2" > "$TPL_C5/orquestrador.md"
+echo "test" > "$TPL_C5/commands.test.sh"
+echo "skill v2" > "$TPL_S5/coding-standards/SKILL.md"
+
+mkdir -p "$PROJ5/.agents/.pipeline-history" "$PROJ5/.agents/design-system/surpresa" \
+  "$PROJ5/.agents/planos" "$PROJ5/.agents/skills/dev" "$PROJ5/.agents/.backup-20200101-000000" \
+  "$PROJ5/.claude/commands" "$PROJ5/.claude/skills/coding-standards" "$PROJ5/.claude/skills/other"
+echo "persona v1 + learned rule" > "$PROJ5/.agents/DEV.md"
+echo "pipeline v1" > "$PROJ5/.agents/PIPELINE.md"
+echo "state" > "$PROJ5/.agents/PIPELINE-STATE.md"
+echo "history" > "$PROJ5/.agents/.pipeline-history/run-1.md"
+echo "design state" > "$PROJ5/.agents/DESIGN-STATE.md"
+echo "tokens" > "$PROJ5/.agents/design-system/surpresa/tokens.json"
+echo "plan" > "$PROJ5/.agents/planos/plan-1.md"
+echo "ctx" > "$PROJ5/.agents/CONTEXTO.md"
+echo "gemini skill" > "$PROJ5/.agents/skills/dev/SKILL.md"
+echo "legacy" > "$PROJ5/.agents/.backup-20200101-000000/DEV.md"
+echo "cmd v1" > "$PROJ5/.claude/commands/orquestrador.md"
+echo "user cmd" > "$PROJ5/.claude/commands/mine.md"
+echo "skill v1" > "$PROJ5/.claude/skills/coding-standards/SKILL.md"
+echo "user skill" > "$PROJ5/.claude/skills/other/SKILL.md"
+
+backup_out="$(bash "$TOOL" backup "$PROJ5" "$TPL_A5" "$TPL_C5" "$TPL_S5" 20260101-120000)"
+install_out="$(bash "$TOOL" install "$PROJ5" "$TPL_A5" "$TPL_C5" "$TPL_S5")"
+BK="$PROJ5/.agents-backups/20260101-120000"
+
+expect_line() {
+  local haystack="$1" needle="$2" label="$3"
+  if printf '%s\n' "$haystack" | grep -qx -- "$needle"; then
+    echo "PASS: $label"
+  else
+    echo "FAIL: $label — saída: $haystack"
+    fail=1
+  fi
+}
+expect_absent() {
+  local path="$1" label="$2"
+  if [[ -e "$path" ]]; then
+    echo "FAIL: $label — $path existe"
+    fail=1
+  else
+    echo "PASS: $label"
+  fi
+}
+
+expect_line "$backup_out" "BACKUP=.agents-backups/20260101-120000" "backup reporta caminho fora de .agents/"
+expect_line "$backup_out" "LEGACY_BACKUPS=1" "backup conta os .backup-* legados"
+expect_line "$install_out" "INSTALLED=6" "install instala só os 6 arquivos de template (sem *.test.*)"
+check_content "$BK/.agents/DEV.md" "persona v1 + learned rule" "backup guarda a persona antiga (para restaurar ## Aprendizados)"
+check_content "$BK/.agents/PIPELINE-STATE.md" "state" "backup copia PIPELINE-STATE.md"
+check_content "$BK/.agents/design-system/surpresa/tokens.json" "tokens" "backup copia design-system/ recursivamente"
+check_content "$BK/.claude/commands/orquestrador.md" "cmd v1" "backup copia comandos de template que serão sobrescritos"
+expect_absent "$BK/.agents/.backup-20200101-000000" "backup não aninha .backup-* legados"
+new_inner="$(find "$PROJ5/.agents" -maxdepth 1 -name '.backup-*' ! -name '.backup-20200101-000000' | wc -l | tr -d ' ')"
+if [[ "$new_inner" == "0" ]]; then
+  echo "PASS: nenhum backup novo criado dentro de .agents/"
+else
+  echo "FAIL: backup novo criado dentro de .agents/"
+  fail=1
+fi
+check_content "$PROJ5/.agents/.backup-20200101-000000/DEV.md" "legacy" ".backup-* legado continua no lugar"
+check_content "$PROJ5/.agents/DEV.md" "persona v2" "persona de template sobrescrita"
+check_content "$PROJ5/.agents/PIPELINE.md" "pipeline v2" "PIPELINE.md sobrescrito"
+check_content "$PROJ5/.agents/scripts/design-snapshot.mjs" "snapshot v2" "scripts não-.sh também são template"
+check_content "$PROJ5/.agents/PIPELINE-STATE.md" "state" "PIPELINE-STATE.md preservado no lugar"
+check_content "$PROJ5/.agents/.pipeline-history/run-1.md" "history" ".pipeline-history/ preservado"
+check_content "$PROJ5/.agents/DESIGN-STATE.md" "design state" "DESIGN-STATE.md preservado"
+check_content "$PROJ5/.agents/design-system/surpresa/tokens.json" "tokens" "design-system/ preservado"
+check_content "$PROJ5/.agents/planos/plan-1.md" "plan" "planos/ preservado"
+check_content "$PROJ5/.agents/CONTEXTO.md" "ctx" "CONTEXTO.md preservado"
+check_content "$PROJ5/.agents/skills/dev/SKILL.md" "gemini skill" "skills/ do Gemini preservado"
+check_content "$PROJ5/.claude/commands/mine.md" "user cmd" "comando do usuário intocado"
+check_content "$PROJ5/.claude/skills/other/SKILL.md" "user skill" "skill do usuário intocada"
+check_content "$PROJ5/.claude/commands/orquestrador.md" "cmd v2" "comando de template sobrescrito"
+check_content "$PROJ5/.claude/skills/coding-standards/SKILL.md" "skill v2" "coding-standards sobrescrita"
+expect_absent "$PROJ5/.claude/commands/commands.test.sh" "*.test.sh de commands/ não é copiado"
+expect_absent "$PROJ5/.agents/scripts/detect-projects.test.sh" "*.test.sh de agentes/scripts/ não é copiado"
+if grep -q 'test\.sh' "$PROJ5/.agents/.init-manifest.json"; then
+  echo "FAIL: manifesto rastreia arquivo de teste"
+  fail=1
+else
+  echo "PASS: manifesto não rastreia arquivos de teste"
+fi
+
+# Manifest baseline is the template hash: a persona that got its local
+# "## Aprendizados" restored after install is PRESERVED by the next --update.
+echo "persona v2 + restored learning" > "$PROJ5/.agents/DEV.md"
+upd="$(bash "$TOOL" apply "$PROJ5" "$TPL_A5" "$TPL_C5" "$TPL_S5")"
+expect_line "$upd" "INSTALLED=0 OVERWRITTEN=5 PRESERVED=1 CONFLICTS=0" "--update depois de install preserva a persona com aprendizado restaurado"
+
+# A second backup on the same timestamp never overwrites the first one.
+backup2="$(bash "$TOOL" backup "$PROJ5" "$TPL_A5" "$TPL_C5" "$TPL_S5" 20260101-120000)"
+expect_line "$backup2" "BACKUP=.agents-backups/20260101-120000-2" "backup com timestamp repetido ganha sufixo em vez de sobrescrever"
+
 exit $fail

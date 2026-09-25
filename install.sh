@@ -56,6 +56,12 @@ CURSOR_SKILL_LINK="$HOME/.cursor/skills/init-project"
 CURSOR_SKILL_TARGET="$REPO_DIR/cursor/skills/init-project"
 ANTIGRAVITY_PLUGIN_DIR="$HOME/.gemini/config/plugins/superpowers"
 ANTIGRAVITY_PLUGIN_URL="https://github.com/roundpilot/superpowers-antigravity"
+# Pinned upstream revision: a fresh install never runs whatever the remote HEAD
+# happens to be. Bump deliberately after reviewing upstream changes; override
+# per run with SUPERPOWERS_ANTIGRAVITY_REF=<sha|tag|branch>. Keep in sync with
+# $AntigravityPluginRef in install.ps1.
+ANTIGRAVITY_PLUGIN_DEFAULT_REF="adc31f80fc2252f09b077604a483a4ead85ee554"
+ANTIGRAVITY_PLUGIN_REF="${SUPERPOWERS_ANTIGRAVITY_REF:-$ANTIGRAVITY_PLUGIN_DEFAULT_REF}"
 
 AI_CONFIG_DIR="$HOME/.config/agentes-pipeline"
 AI_CONFIG_FILE="$AI_CONFIG_DIR/ai-targets.json"
@@ -302,18 +308,26 @@ elif [[ -n "${AGENTES_PIPELINE_SKIP_ANTIGRAVITY:-}" ]]; then
   echo "OK: etapa do plugin Superpowers-Antigravity pulada (AGENTES_PIPELINE_SKIP_ANTIGRAVITY=1)"
 elif command -v git >/dev/null 2>&1; then
   if [[ -d "$ANTIGRAVITY_PLUGIN_DIR/.git" ]]; then
+    # Idempotent: an existing clone is never moved. Only report when it is not
+    # at the pinned revision, so the user can align it deliberately.
     echo "OK: plugin Superpowers-Antigravity já presente em $ANTIGRAVITY_PLUGIN_DIR"
+    current_rev="$(git -C "$ANTIGRAVITY_PLUGIN_DIR" rev-parse HEAD 2>/dev/null || true)"
+    pinned_rev="$(git -C "$ANTIGRAVITY_PLUGIN_DIR" rev-parse --verify --quiet "$ANTIGRAVITY_PLUGIN_REF^{commit}" 2>/dev/null || true)"
+    if [[ -n "$current_rev" && "$current_rev" != "$pinned_rev" ]]; then
+      echo "AVISO: o clone existente está em ${current_rev:0:12}, não na revisão fixada $ANTIGRAVITY_PLUGIN_REF. Para alinhar: git -C $ANTIGRAVITY_PLUGIN_DIR fetch && git -C $ANTIGRAVITY_PLUGIN_DIR checkout $ANTIGRAVITY_PLUGIN_REF"
+    fi
   else
     mkdir -p "$(dirname "$ANTIGRAVITY_PLUGIN_DIR")"
-    if git clone "$ANTIGRAVITY_PLUGIN_URL" "$ANTIGRAVITY_PLUGIN_DIR"; then
-      echo "OK: plugin Superpowers-Antigravity clonado em $ANTIGRAVITY_PLUGIN_DIR"
+    if git clone "$ANTIGRAVITY_PLUGIN_URL" "$ANTIGRAVITY_PLUGIN_DIR" \
+      && git -C "$ANTIGRAVITY_PLUGIN_DIR" -c advice.detachedHead=false checkout --quiet "$ANTIGRAVITY_PLUGIN_REF"; then
+      echo "OK: plugin Superpowers-Antigravity clonado em $ANTIGRAVITY_PLUGIN_DIR (revisão $ANTIGRAVITY_PLUGIN_REF)"
     else
-      echo "ERRO: falha ao clonar o plugin Superpowers-Antigravity. Resolva manualmente, ou apague $ANTIGRAVITY_PLUGIN_DIR se o clone ficou parcial."
+      echo "ERRO: falha ao clonar o plugin Superpowers-Antigravity na revisão $ANTIGRAVITY_PLUGIN_REF. Resolva manualmente, ou apague $ANTIGRAVITY_PLUGIN_DIR se o clone ficou parcial."
       FAIL=1
     fi
   fi
 else
-  echo "AVISO: git não encontrado no PATH — pulei a instalação do plugin Superpowers-Antigravity. Instale git e rode este script de novo, ou clone manualmente: git clone $ANTIGRAVITY_PLUGIN_URL $ANTIGRAVITY_PLUGIN_DIR"
+  echo "AVISO: git não encontrado no PATH — pulei a instalação do plugin Superpowers-Antigravity. Instale git e rode este script de novo, ou clone manualmente: git clone $ANTIGRAVITY_PLUGIN_URL $ANTIGRAVITY_PLUGIN_DIR && git -C $ANTIGRAVITY_PLUGIN_DIR checkout $ANTIGRAVITY_PLUGIN_REF"
 fi
 
 echo ""

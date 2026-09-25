@@ -81,4 +81,51 @@ else
   fail=1
 fi
 
+# tryReadItem never throws on corrupt or non-object JSON
+printf '{"cwd": "/tmp/x", "sess' > "$FIXTURE/queue/corrupt.json"
+printf '[1,2]' > "$FIXTURE/queue/array.json"
+TRY=$(node -e "
+const store = require('$MODULE');
+const a = store.tryReadItem('$FIXTURE/queue/corrupt.json');
+const b = store.tryReadItem('$FIXTURE/queue/array.json');
+console.log(Boolean(a.error) + ',' + Boolean(b.error) + ',' + (a.item === undefined));
+")
+if [[ "$TRY" == "true,true,true" ]]; then
+  echo "PASS: tryReadItem devolve { error } para JSON corrompido ou que não é objeto, sem lançar"
+else
+  echo "FAIL: tryReadItem não tratou JSON inválido: $TRY"
+  fail=1
+fi
+rm -f "$FIXTURE/queue/corrupt.json" "$FIXTURE/queue/array.json"
+
+# updateItem rewrites an item in place without leaving temp files behind
+FILE3=$(node -e "
+const store = require('$MODULE');
+console.log(store.writeItem({cwd: '/tmp/projC', session_id: 'sess-3', config_dir: '/tmp/.claude', queued_at: 3000}));
+")
+ATTEMPTS=$(node -e "
+const store = require('$MODULE');
+const item = store.readItem('$FILE3');
+store.updateItem('$FILE3', Object.assign({}, item, { attempts: 2 }));
+console.log(store.readItem('$FILE3').attempts);
+")
+TMP_LEFT=$(find "$FIXTURE/queue" -maxdepth 1 -name '*.tmp' | wc -l | tr -d ' ')
+if [[ "$ATTEMPTS" == "2" && "$TMP_LEFT" == "0" ]]; then
+  echo "PASS: updateItem regrava o item sem deixar arquivo temporário"
+else
+  echo "FAIL: updateItem attempts=$ATTEMPTS tmp=$TMP_LEFT"
+  fail=1
+fi
+
+# moveToStale never overwrites an item already in stale/ with the same name
+cp "$FILE3" "$FIXTURE/queue/stale/$(basename "$FILE3")"
+node -e "require('$MODULE').moveToStale('$FILE3');"
+STALE_AFTER=$(find "$FIXTURE/queue/stale" -name '*.json' | wc -l | tr -d ' ')
+if [[ "$STALE_AFTER" == "3" ]]; then
+  echo "PASS: moveToStale com nome repetido não sobrescreve o item já em stale/"
+else
+  echo "FAIL: stale/ tem $STALE_AFTER itens, esperado 3"
+  fail=1
+fi
+
 exit $fail

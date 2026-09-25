@@ -40,6 +40,33 @@ cp -R gemini/skills/pausar-trabalho gemini/skills/continuar-trabalho /caminho/do
 - **Windows**: `install.ps1` registra o watcher automaticamente via Tarefa Agendada. ✓ (pendente validação em máquina real)
 - **Linux**: `install.sh` copia os arquivos do watcher mas NÃO registra nenhum agendador automático (cron, systemd timer, etc.). O watcher seria acionado manualmente ou via uma tarefa cron que o usuário configurar. Este é um comportamento intencional — a ferramenta tem como alvo Mac e Windows; Linux não é um alvo real nesta versão.
 
+## Como o watcher decide
+
+A cada execução, o watcher percorre `~/.claude-resume-queue/*.json`:
+
+- **Item corrompido** (JSON inválido ou que não é objeto) vai para `stale/`
+  e os demais itens seguem sendo processados — um arquivo ruim nunca trava a
+  fila.
+- **Itens da mesma sessão** (`session_id`) viram uma única retomada: fica o
+  item mais recente, com o maior contador de tentativas; os outros são
+  descartados como `duplicate`.
+- **Resultado da retomada**: roda `claude -r <sessão> -p ... --output-format json`.
+  Sucesso = exit code 0 sem `is_error: true` no JSON de resultado — o texto
+  produzido pela sessão retomada nunca é usado para decidir sucesso (ela
+  pode falar de "rate limit" no próprio trabalho). Em falha, o motivo é
+  `rate-limit` se o resultado JSON (ou, sem JSON, as últimas 20 linhas da
+  saída) casar com a mensagem de limite; senão `error`.
+- **Timeout**: cada retomada é encerrada após
+  `CLAUDE_CONTINUIDADE_TIMEOUT_MS` (padrão 30 min) e conta como falha.
+- **Limite de tentativas**: falhas `error`/`timeout` incrementam `attempts`
+  no item; ao atingir `CLAUDE_CONTINUIDADE_MAX_ATTEMPTS` (padrão 5) o item
+  vai para `stale/`. Falhas `rate-limit` não contam (um limite pode durar
+  horas) — elas continuam limitadas pela idade máxima de 48h.
+
+`/continuar-trabalho` limpa o checkpoint (`state.js clear`) depois de
+retomar com sucesso, e `/pausar-trabalho` avisa quando sobrescreve uma pausa
+anterior do mesmo diretório.
+
 ## Rodar de novo (atualizar)
 
 Rodar `install.sh`/`install.ps1` de novo no mesmo `--target` é seguro —

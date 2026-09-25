@@ -24,13 +24,30 @@ então o conjunto base nunca depende dessa resolução.
 
 `./.agents/` é compartilhada com o lado Gemini/Antigravity, que usa seus
 próprios skills em `./.agents/skills/`. Este skill não apaga esse
-subdiretório numa instalação nova (passo 4), e num fluxo de atualização
-com backup completo (passo 5) ele é restaurado de volta a partir do
-backup, igual a `CONTEXTO.md`/`TEAM.md`. Quando `antigravity` está em
+subdiretório em nenhum fluxo: tanto a instalação nova (passo 4) quanto a
+reinstalação completa (passo 5) só sobrescrevem os **arquivos de template**
+(definição única abaixo) e deixam todo o resto de `./.agents/` no lugar,
+igual a `CONTEXTO.md`/`TEAM.md`. Quando `antigravity` está em
 `AI_TARGETS`, o passo 7b ainda copia a versão nova desses skills por cima
 da restauração; quando não está, a cópia automática não acontece e o
 usuário continua podendo copiar `~/agentes-pipeline/gemini/skills/`
 manualmente, como sempre foi possível.
+
+**Arquivo de template** tem uma única definição, a função `tracked_files` de
+`~/agentes-pipeline/scripts/init-manifest-diff.sh`: `agentes/*.md` →
+`.agents/`, `agentes/scripts/*` → `.agents/scripts/`, `commands/*.md` →
+`.claude/commands/` e `skills/<nome>/SKILL.md` → `.claude/skills/<nome>/`,
+sempre **excluindo arquivos de teste** (`*.test.*`, ex.: `commands.test.sh`,
+`orquestrador-init-merge.test.sh`) — eles vivem ao lado dos templates no
+repo-fonte, mas nunca vão para o projeto. Todo o resto de `./.agents/` é dado
+do projeto e o instalador nunca toca: `CONTEXTO.md`, `TEAM.md`,
+`.aprendizados-globais-pendentes.md`, `.init-manifest.json` (só reescrito pelo
+script), `PIPELINE-STATE.md`, `.pipeline-history/`, `DESIGN-STATE.md`,
+`.design-history/`, `design-system/` (inclui `surpresa/`, `preview/`,
+`REFERENCIAS.md`), `planos/`, `.pr-reviews/`, `.pipeline-run/`, `skills/` e
+qualquer outro arquivo que não seja de template. Nunca copie diretórios
+inteiros de `~/agentes-pipeline/` "na mão" (`cp -R`): use sempre os
+subcomandos do script, que aplicam essa definição.
 
 ## Passos
 
@@ -82,50 +99,67 @@ manualmente, como sempre foi possível.
    do lado Claude — não confunda com `./.agents/` existir só por causa do
    `skills/` do Gemini).
 
-4. **Se não existir:** copie o conteúdo de `TEMPLATE_DIR` para dentro de
-   `./.agents/` (criando a pasta se não existir, sem apagar `./.agents/skills/`
-   se já estiver lá), copie todo o conteúdo de `COMMANDS_DIR` para dentro de
-   `./.claude/commands/` (crie a pasta se não existir), e copie todo o
-   conteúdo de `SKILLS_DIR` para dentro de `./.claude/skills/` (crie a pasta
-   se não existir). Liste os arquivos criados no resumo final.
+4. **Se não existir:** rode
+   ```bash
+   bash ~/agentes-pipeline/scripts/init-manifest-diff.sh install \
+     "$(pwd)" ~/agentes-pipeline/agentes ~/agentes-pipeline/commands \
+     ~/agentes-pipeline/skills
+   ```
+   Ele cria `./.agents/`, `./.claude/commands/` e `./.claude/skills/` se
+   preciso, copia **só os arquivos de template** (só `*.md` de
+   `COMMANDS_DIR`, nunca `*.test.sh`; nada de `./.agents/skills/` é apagado)
+   e grava `./.agents/.init-manifest.json`, deixando o projeto pronto para
+   `--update`. Cite o `INSTALLED=<n>` impresso no resumo final.
 
 5. **Se já existir (caso de atualização) e a flag `--update` NÃO foi passada:**
-   um diretório não pode ser movido para dentro de si mesmo, então use uma
-   renomeação temporária:
-   1. `mv ./.agents ./.agents-old-{YYYYMMDD-HHMMSS}` (timestamp do momento da
-      execução)
-   2. `mkdir ./.agents`
-   3. `mv ./.agents-old-{YYYYMMDD-HHMMSS} ./.agents/.backup-{YYYYMMDD-HHMMSS}`
-   4. copie o conteúdo de `TEMPLATE_DIR` para dentro de `./.agents/`
-   5. Se `./.agents/.backup-{YYYYMMDD-HHMMSS}/CONTEXTO.md` existir,
-      copie-o (não mova) para `./.agents/CONTEXTO.md`. Se
-      `./.agents/.backup-{YYYYMMDD-HHMMSS}/TEAM.md` existir, copie-o
-      (não mova) para `./.agents/TEAM.md`. Se
-      `./.agents/.backup-{YYYYMMDD-HHMMSS}/.aprendizados-globais-pendentes.md`
-      existir, copie-o (não mova) para
-      `./.agents/.aprendizados-globais-pendentes.md`. Se
-      `./.agents/.backup-{YYYYMMDD-HHMMSS}/skills/` existir (instalação
-      Gemini/Antigravity presente antes do backup), copie-o (não mova,
-      pasta inteira) para `./.agents/skills/` — sem essa restauração, o
-      Antigravity para de descobrir os skills depois de qualquer
-      atualização sem `--update`. Além disso, para cada arquivo de persona
-      `./.agents/.backup-{YYYYMMDD-HHMMSS}/<PERSONA>.md` que tiver uma seção
+   backup completo por **cópia**, fora de `./.agents/`, e depois
+   sobrescrita **somente** dos arquivos de template, no lugar. Nunca faça
+   `mv ./.agents` nem recrie a pasta: isso perdia `PIPELINE-STATE.md`,
+   `.pipeline-history/`, `design-system/`, `planos/` e os demais dados de
+   projeto listados acima.
+   1. Backup completo:
+      ```bash
+      bash ~/agentes-pipeline/scripts/init-manifest-diff.sh backup \
+        "$(pwd)" ~/agentes-pipeline/agentes ~/agentes-pipeline/commands \
+        ~/agentes-pipeline/skills
+      ```
+      Copia todo `./.agents/` para `./.agents-backups/{YYYYMMDD-HHMMSS}/.agents/`
+      e os arquivos de template de `./.claude/` que serão sobrescritos para
+      `./.agents-backups/{YYYYMMDD-HHMMSS}/.claude/`. A saída traz
+      `BACKUP=<caminho>` (guarde-o como `BACKUP_DIR`) e
+      `LEGACY_BACKUPS=<n>`. Backups antigos no formato
+      `./.agents/.backup-*` (versões anteriores deste skill) **não** são
+      movidos, apagados nem copiados de novo: ficam onde estão. Se
+      `LEGACY_BACKUPS` for maior que zero, só mencione no resumo que eles
+      existem e podem ser apagados manualmente quando o Bruno quiser.
+   2. Sobrescreva os arquivos de template:
+      ```bash
+      bash ~/agentes-pipeline/scripts/init-manifest-diff.sh install \
+        "$(pwd)" ~/agentes-pipeline/agentes ~/agentes-pipeline/commands \
+        ~/agentes-pipeline/skills
+      ```
+      Só os arquivos de template são sobrescritos; comandos e skills que
+      não são do template (ex.: outros comandos em `./.claude/commands/`,
+      outras skills em `./.claude/skills/`) e todos os dados de projeto em
+      `./.agents/` ficam no lugar, sem precisar de restauração. O script
+      também grava `./.agents/.init-manifest.json` com o hash do template
+      como baseline.
+   3. Restaure os aprendizados locais das personas: para cada arquivo
+      `BACKUP_DIR/.agents/<PERSONA>.md` que tiver uma seção
       `## Aprendizados`, copie essa seção (não mova) para dentro do arquivo
       recém-instalado `./.agents/<PERSONA>.md`, inserindo-a imediatamente
       antes do bloco final (`---` + nota de ativação + linha-ponteiro) — a
       mesma regra de posicionamento de `agentes/PIPELINE.md` — pra regra de
-      aprendizado local não se perder num reinstall completo. O backup
-      continua intacto com as cópias originais.
-   6. copie todo o conteúdo de `COMMANDS_DIR` para dentro de
-      `./.claude/commands/` (sobrescrevendo os 6 arquivos do Orquestrador +
-      `time-design.md` se já existirem; não mexa em outros comandos que não
-      sejam esses)
-   7. copie todo o conteúdo de `SKILLS_DIR` para dentro de `./.claude/skills/`
-      (sobrescrevendo apenas a pasta `coding-standards/` se já existir; não
-      mexa em outras skills que o Bruno tenha instalado ali)
-   Liste no resumo o que foi backupeado (caminho do backup), o que foi
-   restaurado (`CONTEXTO.md`/`TEAM.md`/`.aprendizados-globais-pendentes.md`,
-   se aplicável, e `skills/`, se presente) e o que foi instalado.
+      aprendizado local não se perder num reinstall completo. **Não** rode
+      `init-manifest-diff.sh generate` depois disso: o manifesto precisa
+      continuar com o hash do template, para o próximo `--update` classificar
+      a persona com aprendizado como `PRESERVE`/`CONFLICT` em vez de
+      sobrescrevê-la. O backup continua intacto com as cópias originais.
+   Liste no resumo o caminho do backup (`BACKUP_DIR`), quantos arquivos de
+   template foram instalados (`INSTALLED=`), de quais personas a seção
+   `## Aprendizados` foi restaurada e, se houver, os `./.agents/.backup-*`
+   legados encontrados. Arquivos que deixaram de existir no template não são
+   apagados automaticamente — se notar algum, só mencione.
 
 6. **Se já existir e a flag `--update` foi passada:**
    1. Rode:
@@ -136,12 +170,11 @@ manualmente, como sempre foi possível.
       ```
    2. Se a saída for exatamente `NEED_FULL_REINSTALL` (exit code 2): não há
       manifesto ainda (projeto instalado antes desta funcionalidade existir).
-      Caia automaticamente no comportamento do passo 5 (backup completo +
-      reinstala tudo — o que já inclui a restauração de
-      `CONTEXTO.md`/`TEAM.md` do backup para a pasta viva, conforme o item 5
-      do passo 5) e, ao final dele, rode
-      `bash ~/agentes-pipeline/scripts/init-manifest-diff.sh generate "$(pwd)" ~/agentes-pipeline/agentes ~/agentes-pipeline/commands ~/agentes-pipeline/skills`
-      pra criar o manifesto inicial.
+      Caia automaticamente no comportamento do passo 5 (backup completo em
+      `./.agents-backups/` + sobrescrita só dos arquivos de template +
+      restauração das seções `## Aprendizados`). O `install` do passo 5 já
+      cria o manifesto inicial com o hash do template — não rode `generate`
+      depois.
    3. Caso contrário, relate ao Bruno o resumo impresso pelo script
       (`INSTALLED=`, `OVERWRITTEN=`, `PRESERVED=`, `CONFLICTS=`) e, se houver
       conflitos, liste cada arquivo `.new` gerado e explique que ele precisa
@@ -154,22 +187,22 @@ manualmente, como sempre foi possível.
 7. Em todos os casos, o CONTEÚDO de `.agents/CONTEXTO.md`, `.agents/TEAM.md`
    e `.agents/.aprendizados-globais-pendentes.md` nunca é modificado,
    sobrescrito ou gerado pelo processo — são dados do projeto, não do
-   template. No fluxo do passo 5 eles são temporariamente
-   movidos para o backup e depois restaurados (cópia, não edição) para a
-   pasta viva com o conteúdo exatamente igual ao original; isso é apenas
-   reposicionamento de arquivo, não "tocar" no conteúdo. Nenhum outro arquivo
-   do projeto (README.md, `.planning/`, etc.) é afetado.
+   template. O mesmo vale para todos os outros dados de projeto listados em
+   "Arquivo de template" acima (`PIPELINE-STATE.md`, `design-system/`,
+   `planos/`, etc.): em nenhum fluxo eles são movidos, apagados ou
+   recriados — o passo 5 apenas os **copia** para `./.agents-backups/`.
+   Nenhum outro arquivo do projeto (README.md, `.planning/`, etc.) é afetado.
 
 7b. **Adapters por IA.** Para cada id em `AI_TARGETS`:
    - `claude` — nada a fazer, os passos 1-7 já cobrem.
    - `antigravity` — copie `~/agentes-pipeline/gemini/skills/` para
      `./.agents/skills/` (crie a pasta se não existir). Idempotente por
      sobrescrita: cada `<nome>/SKILL.md` presente na origem sobrescreve o de
-     destino. Não apague subpastas que existam só no destino. Este passo roda
-     depois da restauração do backup do passo 5: a restauração recompõe o
-     estado anterior, e este passo aplica a versão nova da fonte por cima. Se
-     `antigravity` não estiver em `AI_TARGETS`, este passo não roda e o
-     comportamento de restaurar-do-backup do passo 5 permanece intacto.
+     destino. Não apague subpastas que existam só no destino. Como o passo 5
+     nunca remove `./.agents/skills/`, este passo só aplica a versão nova da
+     fonte por cima do que já está lá. Se `antigravity` não estiver em
+     `AI_TARGETS`, este passo não roda e `./.agents/skills/` fica como
+     estava.
    - `codex`:
      1. Aplique o bloco delimitado em `AGENTS.md` da RAIZ do projeto-alvo
         rodando:
@@ -211,6 +244,15 @@ manualmente, como sempre foi possível.
         .agents/
         ```
         (uma linha em branco antes, se o arquivo não terminar já em branco).
+     1b. **Se `./.agents-backups/` existir** (o passo 5 rodou agora ou numa
+        execução anterior), aplique a mesma checagem para ele: se já houver
+        uma linha exatamente igual a `.agents-backups`, `.agents-backups/`,
+        `/.agents-backups` ou `/.agents-backups/`, não faça nada; caso
+        contrário, acrescente `.agents-backups/` ao final (mesmo formato de
+        linha em branco antes, se necessário). `.agents/` no `.gitignore` não
+        cobre `.agents-backups/` — são pastas diferentes. Backups contêm
+        cópias integrais dos dados locais do pipeline e nunca devem ir para o
+        git.
      2. **Apenas para os ids selecionados em `AI_TARGETS`**, aplique a mesma
         checagem de cobertura, uma entrada por id:
         - `cursor`: cheque se já existe uma linha igual a `.cursor/skills`,
@@ -234,9 +276,11 @@ manualmente, como sempre foi possível.
      projeto, normalmente já versionado.
 
 9. Confirme a conclusão com um resumo curto: quantidade de arquivos
-   instalados, o caminho do backup se houve um, se houve migração de
-   `agentes/` legado, se o `.gitignore` ganhou entradas novas (`.agents/` e,
-   se aplicável, `.cursor/skills/`/`.codex/skills/`), o `AI_TARGETS`
+   instalados, o caminho do backup se houve um (`./.agents-backups/<TS>/`),
+   os `./.agents/.backup-*` legados encontrados (deixados no lugar), se houve
+   migração de `agentes/` legado, se o `.gitignore` ganhou entradas novas
+   (`.agents/`, `.agents-backups/` e, se aplicável,
+   `.cursor/skills/`/`.codex/skills/`), o `AI_TARGETS`
    resolvido no passo 1b, e quais adapters do passo 7b foram materializados
    (ou que nenhum foi, quando a seleção é só `claude`). Quando `codex`
    estiver em `AI_TARGETS`, reporte explicitamente que o `AGENTS.md` da raiz

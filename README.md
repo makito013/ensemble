@@ -197,20 +197,27 @@ agentes-pipeline/
 ├── skills/                 ← template instalado em projetos (formato Claude)
 │   └── coding-standards/SKILL.md   ← copiado para ./.claude/skills/ pelo /init-project
 │
+├── tests/                  ← suítes *.test.sh + run-all.sh (roda todas)
+├── .github/workflows/      ← CI: tests/run-all.sh (Linux/macOS) e install.test.ps1 (Windows)
+│
 └── gemini/                 ← formato Antigravity / Gemini CLI
-    ├── README.md           ← instruções específicas do Antigravity
-    └── skills/
-        ├── orquestrador/SKILL.md
-        ├── analista/SKILL.md
-        ├── po/SKILL.md
-        ├── arquiteto/SKILL.md
-        ├── bdd/SKILL.md
-        ├── designer/SKILL.md
-        ├── tl/SKILL.md
-        ├── dev/SKILL.md
-        ├── qa/SKILL.md
-        ├── revisor/SKILL.md
-        └── seguranca/SKILL.md
+    ├── README.md           ← instruções específicas do Antigravity (árvore completa)
+    └── skills/             ← 24 skills: pipeline, comandos auxiliares,
+                              Time de Design e continuidade
+```
+
+### Testes
+
+```bash
+bash tests/run-all.sh      # roda todos os *.test.sh do repo; -v mostra a saída de cada um
+```
+
+Algumas suítes (ex.: `tests/time-design.test.sh`) conferem as cópias
+**instaladas** em `./.agents/` (ignorada pelo git). Numa cópia limpa do repo,
+materialize-as antes, do mesmo jeito que o CI faz:
+
+```bash
+bash scripts/init-manifest-diff.sh install "$PWD" "$PWD/agentes" "$PWD/commands" "$PWD/skills"
 ```
 
 ## Pré-requisitos por ferramenta
@@ -246,6 +253,8 @@ em `~/.gemini/config/plugins/superpowers`. Se preferir instalar manualmente:
 ```bash
 git clone https://github.com/roundpilot/superpowers-antigravity \
   ~/.gemini/config/plugins/superpowers
+# revisão fixada pelo install.sh/install.ps1 (SUPERPOWERS_ANTIGRAVITY_REF sobrescreve):
+git -C ~/.gemini/config/plugins/superpowers checkout adc31f80fc2252f09b077604a483a4ead85ee554
 
 # Ou via gerenciador de plugins (se disponível):
 agy plugin install superpowers
@@ -369,6 +378,12 @@ Para reinstalar num projeto existente:
 ```bash
 # Claude:
 /init-project --update
+
+# Claude, reinstalação completa (sem --update): faz backup integral em
+# ./.agents-backups/<timestamp>/ e sobrescreve só os arquivos de template;
+# dados do projeto em .agents/ (CONTEXTO.md, TEAM.md, PIPELINE-STATE.md,
+# design-system/, planos/, ...) ficam no lugar.
+/init-project
 
 # Antigravity (sobrescreve):
 cp -R ~/agentes-pipeline/gemini/skills /caminho/do/projeto/.agents/

@@ -12,6 +12,16 @@ TARGET2="$FAKE_HOME/.claude-work"
 
 fail=0
 
+# The shared watcher is only registered with a scheduler on macOS (launchd
+# plist). On other systems install.sh intentionally skips that step (see the
+# README "Limitações por plataforma"), so the plist assertions are skipped
+# explicitly instead of failing.
+IS_MACOS=0
+[[ "$(uname)" == "Darwin" ]] && IS_MACOS=1
+skip_non_macos() {
+  echo "SKIP: $1 (launchd only exists on macOS; running on $(uname))"
+}
+
 run_installer() {
   HOME="$FAKE_HOME" CLAUDE_CONTINUIDADE_HOME="$FAKE_HOME/.claude-resume-queue" \
     CLAUDE_CONTINUIDADE_NO_LAUNCHCTL=1 bash "$INSTALLER" --target "$1"
@@ -44,7 +54,9 @@ else
   echo "FAIL: watcher compartilhado não instalado"
   fail=1
 fi
-if [[ -f "$FAKE_HOME/Library/LaunchAgents/com.agentes-pipeline.continuidade-watcher.plist" ]]; then
+if [[ "$IS_MACOS" == "0" ]]; then
+  skip_non_macos "plist do watcher criado"
+elif [[ -f "$FAKE_HOME/Library/LaunchAgents/com.agentes-pipeline.continuidade-watcher.plist" ]]; then
   echo "PASS: plist do watcher criado"
 else
   echo "FAIL: plist do watcher não foi criado"
@@ -60,7 +72,9 @@ else
   echo "FAIL: hook duplicado, aparece $HOOK_COUNT vezes"
   fail=1
 fi
-if grep -qi "já presente" "$FIXTURE/out1-repeat.txt"; then
+if [[ "$IS_MACOS" == "0" ]]; then
+  skip_non_macos "segunda execução avisa que o watcher compartilhado já está presente"
+elif grep -qi "já presente" "$FIXTURE/out1-repeat.txt"; then
   echo "PASS: segunda execução avisa que o watcher compartilhado já está presente"
 else
   echo "FAIL: segunda execução não avisou sobre watcher já presente. Saída: $(cat "$FIXTURE/out1-repeat.txt")"
@@ -101,12 +115,16 @@ else
   echo "FAIL: queue.js não copiado pro alvo 2"
   fail=1
 fi
-PLIST_COUNT=$(find "$FAKE_HOME/Library/LaunchAgents" -name 'com.agentes-pipeline.continuidade-watcher.plist' | wc -l | tr -d ' ')
-if [[ "$PLIST_COUNT" == "1" ]]; then
-  echo "PASS: ainda existe só 1 plist do watcher, mesmo após instalar um segundo perfil"
+if [[ "$IS_MACOS" == "0" ]]; then
+  skip_non_macos "ainda existe só 1 plist do watcher após o segundo perfil"
 else
-  echo "FAIL: esperado 1 plist, encontrado $PLIST_COUNT"
-  fail=1
+  PLIST_COUNT=$(find "$FAKE_HOME/Library/LaunchAgents" -name 'com.agentes-pipeline.continuidade-watcher.plist' | wc -l | tr -d ' ')
+  if [[ "$PLIST_COUNT" == "1" ]]; then
+    echo "PASS: ainda existe só 1 plist do watcher, mesmo após instalar um segundo perfil"
+  else
+    echo "FAIL: esperado 1 plist, encontrado $PLIST_COUNT"
+    fail=1
+  fi
 fi
 
 # --- regredir: segundo perfil não cria lib/lib aninhado no watcher compartilhado ---

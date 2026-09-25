@@ -1,0 +1,49 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bash-suites:
+    name: bash suites (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      # claude/continuidade and agentes/scripts use node; Playwright is not
+      # installed on purpose (design snapshots are not exercised in CI).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Some suites (e.g. tests/time-design.test.sh) check the INSTALLED copies
+      # under ./.agents/, which is gitignored. Materialize them the same way
+      # /init-project does, using the deterministic installer script.
+      - name: Install pipeline templates into the checkout
+        run: bash scripts/init-manifest-diff.sh install "$PWD" "$PWD/agentes" "$PWD/commands" "$PWD/skills"
+
+      - name: Run all *.test.sh
+        run: bash tests/run-all.sh
+
+  powershell-installer:
+    name: install.test.ps1 (windows-latest)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run install.test.ps1
+        shell: pwsh
+        run: pwsh -NoProfile -File install.test.ps1

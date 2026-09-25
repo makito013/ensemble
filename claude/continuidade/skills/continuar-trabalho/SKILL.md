@@ -23,3 +23,15 @@ o trabalho a partir dali.
    conteúdo, mostre um resumo curto pro usuário do que estava em andamento
    (e há quanto tempo, com base em `paused_at`), e continue o trabalho a
    partir dos próximos passos descritos ali.
+4. Depois de retomar com sucesso (checkpoint lido e resumo mostrado ao
+   usuário no passo 3), limpe o checkpoint — o conteúdo já está nesta
+   conversa, e sem isso um `/continuar-trabalho` futuro retomaria de novo uma
+   pausa já consumida:
+   ```bash
+   node ~/agentes-pipeline/claude/continuidade/core/state.js clear \
+     --cwd "$(pwd)"
+   ```
+   A saída é `ESTADO_LIMPO` (ou `SEM_ESTADO_PAUSADO`, se já não havia
+   checkpoint — não é erro). Não limpe se o passo 1 falhou ou se você não
+   conseguiu ler o resumo. Se precisar pausar de novo, `/pausar-trabalho`
+   grava um checkpoint novo.
