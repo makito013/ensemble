@@ -36,7 +36,7 @@ tracked_files() {
     [[ -e "$f" ]] || continue
     printf '.agents/%s\n' "$(basename "$f")"
   done
-  for f in "$template_agentes"/scripts/*.sh; do
+  for f in "$template_agentes"/scripts/*.sh "$template_agentes"/scripts/*.mjs; do
     [[ -e "$f" ]] || continue
     printf '.agents/scripts/%s\n' "$(basename "$f")"
   done

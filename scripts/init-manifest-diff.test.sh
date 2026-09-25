@@ -48,6 +48,7 @@ echo "conteudo D v2" > "$TPL_A/D.md"                  # os dois mudaram -> CONFL
 echo "conteudo D CUSTOM" > "$PROJ/.agents/D.md"
 echo "conteudo E v1" > "$TPL_A/E.md"                  # novo arquivo no template -> INSTALL
 echo "script v2 (bugfix)" > "$TPL_A/scripts/detect-projects.sh"  # script mudou, local intocado -> OVERWRITE
+echo "mjs v1" > "$TPL_A/scripts/design-snapshot.mjs"  # script .mjs novo no template -> INSTALL
 
 summary="$(bash "$TOOL" apply "$PROJ" "$TPL_A" "$TPL_C" "$TPL_S")"
 echo "$summary"
@@ -70,9 +71,10 @@ check_content "$PROJ/.agents/D.md" "conteudo D CUSTOM" "D.md local preservado ap
 check_content "$PROJ/.agents/D.md.new" "conteudo D v2" "D.md.new contém a versão nova do template (CONFLICT)"
 check_content "$PROJ/.agents/E.md" "conteudo E v1" "E.md foi instalado (INSTALL)"
 check_content "$PROJ/.agents/scripts/detect-projects.sh" "script v2 (bugfix)" "detect-projects.sh (.sh, não .md) também é rastreado e sobrescrito"
+check_content "$PROJ/.agents/scripts/design-snapshot.mjs" "mjs v1" "design-snapshot.mjs (.mjs) também é rastreado e instalado"
 
-if echo "$summary" | grep -q 'INSTALLED=1 OVERWRITTEN=3 PRESERVED=1 CONFLICTS=1'; then
-  echo "PASS: resumo bate (1 install, 3 overwrite [A+C+script], 1 preserve, 1 conflict)"
+if echo "$summary" | grep -q 'INSTALLED=2 OVERWRITTEN=3 PRESERVED=1 CONFLICTS=1'; then
+  echo "PASS: resumo bate (2 install [E+mjs], 3 overwrite [A+C+script], 1 preserve, 1 conflict)"
 else
   echo "FAIL: resumo não bate: $summary"
   fail=1
