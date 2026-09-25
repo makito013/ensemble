@@ -9,7 +9,7 @@ O Orquestrador gerencia um pipeline configurável. Você escolhe quais etapas at
                                                           ↓
                                                       [7] DEV
                                                           ↓
-                                                      [8] QA ─── falhou ──→ volta ao DEV
+                                                      [8] QA ─ reprovado ─→ volta ao DEV
                                                           ↓
                                                      [9] REVISOR ── reprovado ──→ volta ao DEV
                                                           ↓
@@ -148,6 +148,11 @@ escale exigência a cada passada (hoje: o Revisor em `REVISOR.md`) — só o
   não nesta seção. Qualquer mecanismo futuro de rounds com o mesmo formato
   (ex: um Avaliador de outro time) define o próprio eixo separadamente, sem
   duplicar esta seção.
+- **No Revisor, rigor amplia o que se olha, não o que reprova**: achado que
+  só existe porque a barra subiu é ressalva; só `blocker-defect` bloqueia,
+  em qualquer rodada (ver `REVISOR.md`, "Critérios de aprovação"). O loop
+  de retrabalho só roda em reprovação — "aprovado com ressalvas" nunca volta
+  ao Dev (ver "Loop de Retrabalho" em `ORQUESTRADOR.md`).
 
 ## Time de Design
 
