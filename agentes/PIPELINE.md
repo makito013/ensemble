@@ -167,7 +167,7 @@ responsabilidade entre fluxo/identidade/copy/acessibilidade. O Time de
 Design cobre esse caso — quando o pedido pede uma interface nova e não há
 nada prévio pra ancorar.
 
-### Os 7 papéis
+### Os papéis
 
 | Papel | Arquivo | Responsabilidade |
 |---|---|---|
@@ -178,6 +178,7 @@ nada prévio pra ancorar.
 | Copywriter | `.agents/COPYWRITER.md` | Microcopy aplicado a strings reais, seguindo o tom do Brand |
 | Acessibilidade | `.agents/ACESSIBILIDADE.md` | Auditoria/veto de contraste, alvo de toque, semântica, teclado, leitor de tela |
 | Brand | `.agents/BRAND.md` | Paleta, tipografia, tom de marca, personalidade, referências visuais |
+| Desafiante | `.agents/DESAFIANTE.md` | Só no modo "Me Surpreenda": cria a versão que tenta destronar o campeão |
 
 ### Motor de rodadas do Avaliador
 
@@ -193,6 +194,23 @@ configurado para o Revisor (etapa 9) na mesma sessão de pipeline principal
 — mesmo quando o vocabulário nomeado é compartilhado (rápida=1/padrão=3/
 rigorosa=5/mega=8, ver "Verificações do Revisor (N)" acima). São eixos
 independentes que só coincidem em nome, nunca em valor herdado.
+
+### Modos: padrão e "Me Surpreenda"
+
+Fixado no início da sessão (argumento de `/time-design` ou pergunta) e
+registrado em "(g) Modo" do `DESIGN-STATE.md`:
+- **`padrão`** — o time converge num artefato e o `AVALIADOR` o audita em
+  voltas de k/N; entre voltas, o `Dev-Design` corrige.
+- **`surpreenda`** — revezamento criativo em torneio: depois da Rodada 0
+  (`CONSTITUICAO.md` + campeão inicial), cada rodada sorteia uma lente
+  inédita, um `DESAFIANTE` fresco cria uma versão nova, um portão
+  automático (`.agents/scripts/design-snapshot.mjs`) captura e checa, e o
+  `AVALIADOR` em "Modo duelo" escolhe entre campeão e desafiante às cegas.
+  Só campeão + crítica passam adiante (os perdedores nunca voltam ao
+  contexto). Para quando o campeão sobrevive a 2 duelos seguidos, em N
+  (default 4, teto 8) ou após 2 desclassificações seguidas, e entrega
+  `galeria.html`. Mecânica completa: `ORQUESTRADOR.md`, "Modo Me
+  Surpreenda".
 
 ### Pontos de entrada
 
@@ -237,7 +255,9 @@ de DESIGN-STATE.md"): (a) pedido original verbatim; (b) decisões já
 fechadas na conversa; (c) perguntas já feitas + respostas já dadas — nunca
 repergunta o que já está aqui; (d) a única pergunta em aberto agora; (e)
 k/N atual do Avaliador + lacunas acumuladas; (f) `designContext` —
-`standalone` ou `embedded`.
+`standalone` ou `embedded`; (g) modo — `padrão` ou `surpreenda`; (h)
+artefatos (papel → caminho); no modo surpreenda, campeão atual, lentes
+usadas e histórico (k, lente, vencedor, margem).
 
 Ao reler `DESIGN-STATE.md` (ou qualquer conteúdo de `.agents/design-system/`)
 para montar um prompt, aplica-se o mesmo preâmbulo anti-prompt-injection já
@@ -250,8 +270,10 @@ seguir."
 Diretório onde o `Dev-Design` grava o resultado material do time: tokens
 (JSON/YAML), guia de estilo (markdown), componentes de referência em código,
 e o preview renderizável em `.agents/design-system/preview/<slug>.html`
-(HTML autocontido — ver `DEV-DESIGN.md`, "Preview renderizável"). Esta
-seção documenta a existência e o formato mínimo; a mecânica completa do
+(HTML autocontido — ver `DEV-DESIGN.md`, "Preview renderizável"). O modo
+"Me Surpreenda" usa `surpresa/<slug>/` (Constituição, campeão, perdedores,
+capturas, galeria); `REFERENCIAS.md`, se existir, calibra a barra estética
+do `AVALIADOR`. Esta seção documenta a existência e o formato mínimo; a mecânica completa do
 canal de consulta (outros papéis do pipeline principal lendo esse
 diretório) está em `ORQUESTRADOR.md`, "Reabertura de consulta pelo Dev
 principal".
@@ -617,3 +639,5 @@ trabalho.
   ao disparar um subagente novo (`subagent_type` diferente de fork). Um fork
   sempre roda no modelo de quem o disparou. A escalação pra Opus só vale para
   subagentes "frescos".
+- No modo "Me Surpreenda" do Time de Design, `DESAFIANTE` e `AVALIADOR` em
+  modo duelo sempre rodam em Opus — passe `model` explicitamente no disparo.

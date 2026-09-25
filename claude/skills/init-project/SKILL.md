@@ -1,14 +1,15 @@
 ---
 name: init-project
-description: Bootstrap a project with the standard multi-agent development pipeline (Analista, PO, Arquiteto, BDD, Designer, TL, Dev, QA, Revisor, Segurança, Orquestrador) plus the Time de Design (Orquestrador-Design, Avaliador, UX, Dev-Design, Copywriter, Acessibilidade, Brand). Use when the user asks to set up, install, or update the agent pipeline in a project via /init-project.
+description: Bootstrap a project with the standard multi-agent development pipeline (Analista, PO, Arquiteto, BDD, Designer, TL, Dev, QA, Revisor, Segurança, Orquestrador) plus the Time de Design (Orquestrador-Design, Avaliador, UX, Dev-Design, Copywriter, Acessibilidade, Brand, Desafiante). Use when the user asks to set up, install, or update the agent pipeline in a project via /init-project.
 ---
 
 # init-project
 
 Instala (ou atualiza) duas coisas no diretório de trabalho atual:
 
-1. **Conjunto base, sempre instalado**, independente de qual IA você usa: as 19
-   personas de agentes + o documento de pipeline dentro de `./.agents/`, os
+1. **Conjunto base, sempre instalado**, independente de qual IA você usa: as 20
+   personas de agentes + o documento de pipeline (e os scripts de runtime em
+   `scripts/`) dentro de `./.agents/`, os
    comandos `/orquestrador*` e `/time-design` dentro de `./.claude/commands/`, e
    a skill `coding-standards` (convenção de código sempre em inglês) dentro de
    `./.claude/skills/`.
@@ -262,7 +263,9 @@ manualmente, como sempre foi possível.
 O que este skill instala se divide em duas camadas.
 
 **Núcleo invariante (sempre, para qualquer `AI_TARGETS`).** O conjunto fixo
-completo de 20 arquivos em `.agents/` (19 personas + `PIPELINE.md`), mais os
+completo de 21 arquivos em `.agents/` (20 personas + `PIPELINE.md`) e os
+scripts de runtime em `.agents/scripts/` (`detect-projects.sh`,
+`design-snapshot.mjs`), mais os
 7 comandos (`/orquestrador*` + `/time-design`) em `.claude/commands/`, mais a
 skill `coding-standards` em `.claude/skills/coding-standards/SKILL.md`. Como
 `claude` está sempre presente em `AI_TARGETS`, essa camada nunca varia.

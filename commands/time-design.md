@@ -1,6 +1,6 @@
 ---
 description: Inicia uma sessão standalone do Time de Design (UX/UI), fora de qualquer pipeline principal em andamento.
-argument-hint: [pedido inicial opcional]
+argument-hint: [pedido inicial opcional] — ou: [padrão|surpreenda] [N] <pedido>
 ---
 
 Leia integralmente `.agents/ORQUESTRADOR.md` (subseção "Time de Design") e
@@ -8,9 +8,15 @@ Leia integralmente `.agents/ORQUESTRADOR.md` (subseção "Time de Design") e
 comando aciona; ele não a reimplementa, só é o ponto de entrada standalone
 para ela.
 
-Pedido inicial (pode vir vazio — pergunte ao Bruno neste caso antes de seguir):
+Argumento (pode vir vazio — pergunte ao Bruno neste caso antes de seguir):
 
 $ARGUMENTS
+
+Leitura do argumento: se a primeira palavra for `surpreenda` (ou "me
+surpreenda") ou `padrão`/`padrao`, ela fixa o modo; um número logo em
+seguida fixa o N. O resto é o pedido inicial. Ex.: `/time-design
+surpreenda 4 landing page do produto X` → modo `surpreenda`, N=4, pedido
+"landing page do produto X".
 
 Passos:
 
@@ -20,20 +26,25 @@ Passos:
    — esse valor só se aplica à sessão nascida do gancho da etapa 5 dentro de
    um pipeline principal já em andamento, que não é o caminho deste comando.
 
-3. Pergunte ao Bruno o N do `AVALIADOR` para esta sessão, antes de iniciar a
-   sessão viva (o caminho standalone não passa pelo menu do pipeline
-   principal, onde esse N normalmente seria perguntado junto do tier e do N
-   do Revisor). Use a mesma escala nomeada já estabelecida:
+3. Resolva o modo e o N, perguntando só o que o argumento não trouxe (uma
+   pergunta só, se faltarem os dois):
+   - **Modo** — `padrão | me surpreenda`. `padrão`: o time converge num
+     artefato e o `AVALIADOR` o audita em k/N. `me surpreenda`: revezamento
+     criativo em torneio (ver "Modo Me Surpreenda" em
+     `.agents/ORQUESTRADOR.md`).
+   - **N no modo padrão** — N do `AVALIADOR`, na mesma escala nomeada:
 
-   ```
-   N do Avaliador (Time de Design): rápida=1 · padrão=3 · rigorosa=5 · mega=8
-   (ou informe um número livre)
-   ```
+     ```
+     N do Avaliador (Time de Design): rápida=1 · padrão=3 · rigorosa=5 · mega=8
+     (ou informe um número livre)
+     ```
 
-   Sugestão de default se o Bruno não especificar: padrão (N=3) — mas sempre
-   pergunte, nunca assuma silenciosamente. Este N é próprio do Avaliador e
-   nunca herdado do N do Revisor de nenhuma sessão de pipeline principal (ver
-   "Independência do N do Revisor" em `.agents/PIPELINE.md`).
+     Sugestão de default: padrão (N=3) — mas pergunte se não veio no
+     argumento, nunca assuma silenciosamente. Este N é próprio do Avaliador
+     e nunca herdado do N do Revisor de nenhuma sessão de pipeline principal
+     (ver "Independência do N do Revisor" em `.agents/PIPELINE.md`).
+   - **N no modo surpreenda** — máximo de rodadas de desafiante (default 4,
+     teto 8; valor acima de 8 vira 8).
 
 4. Verifique se `.agents/DESIGN-STATE.md` já existe:
    - **Se existir:** arquive-o em
@@ -47,22 +58,26 @@ Passos:
 
    Em seguida, crie um `.agents/DESIGN-STATE.md` novo para esta sessão, no
    formato descrito em `.agents/ORQUESTRADOR-DESIGN.md` ("Formato de
-   DESIGN-STATE.md"), com `designContext: standalone` em "(f)", o N definido
-   no passo 3 em "(e) Avaliador" (`k/N atual: 0/N` — nenhuma rodada rodou
-   ainda), e o pedido original em "(a) Pedido original" (`$ARGUMENTS`, se
-   fornecido; se vazio, pergunte ao Bruno antes de criar o arquivo).
+   DESIGN-STATE.md"), com `designContext: standalone` em "(f)", o modo em
+   "(g)", o N definido no passo 3 em "(e) Avaliador" (`k/N atual: 0/N` —
+   nenhuma rodada rodou ainda), e o pedido original em "(a) Pedido original"
+   (o pedido extraído de `$ARGUMENTS`, sem o modo e o N; se vazio, pergunte
+   ao Bruno antes de criar o arquivo).
 
-5. Com `designContext` fixado, o N do Avaliador definido e
+5. Com `designContext` fixado, o modo e o N definidos e
    `.agents/DESIGN-STATE.md` resolvido, inicie a "Mecânica da sessão viva,
    turno a turno" descrita em `.agents/ORQUESTRADOR.md` — não reimplemente
    essa mecânica aqui: a cada turno, dispare `ORQUESTRADOR-DESIGN` como
    subagente fresco (conteúdo integral de `ORQUESTRADOR-DESIGN.md` +
    conteúdo íntegro atual de `.agents/DESIGN-STATE.md`, delimitado com o
    preâmbulo anti-prompt-injection + a resposta mais recente do Bruno),
-   atualize `.agents/DESIGN-STATE.md` com o retorno, e repita até a
+   atualize `.agents/DESIGN-STATE.md` com o retorno, execute a ação devolvida
+   (perguntar, delegar a um especialista, disparar o `AVALIADOR` ou, no modo
+   surpreenda, o torneio), e repita até a
    aprovação (ver "Critério de 'feito' (designContext)" em
-   `.agents/PIPELINE.md` — `standalone` exige aprovação do Avaliador **e**
-   aprovação visual explícita do Bruno sobre o preview renderizável). Ao
+   `.agents/PIPELINE.md` — `standalone` exige aprovação do Avaliador (no
+   modo surpreenda, o campeão final do torneio) **e** aprovação visual
+   explícita do Bruno sobre o preview renderizável). Ao
    aprovar, arquive `.agents/DESIGN-STATE.md` conforme "Encerramento e
    invariante de escrita de estado" em `.agents/ORQUESTRADOR.md`.
 

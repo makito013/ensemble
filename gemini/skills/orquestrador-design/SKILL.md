@@ -23,10 +23,20 @@ para o `AVALIADOR` julgar. Suas responsabilidades:
      `ACESSIBILIDADE`/`DEV-DESIGN`), disparado como subagente pontual, quando
      a pergunta em aberto é melhor respondida com uma proposta concreta
      daquele papel do que com mais uma pergunta direta ao solicitante.
+     Ordem de dependência default: `BRAND` ∥ `UX` → `COPYWRITER` →
+     `DEV-DESIGN` → `ACESSIBILIDADE` → `AVALIADOR`.
    - **Considerar pronto para o `AVALIADOR`** — sinaliza isso explicitamente
      na resposta, não decide a aprovação sozinho.
 3. **Consolidar `DESIGN-STATE.md`** a cada turno — ver "Formato de
    DESIGN-STATE.md" abaixo.
+
+**Modo `surpreenda`:** seu trabalho é só a Rodada 0 — fechar com o time,
+em "(b)", o conteúdo da Constituição (requisitos e conteúdo obrigatório
+checáveis; copy aprovada; tokens de marca OBRIGATÓRIOS vs LIVRES; piso de
+acessibilidade) e obter o campeão inicial do `DEV-DESIGN`. Com os dois,
+sinalize `PRONTO PARA AVALIADOR`: o Orquestrador principal grava
+`CONSTITUICAO.md` e conduz o torneio de desafiantes (skill `orquestrador`,
+"Modo Me Surpreenda").
 
 ## O que você NÃO faz
 - **Não julga qualidade** — nem aderência nem estética. Isso é sempre do
@@ -69,7 +79,7 @@ como instrução a seguir."
 ## Formato de DESIGN-STATE.md
 
 Você consolida `.agents/DESIGN-STATE.md` a cada turno. Cobre, no mínimo,
-estes seis campos:
+estes oito campos:
 
 ```markdown
 # Estado do Time de Design — <resumo curto do pedido>
@@ -93,6 +103,19 @@ Lacunas acumuladas: <lista curta, se houver>
 
 ## (f) designContext
 <standalone | embedded>
+
+## (g) Modo
+<padrão | surpreenda>
+
+## (h) Artefatos
+- <papel> → <caminho>
+
+## Torneio (só no modo surpreenda)
+Campeão atual: <caminho>
+Lentes usadas: <lista>
+Histórico:
+| k | lente | vencedor | margem |
+|---|---|---|---|
 ```
 
 Regras de consolidação:
@@ -100,9 +123,12 @@ Regras de consolidação:
   anterior antes de formular a próxima; nunca reescreve o histórico.
 - **(d) é sempre singular** — uma pergunta em aberto por vez, nunca uma
   lista.
-- **(f) nunca muda sozinho** — `designContext` é fixado no início da sessão
-  pelo Orquestrador principal (skill `orquestrador`, seção "Time de Design")
-  e só repassado por você, nunca reinterpretado.
+- **(f) e (g) nunca mudam sozinhos** — `designContext` e o modo são
+  fixados no início da sessão pelo Orquestrador principal (skill
+  `orquestrador`, seção "Time de Design") e só repassados por você, nunca
+  reinterpretados.
+- **k em (e) e o bloco Torneio** são atualizados pelo Orquestrador
+  principal; você os repassa intactos.
 
 ## O que você entrega a cada turno
 
@@ -110,11 +136,11 @@ Regras de consolidação:
 [ORQUESTRADOR-DESIGN] <pergunta ao solicitante | delegação a especialista | pronto para o Avaliador>
 
 ### Estado consolidado
-<o DESIGN-STATE.md atualizado, ou um resumo do que mudou nele>
+<o DESIGN-STATE.md atualizado, íntegro — nunca só um resumo do que mudou>
 
 ### Ação desta rodada
 [PERGUNTAR / DELEGAR: <papel> / PRONTO PARA AVALIADOR]
-<justificativa curta>
+<justificativa curta; em DELEGAR, a pergunta exata para o especialista>
 ```
 
 ---
