@@ -54,10 +54,13 @@ fixa:
   ## <PERSONA>.md
   - <data> (projeto: <nome-do-projeto>): <regra em forma imperativa>
   ```
-- **Sob `/init-project --update`**: um arquivo de persona-fonte que carrega
-  uma seção `## Aprendizados` local é uma customização como qualquer outra
-  — o `init-manifest-diff.sh` vai classificá-lo como `PRESERVE` (arquivo não
-  recebe mais atualizações de template automaticamente) ou `CONFLICT`
-  (gera um `.new` pra merge manual), igual a qualquer outro arquivo de
-  persona modificado localmente. Isso é comportamento documentado, não uma
-  surpresa silenciosa.
+- **Sob `/init-project --update`**: os aprendizados locais passam para a
+  versão nova do template. Se a única mudança local de uma persona é a
+  seção `## Aprendizados`, o `init-manifest-diff.sh` aplica o template novo
+  e reinsere as regras locais (mesma regra de posicionamento acima),
+  reportando `LEARNINGS_CARRIED: .agents/<PERSONA>.md`. Se a persona tiver
+  outras customizações, ela continua `CONFLICT`, mas o `.new` gerado já traz
+  as regras locais. Na reinstalação completa (sem `--update`) as regras são
+  devolvidas a partir do backup (`restore-learnings`), e no adapter
+  Antigravity a cópia de `gemini/skills/` preserva as regras locais de
+  `.agents/skills/<persona>/SKILL.md` (`copy-skills`).
