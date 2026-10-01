@@ -431,6 +431,14 @@ ferramentas — Claude Code e Antigravity —, mas o comando `/aprendizados-sync
 descrito abaixo (o que de fato aplica as pendências globais nas
 personas-fonte) só existe no lado Claude Code, rodando aqui neste repo.
 
+As regras **locais** sobrevivem às atualizações: `/init-project --update`
+aplica a versão nova de cada persona e reinsere a seção `## Aprendizados`
+local (reportado como `LEARNINGS_CARRIED:`); a reinstalação completa as
+devolve a partir do backup, e a cópia das skills do Antigravity preserva as
+de `.agents/skills/<persona>/SKILL.md`. Se a persona tiver outras
+customizações locais além dos aprendizados, ela continua em conflito, mas o
+`.new` gerado já vem com as regras locais.
+
 Também vale notar: os loops de retrabalho (QA/Revisor reprova → volta pro
 Dev) têm um teto de 2 voltas por fase — se a 2ª tentativa também falhar, o
 Orquestrador não dispara uma 3ª automaticamente, escala a decisão ao usuário

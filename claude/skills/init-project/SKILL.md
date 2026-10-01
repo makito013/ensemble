@@ -144,20 +144,26 @@ subcomandos do script, que aplicam essa definição.
       `./.agents/` ficam no lugar, sem precisar de restauração. O script
       também grava `./.agents/.init-manifest.json` com o hash do template
       como baseline.
-   3. Restaure os aprendizados locais das personas: para cada arquivo
-      `BACKUP_DIR/.agents/<PERSONA>.md` que tiver uma seção
-      `## Aprendizados`, copie essa seção (não mova) para dentro do arquivo
-      recém-instalado `./.agents/<PERSONA>.md`, inserindo-a imediatamente
-      antes do bloco final (`---` + nota de ativação + linha de rodapé de
-      modelo) — a mesma regra de posicionamento de `agentes/APRENDIZADOS.md` — pra regra de
-      aprendizado local não se perder num reinstall completo. **Não** rode
-      `init-manifest-diff.sh generate` depois disso: o manifesto precisa
-      continuar com o hash do template, para o próximo `--update` classificar
-      a persona com aprendizado como `PRESERVE`/`CONFLICT` em vez de
-      sobrescrevê-la. O backup continua intacto com as cópias originais.
+   3. Restaure os aprendizados locais das personas:
+      ```bash
+      bash ~/agentes-pipeline/scripts/init-manifest-diff.sh restore-learnings \
+        "$(pwd)" "$BACKUP_DIR"
+      ```
+      Para cada `BACKUP_DIR/.agents/<PERSONA>.md` com linhas na seção
+      `## Aprendizados` que o template novo não tem, o script as devolve ao
+      arquivo recém-instalado `./.agents/<PERSONA>.md` (no fim da seção, se o
+      template já tiver uma; senão numa seção nova imediatamente antes do
+      bloco final — `---` + nota de ativação + linha de rodapé de modelo —,
+      a mesma regra de posicionamento de `agentes/APRENDIZADOS.md`) e
+      imprime `RESTORED: .agents/<PERSONA>.md`. Não faça essa cópia à mão.
+      **Não** rode `init-manifest-diff.sh generate` depois disso: o
+      manifesto precisa continuar com o hash do template, para o próximo
+      `--update` reconhecer "template + aprendizados" e carregar as regras
+      de novo para a versão seguinte. O backup continua intacto com as
+      cópias originais.
    Liste no resumo o caminho do backup (`BACKUP_DIR`), quantos arquivos de
    template foram instalados (`INSTALLED=`), de quais personas a seção
-   `## Aprendizados` foi restaurada e, se houver, os `./.agents/.backup-*`
+   `## Aprendizados` foi restaurada (linhas `RESTORED:`) e, se houver, os `./.agents/.backup-*`
    legados encontrados. Arquivos que deixaram de existir no template não são
    apagados automaticamente — se notar algum, só mencione.
 
@@ -180,6 +186,17 @@ subcomandos do script, que aplicam essa definição.
       conflitos, liste cada arquivo `.new` gerado e explique que ele precisa
       revisar manualmente (comparar `<arquivo>` com `<arquivo>.new` e decidir
       o que manter).
+   3b. **Aprendizados locais passam para a versão nova.** Uma persona cuja
+      única mudança local é a seção `## Aprendizados` não vira conflito:
+      o script aplica o template novo e reinsere as regras locais (mesma
+      regra de posicionamento de `agentes/APRENDIZADOS.md`), contando o
+      arquivo em `OVERWRITTEN=` e imprimindo
+      `LEARNINGS_CARRIED: .agents/<PERSONA>.md`. Liste essas personas no
+      resumo. Se a persona tiver outras customizações além dos aprendizados,
+      continua `CONFLICT`, mas o `.new` gerado já traz as regras locais —
+      diga isso ao usuário para ele não perdê-las no merge manual. Se o
+      template não mudou, a persona é `PRESERVE` e fica como está, com os
+      aprendizados.
    4. `.agents/CONTEXTO.md`, `.agents/TEAM.md`, `.agents/.init-manifest.json`
       e `.agents/.aprendizados-globais-pendentes.md` nunca são tocados por
       este fluxo — são dados do projeto, não do template.
@@ -196,9 +213,18 @@ subcomandos do script, que aplicam essa definição.
 7b. **Adapters por IA.** Para cada id em `AI_TARGETS`:
    - `claude` — nada a fazer, os passos 1-7 já cobrem.
    - `antigravity` — copie `~/agentes-pipeline/gemini/skills/` para
-     `./.agents/skills/` (crie a pasta se não existir). Idempotente por
-     sobrescrita: cada `<nome>/SKILL.md` presente na origem sobrescreve o de
-     destino. Não apague subpastas que existam só no destino. Como o passo 5
+     `./.agents/skills/` com:
+     ```bash
+     bash ~/agentes-pipeline/scripts/init-manifest-diff.sh copy-skills \
+       ~/agentes-pipeline/gemini/skills ./.agents/skills
+     ```
+     Idempotente por sobrescrita: cada arquivo presente na origem
+     sobrescreve o de destino (a pasta é criada se não existir), exceto que
+     um `<nome>/SKILL.md` de destino com linhas locais em `## Aprendizados`
+     recebe a versão nova **com** essas linhas (saída
+     `LEARNINGS_CARRIED: <nome>/SKILL.md`, cite no resumo). Não apaga
+     subpastas que existam só no destino. Nunca use `cp -R` aqui: ele
+     apagaria os aprendizados locais das skills. Como o passo 5
      nunca remove `./.agents/skills/`, este passo só aplica a versão nova da
      fonte por cima do que já está lá. Se `antigravity` não estiver em
      `AI_TARGETS`, este passo não roda e `./.agents/skills/` fica como

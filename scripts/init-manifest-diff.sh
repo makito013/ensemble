@@ -6,6 +6,8 @@
 #   init-manifest-diff.sh apply    <project_root> <template_agentes_dir> <template_commands_dir> <template_skills_dir>
 #   init-manifest-diff.sh backup   <project_root> <template_agentes_dir> <template_commands_dir> <template_skills_dir> [timestamp]
 #   init-manifest-diff.sh install  <project_root> <template_agentes_dir> <template_commands_dir> <template_skills_dir>
+#   init-manifest-diff.sh restore-learnings <project_root> <backup_dir>
+#   init-manifest-diff.sh copy-skills <src_skills_dir> <dest_skills_dir>
 #
 # "Template file" has a single definition: tracked_files() below. `install`
 # overwrites ONLY those paths (everything else under .agents/ is project data
@@ -70,6 +72,113 @@ tracked_files() {
   done
 }
 
+# --- Local "## Aprendizados" carry-over -----------------------------------
+# A persona can carry a local "## Aprendizados" section (agentes/APRENDIZADOS.md):
+# learned rules the project recorded on top of the template. Those rules are
+# project data living inside a template file, so every update path must carry
+# them to the new template version instead of dropping them or forcing a
+# manual merge. Placement rule (same as APRENDIZADOS.md): if the template
+# already has the section, the local lines go at its end; otherwise a new
+# section is inserted right before the final "---" block (never inside the
+# YAML frontmatter of a SKILL.md), or appended when there is no such block.
+# "## Aprendizados" inside fenced code blocks (e.g. APRENDIZADOS.md documenting
+# the convention) is never treated as a section.
+LEARN_AWK='
+function is_fence(l) { return l ~ /^[ \t]*(```|~~~)/ }
+function is_blank(l) { return l ~ /^[ \t]*$/ }
+function is_heading(l) { return l ~ /^## Aprendizados[ \t]*$/ }
+function ends_section(l) { return l ~ /^##? / || l ~ /^---[ \t]*$/ }
+BEGIN {
+  n_set = 0
+  if (lines_file != "") {
+    while ((getline l < lines_file) > 0) { set[l] = 1; order[++n_set] = l }
+    close(lines_file)
+  }
+}
+# Pass 1 (merge mode only): locate section end / final "---" in the template.
+mode == "merge" && NR == FNR {
+  if (FNR == 1 && $0 ~ /^---[ \t]*$/) { fm = 1; next }
+  if (fm) { if ($0 ~ /^---[ \t]*$/) fm = 0; next }
+  if (is_fence($0)) { f1 = !f1; if (in1) last1 = FNR; next }
+  if (!f1 && !seen1 && is_heading($0)) { in1 = 1; seen1 = 1; sec_start = FNR; last1 = FNR; next }
+  if (in1 && !f1 && ends_section($0)) in1 = 0
+  if (in1 && !is_blank($0)) last1 = FNR
+  if (!f1 && $0 ~ /^---[ \t]*$/) dash = FNR
+  next
+}
+mode == "merge" {
+  if (!sec_start && FNR == dash) {
+    print "## Aprendizados"
+    for (i = 1; i <= n_set; i++) print order[i]
+    print ""
+  }
+  print
+  if (sec_start && FNR == last1) for (i = 1; i <= n_set; i++) print order[i]
+  next
+}
+END {
+  if (mode == "merge" && !sec_start && !dash) {
+    print ""
+    print "## Aprendizados"
+    for (i = 1; i <= n_set; i++) print order[i]
+  }
+}
+# Single-pass modes: extract | strip | strip-lines
+{
+  if (is_fence($0)) fence = !fence
+  else if (!fence && !done && is_heading($0)) { insec = 1; done = 1; if (mode == "strip-lines") print; next }
+  else if (insec && !fence && ends_section($0)) insec = 0
+  if (!insec) { if (mode != "extract") print; next }
+  if (mode == "extract") { if (!is_blank($0)) print; next }
+  if (mode == "strip-lines" && !($0 in set)) print
+}
+'
+
+# Lines of the "## Aprendizados" section (heading and blank lines excluded).
+learning_lines() {
+  awk -v mode=extract -v lines_file= "$LEARN_AWK" "$1"
+}
+
+# Lines of LOCAL's section that TEMPLATE's section does not already have:
+# the project-local learnings to carry over.
+local_learnings() {
+  local local_file="$1" tpl_file="$2" out="$3" tpl_lines
+  tpl_lines="$(mktemp)"
+  learning_lines "$tpl_file" > "$tpl_lines" || true
+  learning_lines "$local_file" | grep -vxF -f "$tpl_lines" > "$out" || true
+  rm -f "$tpl_lines"
+}
+
+# TEMPLATE + the learning lines in LINES_FILE, written to OUT.
+merge_learnings() {
+  local tpl_file="$1" lines_file="$2" out="$3" tmp
+  tmp="$(mktemp)"
+  awk -v mode=merge -v lines_file="$lines_file" "$LEARN_AWK" "$tpl_file" "$tpl_file" > "$tmp"
+  # Rewrite through a redirect (not mv): keeps the target's permissions
+  # instead of mktemp's 0600, and works when OUT is TEMPLATE itself.
+  cat "$tmp" > "$out"
+  rm -f "$tmp"
+}
+
+# True when FILE, once its local learnings (LINES_FILE) are taken out, is
+# byte-identical to the baseline with hash EXPECTED. Two candidates: drop the
+# whole section (baseline had no section) or drop only the local lines
+# (baseline already had a section, e.g. global rules from /aprendizados-sync).
+matches_without_learnings() {
+  local file="$1" lines_file="$2" expected="$3" tmp ok=1
+  [[ -n "$expected" ]] || return 1
+  tmp="$(mktemp)"
+  awk -v mode=strip -v lines_file= "$LEARN_AWK" "$file" > "$tmp"
+  if [[ "$(sha256_of "$tmp")" == "$expected" ]]; then
+    ok=0
+  else
+    awk -v mode=strip-lines -v lines_file="$lines_file" "$LEARN_AWK" "$file" > "$tmp"
+    [[ "$(sha256_of "$tmp")" == "$expected" ]] && ok=0
+  fi
+  rm -f "$tmp"
+  return $ok
+}
+
 template_path_of() {
   local rel="$1" template_agentes="$2" template_commands="$3" template_skills="$4"
   case "$rel" in
@@ -121,7 +230,9 @@ cmd_apply() {
 
   local rel tpl_path local_path local_hash manifest_hash tpl_hash
   local n_install=0 n_overwrite=0 n_preserve=0 n_conflict=0
-  local -a conflicts=()
+  local -a conflicts=() carried=()
+  local learn_tmp
+  learn_tmp="$(mktemp)"
   # Baseline do manifesto novo: SEMPRE o hash do template, nunca o hash local.
   # Se usássemos o hash local aqui, um arquivo customizado (PRESERVE ou
   # CONFLICT) viraria sua própria baseline — na próxima chamada de --update,
@@ -149,9 +260,24 @@ cmd_apply() {
       elif [[ "$tpl_hash" == "$manifest_hash" ]]; then
         n_preserve=$((n_preserve+1))
       else
-        cp "$tpl_path" "$local_path.new"
-        conflicts+=("$rel.new")
-        n_conflict=$((n_conflict+1))
+        local_learnings "$local_path" "$tpl_path" "$learn_tmp"
+        if [[ -s "$learn_tmp" ]] && matches_without_learnings "$local_path" "$learn_tmp" "$manifest_hash"; then
+          # The only local change is the "## Aprendizados" section: take the
+          # new template and carry the learned rules over to it.
+          merge_learnings "$tpl_path" "$learn_tmp" "$local_path"
+          carried+=("$rel")
+          n_overwrite=$((n_overwrite+1))
+        else
+          if [[ -s "$learn_tmp" ]]; then
+            # Other customizations too: manual merge, but the .new already
+            # carries the learned rules so they are not lost in the merge.
+            merge_learnings "$tpl_path" "$learn_tmp" "$local_path.new"
+          else
+            cp "$tpl_path" "$local_path.new"
+          fi
+          conflicts+=("$rel.new")
+          n_conflict=$((n_conflict+1))
+        fi
       fi
     fi
 
@@ -184,6 +310,13 @@ cmd_apply() {
       echo "CONFLICT: $c"
     done
   fi
+  if [[ ${#carried[@]} -gt 0 ]]; then
+    local k
+    for k in "${carried[@]}"; do
+      echo "LEARNINGS_CARRIED: $k"
+    done
+  fi
+  rm -f "$learn_tmp"
 }
 
 # Full copy of the project's pipeline data to .agents-backups/<ts>/, taken
@@ -272,13 +405,69 @@ cmd_install() {
   echo "INSTALLED=$count"
 }
 
+# Full-reinstall companion of `install`: for every persona in the backup that
+# had local "## Aprendizados" lines, add them back to the freshly installed
+# template file. The manifest is NOT touched (baseline stays the template hash),
+# so the next --update recognizes "template + learnings" and carries them again.
+cmd_restore_learnings() {
+  local project_root="$1" backup_dir="$2" f name target learn_tmp
+  [[ "$backup_dir" == /* ]] || backup_dir="$project_root/$backup_dir"
+  learn_tmp="$(mktemp)"
+  for f in "$backup_dir"/.agents/*.md; do
+    name="$(basename "$f")"
+    target="$project_root/.agents/$name"
+    [[ -f "$target" ]] || continue
+    local_learnings "$f" "$target" "$learn_tmp"
+    [[ -s "$learn_tmp" ]] || continue
+    merge_learnings "$target" "$learn_tmp" "$target"
+    echo "RESTORED: .agents/$name"
+  done
+  rm -f "$learn_tmp"
+}
+
+# Copies a skills tree (e.g. gemini/skills/ -> .agents/skills/) overwriting
+# each file, except that a destination SKILL.md with local "## Aprendizados"
+# lines gets the new version WITH those lines. Never deletes anything that
+# exists only in the destination; test files (*.test.*) are skipped.
+cmd_copy_skills() {
+  local src_dir="$1" dest_dir="$2" f rel dest learn_tmp
+  mkdir -p "$dest_dir"
+  # .agents/skills may be a symlink to the source (README's manual option):
+  # nothing to copy then, and cp would fail on "same file".
+  if [[ "$(cd -P "$src_dir" && pwd)" == "$(cd -P "$dest_dir" && pwd)" ]]; then
+    echo "SAME_DIR: $dest_dir"
+    return 0
+  fi
+  learn_tmp="$(mktemp)"
+  while IFS= read -r f; do
+    is_test_file "$f" && continue
+    rel="${f#"$src_dir"/}"
+    dest="$dest_dir/$rel"
+    mkdir -p "$(dirname "$dest")"
+    if [[ "$(basename "$f")" == "SKILL.md" && -f "$dest" ]]; then
+      local_learnings "$dest" "$f" "$learn_tmp"
+      if [[ -s "$learn_tmp" ]]; then
+        merge_learnings "$f" "$learn_tmp" "$dest"
+        echo "LEARNINGS_CARRIED: $rel"
+        continue
+      fi
+    fi
+    cp "$f" "$dest"
+  done < <(find -H "$src_dir" -type f | LC_ALL=C sort)
+  rm -f "$learn_tmp"
+}
+
 case "${1:-}" in
   generate) cmd_generate "$2" "$3" "$4" "$5" ;;
   apply) cmd_apply "$2" "$3" "$4" "$5" ;;
   backup) cmd_backup "$2" "$3" "$4" "$5" "${6:-}" ;;
   install) cmd_install "$2" "$3" "$4" "$5" ;;
+  restore-learnings) cmd_restore_learnings "$2" "$3" ;;
+  copy-skills) cmd_copy_skills "${2%/}" "${3%/}" ;;
   *)
     echo "Uso: init-manifest-diff.sh {generate|apply|backup|install} <project_root> <template_agentes_dir> <template_commands_dir> <template_skills_dir>" >&2
+    echo "     init-manifest-diff.sh restore-learnings <project_root> <backup_dir>" >&2
+    echo "     init-manifest-diff.sh copy-skills <src_skills_dir> <dest_skills_dir>" >&2
     exit 1
     ;;
 esac

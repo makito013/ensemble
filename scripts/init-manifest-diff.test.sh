@@ -232,4 +232,107 @@ expect_line "$upd" "INSTALLED=0 OVERWRITTEN=5 PRESERVED=1 CONFLICTS=0" "--update
 backup2="$(bash "$TOOL" backup "$PROJ5" "$TPL_A5" "$TPL_C5" "$TPL_S5" 20260101-120000)"
 expect_line "$backup2" "BACKUP=.agents-backups/20260101-120000-2" "backup com timestamp repetido ganha sufixo em vez de sobrescrever"
 
+# --- Round 6: local "## Aprendizados" survive --update, full reinstall and
+# the Antigravity skills copy (learned rules are project data living inside
+# template files).
+TPL_A6="$FIXTURE/template6/agentes"
+TPL_C6="$FIXTURE/template6/commands"
+TPL_S6="$FIXTURE/template6/skills"
+TPL_G6="$FIXTURE/template6/gemini-skills"
+PROJ6="$FIXTURE/project6"
+mkdir -p "$TPL_A6" "$TPL_C6" "$TPL_S6" "$TPL_G6/dev" "$PROJ6"
+
+persona() { # persona <version> [global-rule]
+  printf '# DEV\n\ncorpo %s\n\n' "$1"
+  if [[ -n "${2:-}" ]]; then printf '## Aprendizados\n- %s\n\n' "$2"; fi
+  printf -- '---\n*Ativado como etapa 7.*\n\nModelo: definido pelo Orquestrador (ver `.agents/MODELOS.md`).\n'
+}
+persona v1 > "$TPL_A6/DEV.md"
+persona v1 > "$TPL_A6/QA.md"
+persona v1 > "$TPL_A6/REVISOR.md"
+printf '# Doc\n\n```markdown\n## Aprendizados\n- <data>: <regra>\n```\n' > "$TPL_A6/APRENDIZADOS.md"
+bash "$TOOL" install "$PROJ6" "$TPL_A6" "$TPL_C6" "$TPL_S6" > /dev/null
+
+LOCAL_RULE='2026-09-01: sempre rode o lint antes do commit'
+# DEV: only change is a local learning (section created before the final block).
+persona v1 "$LOCAL_RULE" > "$PROJ6/.agents/DEV.md"
+# QA: local learning + another local customization -> still a conflict.
+{ persona v1 "$LOCAL_RULE"; echo "customizacao extra"; } > "$PROJ6/.agents/QA.md"
+# REVISOR: learning, but template unchanged -> preserved as is.
+persona v1 "$LOCAL_RULE" > "$PROJ6/.agents/REVISOR.md"
+
+# Template evolves: DEV/QA get a new body and DEV already carries a global rule.
+persona v2 "2026-01-01: regra global" > "$TPL_A6/DEV.md"
+persona v2 > "$TPL_A6/QA.md"
+printf '# Doc v2\n\n```markdown\n## Aprendizados\n- <data>: <regra>\n```\n' > "$TPL_A6/APRENDIZADOS.md"
+
+upd6="$(bash "$TOOL" apply "$PROJ6" "$TPL_A6" "$TPL_C6" "$TPL_S6")"
+expect_line "$upd6" "INSTALLED=0 OVERWRITTEN=2 PRESERVED=1 CONFLICTS=1" "--update aplica template novo na persona que só tinha aprendizado local"
+expect_line "$upd6" "LEARNINGS_CARRIED: .agents/DEV.md" "--update reporta o aprendizado carregado"
+expect_line "$upd6" "CONFLICT: .agents/QA.md.new" "persona com outra customização continua em conflito"
+expected_dev="$(persona v2 "2026-01-01: regra global"; )"
+expected_dev="${expected_dev/regra global/regra global
+- $LOCAL_RULE}"
+check_content "$PROJ6/.agents/DEV.md" "$expected_dev" "DEV.md: template v2 + regra global + regra local, na mesma seção"
+check_content "$PROJ6/.agents/QA.md.new" "$(persona v2 "$LOCAL_RULE")" "QA.md.new já traz o aprendizado local para o merge manual"
+check_content "$PROJ6/.agents/REVISOR.md" "$(persona v1 "$LOCAL_RULE")" "REVISOR.md (template inalterado) mantém o aprendizado"
+check_content "$PROJ6/.agents/APRENDIZADOS.md" "$(cat "$TPL_A6/APRENDIZADOS.md")" "## Aprendizados dentro de bloco de código não é tratado como seção"
+
+# A second --update with a newer template carries the learning again.
+persona v3 "2026-01-01: regra global" > "$TPL_A6/DEV.md"
+upd6b="$(bash "$TOOL" apply "$PROJ6" "$TPL_A6" "$TPL_C6" "$TPL_S6")"
+expect_line "$upd6b" "LEARNINGS_CARRIED: .agents/DEV.md" "segundo --update carrega o aprendizado de novo"
+expected_dev3="${expected_dev/corpo v2/corpo v3}"
+check_content "$PROJ6/.agents/DEV.md" "$expected_dev3" "DEV.md no segundo --update: template v3 + regras, sem duplicar"
+
+# Full reinstall: backup + install + restore-learnings.
+bk6="$(bash "$TOOL" backup "$PROJ6" "$TPL_A6" "$TPL_C6" "$TPL_S6" 20260202-000000 | sed -n 's/^BACKUP=//p')"
+bash "$TOOL" install "$PROJ6" "$TPL_A6" "$TPL_C6" "$TPL_S6" > /dev/null
+rest6="$(bash "$TOOL" restore-learnings "$PROJ6" "$bk6")"
+expect_line "$rest6" "RESTORED: .agents/DEV.md" "restore-learnings devolve o aprendizado ao DEV.md reinstalado"
+expect_line "$rest6" "RESTORED: .agents/REVISOR.md" "restore-learnings devolve o aprendizado ao REVISOR.md reinstalado"
+expect_line "$rest6" "RESTORED: .agents/QA.md" "restore-learnings também devolve o aprendizado de persona que estava em conflito"
+check_content "$PROJ6/.agents/DEV.md" "$expected_dev3" "DEV.md após reinstalação completa = template + regras"
+if grep -q 'APRENDIZADOS.md' <<< "$rest6"; then
+  echo "FAIL: restore-learnings tratou exemplo em bloco de código como aprendizado"
+  fail=1
+else
+  echo "PASS: restore-learnings ignora exemplo em bloco de código"
+fi
+upd6c="$(bash "$TOOL" apply "$PROJ6" "$TPL_A6" "$TPL_C6" "$TPL_S6")"
+expect_line "$upd6c" "INSTALLED=0 OVERWRITTEN=1 PRESERVED=3 CONFLICTS=0" "--update depois de restore-learnings preserva as 3 personas com aprendizado"
+
+# Antigravity skills copy: SKILL.md (with frontmatter) keeps local learnings.
+skill() { # skill <version> [rule]
+  printf -- '---\nname: dev\ndescription: etapa 7\n---\n\n# Dev %s\n\n' "$1"
+  if [[ -n "${2:-}" ]]; then printf '## Aprendizados\n- %s\n\n' "$2"; fi
+  printf -- '---\n*Etapa 7 do pipeline.*\n'
+}
+skill v2 > "$TPL_G6/dev/SKILL.md"
+skill v1 > "$TPL_G6/qa-SKILL-free.md"
+echo "teste" > "$TPL_G6/dev/skill.test.sh"
+mkdir -p "$PROJ6/.agents/skills/dev" "$PROJ6/.agents/skills/mine"
+skill v1 "$LOCAL_RULE" > "$PROJ6/.agents/skills/dev/SKILL.md"
+echo "skill do usuário" > "$PROJ6/.agents/skills/mine/SKILL.md"
+cps="$(bash "$TOOL" copy-skills "$TPL_G6" "$PROJ6/.agents/skills")"
+expect_line "$cps" "LEARNINGS_CARRIED: dev/SKILL.md" "copy-skills reporta o aprendizado carregado"
+check_content "$PROJ6/.agents/skills/dev/SKILL.md" "$(skill v2 "$LOCAL_RULE")" "SKILL.md novo com o aprendizado local antes do bloco final"
+check_content "$PROJ6/.agents/skills/qa-SKILL-free.md" "$(skill v1)" "copy-skills copia os demais arquivos"
+check_content "$PROJ6/.agents/skills/mine/SKILL.md" "skill do usuário" "copy-skills não toca skill que só existe no destino"
+expect_absent "$PROJ6/.agents/skills/dev/skill.test.sh" "copy-skills não copia arquivos de teste"
+PERM6="$(ls -l "$PROJ6/.agents/DEV.md" | cut -c1-10)"
+if [[ "$PERM6" == "-rw-------" ]]; then
+  echo "FAIL: persona com aprendizado carregado ficou com permissão 0600"
+  fail=1
+else
+  echo "PASS: persona com aprendizado carregado mantém permissão normal ($PERM6)"
+fi
+ln -s "$TPL_G6" "$FIXTURE/skills-link"
+cps2="$(bash "$TOOL" copy-skills "$TPL_G6" "$FIXTURE/skills-link")"
+expect_line "$cps2" "SAME_DIR: $FIXTURE/skills-link" "copy-skills não falha quando o destino é symlink para a origem"
+ln -s "$TPL_G6" "$FIXTURE/src-link"
+mkdir -p "$FIXTURE/dest7"
+bash "$TOOL" copy-skills "$FIXTURE/src-link" "$FIXTURE/dest7" > /dev/null
+check_content "$FIXTURE/dest7/dev/SKILL.md" "$(skill v2)" "copy-skills segue origem que é symlink"
+
 exit $fail
