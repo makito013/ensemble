@@ -4,8 +4,8 @@
 > `agentes-pipeline` (não precisa bater com o nome do repositório no GitHub —
 > veja o passo de clone abaixo).
 
-Fonte-da-verdade portátil do pipeline de desenvolvimento multi-agente com **11 agentes**:
-Orquestrador, Analista, PO, Arquiteto, BDD, Designer, TL, Dev, QA, Revisor e Segurança.
+Fonte-da-verdade portátil do pipeline de desenvolvimento multi-agente com **12 agentes**:
+Orquestrador, Analista, PO, Arquiteto, BDD, Designer, TL, Refinador, Dev, QA, Revisor e Segurança.
 
 Este repositório é a **única cópia canônica** do pipeline — disponível em dois formatos,
 um para cada ferramenta de IA:
@@ -49,7 +49,7 @@ cd /caminho/do/seu/projeto
 > Se `.\install.ps1` falhar com erro de política de execução, rode
 > `powershell -ExecutionPolicy Bypass -File .\install.ps1` em vez disso.
 
-Pronto — o projeto agora tem `./.agents/` (as 20 personas, oculta — o
+Pronto — o projeto agora tem `./.agents/` (as 21 personas, oculta — o
 instalador acrescenta uma entrada `.agents/` no `.gitignore` do projeto se já
 existir um; projetos que já tinham a antiga `./agentes/` visível são migrados
 automaticamente na próxima vez que `/init-project` rodar),
@@ -142,7 +142,7 @@ do projeto:
 
 | IA | Materializa | Onde |
 |----|--------------|------|
-| Claude | `.agents/` (26 arquivos: 20 personas + `PIPELINE.md` + 5 documentos sob demanda — `MODELOS.md`, `TIME-DESIGN-FLOW.md`, `PLAN-FLOW.md`, `APRENDIZADOS.md`, `TEMPLATES.md` — e os scripts em `.agents/scripts/`) + `.claude/commands/` (comandos `orquestrador*`, `time-design`) + `.claude/skills/coding-standards/` | Raiz do projeto |
+| Claude | `.agents/` (29 arquivos: 21 personas + `PIPELINE.md` + 7 documentos sob demanda — `MODELOS.md`, `TIME-DESIGN-FLOW.md`, `PLAN-FLOW.md`, `REFINAMENTO-FLOW.md`, `QUADRO.md`, `APRENDIZADOS.md`, `TEMPLATES.md` — e os scripts em `.agents/scripts/`) + `.claude/commands/` (comandos `orquestrador*`, `time-design`) + `.claude/skills/coding-standards/` | Raiz do projeto |
 | Antigravity / Gemini CLI | Cópia de `gemini/skills/` | `.agents/skills/` |
 | Codex CLI (OpenAI) | Bloco delimitado (aplicado via `scripts/agents-md-block.sh`, determinístico) a partir de `codex/AGENTS-block.md` + cópia de `codex/skills/` | Bloco em `AGENTS.md` da raiz do projeto + `.codex/skills/` |
 | Cursor | Cópia de `cursor/skills/` + regra `cursor/rules/coding-standards.mdc` (`alwaysApply: true`) | `.cursor/skills/` + `.cursor/rules/` |
@@ -170,7 +170,8 @@ regra é o mesmo nas quatro.
 **Cobertura de comandos:** Codex e Cursor têm uma skill para cada comando do
 lado Claude — `orquestrador`, `init-project`, `orquestrador-fix`,
 `orquestrador-init`, `orquestrador-plan`, `orquestrador-pr`,
-`orquestrador-status`, `orquestrador-team` e `time-design` —, todas só por
+`orquestrador-quadro`, `orquestrador-refinar`, `orquestrador-status`,
+`orquestrador-team` e `time-design` —, todas só por
 invocação explícita (`$<nome>` no Codex, `/<nome>` no Cursor). Exceto
 `orquestrador` e `init-project` (escritas à mão), elas são dispatchers finos
 gerados por `scripts/gen-command-dispatchers.sh` a partir de `commands/*.md`:
@@ -198,10 +199,14 @@ agentes-pipeline/
 │   ├── DEV.md
 │   ├── ORQUESTRADOR.md     ← núcleo, carregado a cada /orquestrador
 │   ├── PIPELINE.md         ← núcleo
+│   ├── REFINADOR.md        ← fecha o Time de Refinamento
 │   ├── MODELOS.md, TIME-DESIGN-FLOW.md, PLAN-FLOW.md,
+│   │   REFINAMENTO-FLOW.md, QUADRO.md,
 │   │   APRENDIZADOS.md, TEMPLATES.md   ← documentos lidos só sob demanda
 │   ├── scripts/            ← detect-projects.sh, pipeline-status.sh,
-│   │                         review-input.sh, design-snapshot.mjs
+│   │                         review-input.sh, design-snapshot.mjs,
+│   │                         board.sh (quadro), render-refinement.mjs +
+│   │                         refinement-template.html (documento fixo)
 │   ├── PO.md
 │   ├── QA.md
 │   ├── REVISOR.md
@@ -225,7 +230,7 @@ agentes-pipeline/
 │
 └── gemini/                 ← formato Antigravity / Gemini CLI
     ├── README.md           ← instruções específicas do Antigravity (árvore completa)
-    └── skills/             ← 27 skills: pipeline, comandos auxiliares,
+    └── skills/             ← 33 skills: pipeline, comandos auxiliares,
                               Time de Design e continuidade
 ```
 
@@ -345,6 +350,73 @@ Ou com perfil rápido:
 orquestrador: [F] criar endpoint de cadastro de gateway
 ```
 
+### Como uma sessão é configurada (passo a passo)
+
+O `/orquestrador` não despeja mais um menu de checkboxes: ele pergunta uma
+coisa por vez, e passo que não se aplica nem aparece. No Claude Code cada
+passo vem como pergunta de opções clicáveis (`AskUserQuestion`):
+
+1. **Time** — perfil recomendado, duas alternativas ou "Personalizar"
+   (Refinamento: PO, Arquiteto, BDD, TL · Interface e qualidade: Designer,
+   QA, Revisor, Segurança).
+2. **Rigor** — tier `spike` / `feature` / `critical`.
+3. **Revisão** (só se o Revisor estiver no time) — quantos revisores
+   independentes: 1, 3, 5 ou 7. Cada revisor é um subagente **novo e
+   limpo**: não vê a conversa nem o que os outros revisores acharam, só o
+   pedido, os critérios e o diff. Um verificador, também novo, junta os
+   achados e tenta derrubar cada um; só o que sobrevive com evidência
+   reprova.
+4. **Time de Design** (só se a demanda falar de tela).
+5. **Quadro** (só na primeira vez no projeto) — local ou compartilhado.
+6. **Resumo** — confirmar ou voltar a um passo.
+
+Escolhas já escritas na demanda (`/orquestrador [F] revisão 3 ...`) pulam
+o passo correspondente.
+
+### Time de Refinamento e documento de refinamento
+
+Quando alguma etapa de planejamento (PO, Arquiteto, BDD, Designer, TL)
+roda, o **Refinador** fecha o Time de Refinamento: consolida tudo em
+`refinamento.json` e o script `render-refinement.mjs` preenche um
+**template HTML fixo** (`refinement-template.html`) — mesmo layout em toda
+tarefa:
+
+1. Dúvidas que precisam de resposta antes do desenvolvimento
+2. O que será feito · 3. Por quê · 4. Onde (arquivo, criar/alterar/remover, motivo)
+5. Como (tarefas em ordem, por fase) · 6. Critérios de aceitação
+7. Fora de escopo · 8. Riscos · 9. Suposições · 10. Verificação · 11. Fontes
+
+O Dev só começa depois do **gate de refinamento**: o documento renderizado,
+as dúvidas bloqueantes respondidas por você (o script sai com código 3
+enquanto houver alguma aberta) e sua aprovação. As respostas viram
+decisões fechadas para o Dev e o "onde" vira o escopo que o Revisor
+confere.
+
+`/orquestrador-refinar <demanda>` roda **só** o refinamento e deixa a
+tarefa `pronto` no quadro; depois, você ou outro dev desenvolve com
+`/orquestrador <id-da-tarefa>`, que pula o planejamento e entrega ao Dev o
+refinamento e o planejamento integral anexados ao cartão.
+
+### Quadro de tarefas (contexto descentralizado)
+
+Cada tarefa é uma pasta com um `CARTAO.md` (status, responsável, branch,
+onde mexe, critérios, decisões, log), o `refinamento.html` e o
+planejamento integral. Não existe arquivo central: o quadro é calculado a
+partir dos cartões, então dois devs em tarefas diferentes nunca brigam no
+merge. Status: `refinando`, `pronto`, `em-andamento`, `em-revisao`,
+`bloqueada`, `concluida`, `cancelada`.
+
+- **Local (padrão):** `.agents/quadro/`, fora do git — só você vê.
+- **Compartilhado (só se você quiser):** `/orquestrador-quadro compartilhar`
+  move o quadro para `.agents-shared/`, uma pasta versionável. O pipeline
+  nunca faz commit dela; commitar é decisão sua. Quem der pull vê o que já
+  foi feito, o que está pronto para pegar e o que está em andamento.
+- `/orquestrador-quadro` mostra o quadro, inclusive cartões que outros devs
+  já subiram em branches ainda não mergeadas (`board.sh list --remote`).
+- Ao refinar, o Orquestrador cruza o "onde" com os outros cartões
+  (`board.sh related`) e avisa quando alguém já está mexendo nos mesmos
+  arquivos.
+
 ### Perfis rápidos
 
 | Código | Perfil | Etapas |
@@ -361,6 +433,8 @@ orquestrador: [F] criar endpoint de cadastro de gateway
 
 Para ver o pipeline em aberto (só leitura, sem gastar o contexto do
 Orquestrador): `/orquestrador-status` (Antigravity: `orquestrador-status`).
+Para ver o quadro de tarefas: `/orquestrador-quadro` (Antigravity:
+`orquestrador-quadro`).
 Cada etapa grava a saída integral em `.agents/.pipeline-run/`, e as etapas
 seguintes a recebem por caminho — é daí que a retomada após `/clear` lê.
 

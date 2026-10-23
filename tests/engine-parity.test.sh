@@ -39,7 +39,8 @@ has_heading() { headings "$2" | grep -qxF -- "$1"; }
 #   PLAN-FLOW                  -> gemini/skills/orquestrador-plan
 #   MODELOS                    -> read as-is from .agents/MODELOS.md
 #   APRENDIZADOS, TEMPLATES    -> read as-is from .agents/ (source-side docs)
-DOC_ONLY=" APRENDIZADOS MODELOS PIPELINE PLAN-FLOW TEMPLATES TIME-DESIGN-FLOW "
+#   QUADRO, REFINAMENTO-FLOW   -> read as-is from .agents/ by gemini/skills/orquestrador
+DOC_ONLY=" APRENDIZADOS MODELOS PIPELINE PLAN-FLOW QUADRO REFINAMENTO-FLOW TEMPLATES TIME-DESIGN-FLOW "
 
 personas=()
 for f in "$ROOT"/agentes/*.md; do
@@ -94,6 +95,8 @@ DEV|dev|Pontos de atenção
 DEV|dev|Decisões pendentes (bloqueantes)
 DEV|dev|Suposições adotadas
 DEV|dev|Testes por tier
+DEV|dev|Linha de base
+DEV|dev|Linha de base antes de mexer
 DEV|dev|Verificação obrigatória antes de entregar
 DEV|dev|Modo retrabalho
 DEV|dev|Quando o plano está errado
@@ -172,6 +175,11 @@ GRILL|grill|Formato de ESTADO.md (campos que você consolida)
 GRILL|grill|O que você entrega a cada turno
 GRILL|grill|Revisão final (checklist de prontidão)
 ORQUESTRADOR|orquestrador|Como você inicia uma sessão
+ORQUESTRADOR|orquestrador|Assistente de configuração (um passo por vez)
+REFINADOR|refinador|Missão
+REFINADOR|refinador|O que você recebe
+REFINADOR|refinador|O que você entrega
+REFINADOR|refinador|Regras
 ORQUESTRADOR|orquestrador|Comportamento durante o pipeline
 ORQUESTRADOR|orquestrador|Estado do pipeline (PIPELINE-STATE.md)
 ORQUESTRADOR|orquestrador|Loop de Retrabalho

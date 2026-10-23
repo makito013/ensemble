@@ -14,10 +14,10 @@ Passos:
    e siga o mesmo fluxo de início de sessão da skill `orquestrador`:
    continuar o que está aberto ou arquivar — nunca sobrescreva um
    `PIPELINE-STATE.md` aberto sem perguntar.
-3. Faça uma triagem do bug e proponha um subconjunto de etapas pré-marcado no
-   menu padrão, com uma linha de justificativa curta (ex: "recomendo Analista, TL, Dev, QA, Revisor porque mexe em lógica compartilhada com o módulo de pagamentos").
+3. Faça uma triagem do bug e proponha um subconjunto de etapas como
+   recomendação do passo "Time" do assistente de configuração, com uma linha de justificativa curta (ex: "recomendo Analista, TL, Dev, QA, Revisor porque mexe em lógica compartilhada com o módulo de pagamentos").
    Sugira também o tier (bug em auth, pagamento ou dados sensíveis é
    `critical`) e a escala do Revisor; typo/uma linha → perfil `[X]` Trivial.
-4. Apresente o menu pré-marcado; o usuário pode aceitar, adicionar ou remover
+4. Conduza o assistente passo a passo já pré-selecionado; o usuário pode aceitar, adicionar ou remover
    qualquer etapa e ajustar o tier antes de confirmar.
 5. A partir da confirmação, siga a mecânica de disparo normal.

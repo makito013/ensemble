@@ -1,0 +1,73 @@
+{
+  "id": "20261023-login-google",
+  "title": "Login com Google",
+  "meta": {
+    "tier": "critical",
+    "profile": "[S] Produção completa",
+    "owner": "Dev A",
+    "branch": "feat/google-login",
+    "createdAt": "2026-10-23 14:02"
+  },
+  "summary": "Permitir que o usuário entre com a conta Google, além do login por e-mail e senha que já existe.",
+  "what": [
+    "Botão \"Entrar com Google\" na tela de login",
+    "Fluxo OAuth 2.0 (authorization code + PKCE) no backend",
+    "Vincular a conta Google a um usuário existente pelo e-mail verificado"
+  ],
+  "why": "Cerca de 40% dos abandonos no cadastro acontecem na etapa de senha (dado citado na demanda); login social reduz esse atrito.",
+  "where": [
+    { "path": "src/auth/providers/google.ts", "change": "create", "reason": "Cliente OAuth e troca do code por token" },
+    { "path": "src/auth/routes.ts", "change": "modify", "reason": "Rotas `/auth/google` e `/auth/google/callback`" },
+    { "path": "src/users/repository.ts", "change": "modify", "reason": "Busca por e-mail verificado e vínculo do provider" },
+    { "path": "web/src/pages/Login.tsx", "change": "modify", "reason": "Botão e tratamento de erro do retorno" }
+  ],
+  "questions": [
+    {
+      "id": "D1",
+      "question": "E-mail do Google igual ao de uma conta com senha: vincular automaticamente ou pedir a senha antes?",
+      "blocking": true,
+      "options": ["A) Vincular automaticamente (menos atrito, risco se o e-mail não for verificado)", "B) Pedir a senha uma vez para confirmar o vínculo"],
+      "recommendation": "B — evita sequestro de conta via e-mail não verificado",
+      "answer": null
+    },
+    {
+      "id": "D2",
+      "question": "O client ID de produção já existe no Google Cloud?",
+      "blocking": true,
+      "options": ["A) Sim, só falta a variável de ambiente", "B) Não, precisa ser criado antes do deploy"],
+      "recommendation": "Confirmar com quem administra o projeto no Google Cloud",
+      "answer": "Sim — `GOOGLE_CLIENT_ID` já está no cofre de segredos",
+      "answeredBy": "Dev A, 2026-10-23"
+    },
+    {
+      "id": "D3",
+      "question": "Mostrar a foto do Google no avatar?",
+      "blocking": false,
+      "recommendation": "Fica para depois; não muda a implementação do login",
+      "answer": null
+    }
+  ],
+  "tasks": [
+    { "id": "T1", "phase": "Fase 1 — Backend", "description": "Cliente OAuth com PKCE e validação do `state`", "files": ["src/auth/providers/google.ts"], "size": "M" },
+    { "id": "T2", "phase": "Fase 1 — Backend", "description": "Rotas de início e callback", "files": ["src/auth/routes.ts"], "size": "P", "dependsOn": ["T1"] },
+    { "id": "T3", "phase": "Fase 1 — Backend", "description": "Vínculo por e-mail verificado (conforme D1)", "files": ["src/users/repository.ts"], "size": "M", "dependsOn": ["T2"] },
+    { "id": "T4", "phase": "Fase 2 — Interface", "description": "Botão e mensagens de erro", "files": ["web/src/pages/Login.tsx"], "size": "P", "dependsOn": ["T2"] }
+  ],
+  "acceptanceCriteria": [
+    { "id": "CA01", "text": "Usuário novo entra com Google e cai no painel com a conta criada" },
+    { "id": "CA02", "text": "Callback com `state` inválido retorna 400 e não cria sessão" },
+    { "id": "CA03", "text": "E-mail não verificado no Google nunca é vinculado a conta existente" }
+  ],
+  "outOfScope": ["Login com Apple/Microsoft", "Migrar usuários existentes para o login social"],
+  "risks": [
+    { "risk": "Sequestro de conta por e-mail não verificado", "mitigation": "Exigir `email_verified=true` (CA03)" },
+    { "risk": "Redirect URI diferente entre ambientes", "mitigation": "Ler de variável de ambiente por ambiente" }
+  ],
+  "assumptions": ["A sessão continua sendo o cookie httpOnly atual"],
+  "testStrategy": ["Unitário: troca de code e validação do state com o Google mockado", "Integração: callback ponta a ponta com provider fake"],
+  "verification": ["npm test", "npm run lint", "npm run typecheck"],
+  "sources": [
+    { "label": "Análise (Analista)", "path": "planejamento/01-analista.md" },
+    { "label": "Plano técnico (TL)", "path": "planejamento/06-tl.md" }
+  ]
+}

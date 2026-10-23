@@ -14,5 +14,5 @@ Passos:
 2. Sem ação: mostre o checklist atual.
 3. Com `ativar N` / `desativar N`: edite a etapa N (a etapa 7 —
    Desenvolvimento — não pode ser desativada) e confirme.
-4. Deixe claro que isto só muda a pré-seleção do menu — o usuário ainda pode
+4. Deixe claro que isto só muda a pré-seleção do passo "Time" do assistente — o usuário ainda pode
    ajustar por sessão.

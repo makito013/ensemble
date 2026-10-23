@@ -12,8 +12,8 @@ ferramenta, que herda o modelo da sessão principal e não é garantido.
 
 | Modelo | Quem roda nele |
 |--------|----------------|
-| `haiku` | Triagem mecânica, `/orquestrador-team`, `/orquestrador-status`, varredura por projeto do `/orquestrador-init` |
-| `sonnet` | Analista, PO, BDD, Designer, TL, Dev, QA, Revisor rápido (completo), lentes do Revisor, verificador do Revisor fora de `critical`, Segurança fora de `critical`, turnos do Grill e do Orquestrador-Design, especialistas de design (UX, Brand, Copywriter, Acessibilidade, Dev-Design), Avaliador no modo padrão, protótipos do `/orquestrador-plan` |
+| `haiku` | Triagem mecânica, `/orquestrador-team`, `/orquestrador-status`, `/orquestrador-quadro`, varredura por projeto do `/orquestrador-init` |
+| `sonnet` | Analista, PO, BDD, Designer, TL, Refinador, Dev, QA, Revisor rápido (completo), lentes do Revisor, verificador do Revisor fora de `critical`, Segurança fora de `critical`, turnos do Grill e do Orquestrador-Design, especialistas de design (UX, Brand, Copywriter, Acessibilidade, Dev-Design), Avaliador no modo padrão, protótipos do `/orquestrador-plan` |
 | `opus` | Arquiteto (inclusive OPÇÕES do `/orquestrador-plan`), verificador do Revisor em tier `critical`, Segurança em tier `critical`, `DESAFIANTE` e `AVALIADOR` em modo duelo (modo "Me Surpreenda") |
 
 - **Escalonamento:** subir um degrau (sonnet → opus) só com motivo

@@ -44,8 +44,10 @@ do projeto e o instalador nunca toca: `CONTEXTO.md`, `TEAM.md`,
 `.aprendizados-globais-pendentes.md`, `.init-manifest.json` (só reescrito pelo
 script), `PIPELINE-STATE.md`, `.pipeline-history/`, `DESIGN-STATE.md`,
 `.design-history/`, `design-system/` (inclui `surpresa/`, `preview/`,
-`REFERENCIAS.md`), `planos/`, `.pr-reviews/`, `.pipeline-run/`, `skills/` e
-qualquer outro arquivo que não seja de template. Nunca copie diretórios
+`REFERENCIAS.md`), `planos/`, `quadro/`, `.pr-reviews/`, `.pipeline-run/`,
+`skills/` e qualquer outro arquivo que não seja de template. O quadro
+compartilhado (`./.agents-shared/`, fora de `.agents/`) também é dado do
+projeto: o instalador nunca o cria, move nem apaga. Nunca copie diretórios
 inteiros de `~/agentes-pipeline/` "na mão" (`cp -R`): use sempre os
 subcomandos do script, que aplicam essa definição.
 
@@ -347,12 +349,13 @@ subcomandos do script, que aplicam essa definição.
 O que este skill instala se divide em duas camadas.
 
 **Núcleo invariante (sempre, para qualquer `AI_TARGETS`).** O conjunto fixo
-completo de 26 arquivos em `.agents/` (20 personas + `PIPELINE.md` + os 5
+completo de 29 arquivos em `.agents/` (21 personas + `PIPELINE.md` + os 7
 documentos sob demanda `MODELOS.md`, `TIME-DESIGN-FLOW.md`, `PLAN-FLOW.md`,
-`APRENDIZADOS.md`, `TEMPLATES.md`) e os scripts de runtime em
-`.agents/scripts/` (`detect-projects.sh`, `pipeline-status.sh`,
-`review-input.sh`, `design-snapshot.mjs`), mais os
-8 comandos (`/orquestrador*` + `/time-design`) em `.claude/commands/`, mais a
+`REFINAMENTO-FLOW.md`, `QUADRO.md`, `APRENDIZADOS.md`, `TEMPLATES.md`) e os
+scripts de runtime em `.agents/scripts/` (`detect-projects.sh`,
+`pipeline-status.sh`, `review-input.sh`, `design-snapshot.mjs`, `board.sh`,
+`render-refinement.mjs` e o template fixo `refinement-template.html`), mais os
+10 comandos (`/orquestrador*` + `/time-design`) em `.claude/commands/`, mais a
 skill `coding-standards` em `.claude/skills/coding-standards/SKILL.md`. Como
 `claude` está sempre presente em `AI_TARGETS`, essa camada nunca varia.
 

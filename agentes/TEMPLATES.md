@@ -6,13 +6,13 @@ deste arquivo.
 
 ## Template de TEAM.md
 
-Se `.agents/TEAM.md` existir no projeto, ele define a pré-seleção do menu de
+Se `.agents/TEAM.md` existir no projeto, ele define a pré-seleção do passo "Time" do assistente de
 `/orquestrador` (o usuário ainda pode ajustar por sessão). Formato:
 
 ```
 # Time padrão — <projeto>
 
-Define a pré-seleção do menu quando /orquestrador rodar aqui.
+Define a pré-seleção do passo "Time" quando /orquestrador rodar aqui.
 O usuário ainda pode ajustar por sessão — isto só muda o ponto de partida.
 
 [x] 1. ANÁLISE — Analista

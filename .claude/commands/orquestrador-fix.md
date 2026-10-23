@@ -16,13 +16,15 @@ Passos:
    aberto ou arquiva e começa a triagem deste bug — nunca sobrescreva um
    `PIPELINE-STATE.md` aberto sem perguntar.
 3. Faça uma triagem do texto do bug (uma frase de diagnóstico + qual camada
-   provavelmente está envolvida) e proponha um subconjunto de etapas
-   pré-marcado no menu padrão de `.agents/ORQUESTRADOR.md`, com uma linha de
+   provavelmente está envolvida) e proponha um subconjunto de etapas como
+   recomendação do passo "Time" do assistente de configuração de
+   `.agents/ORQUESTRADOR.md`, com uma linha de
    justificativa curta para a recomendação (ex: "recomendo Analista, TL, Dev, QA, Revisor porque mexe em lógica compartilhada com o módulo de pagamentos").
    Sugira também o tier (`spike`/`feature`/`critical` — bug em auth,
    pagamento ou dados sensíveis é `critical`) e a escala do Revisor
    correspondente; typo/uma linha → perfil `[X]` Trivial.
-4. Apresente o menu já pré-marcado ao usuário. Ele pode aceitar, adicionar ou
-   remover qualquer etapa e ajustar o tier antes de confirmar.
+4. Conduza o assistente passo a passo com essas recomendações já
+   pré-selecionadas. O usuário pode aceitar, adicionar ou remover qualquer
+   etapa e ajustar o tier antes de confirmar.
 5. A partir da confirmação, siga a mecânica de disparo normal descrita em
    `ORQUESTRADOR.md`.
