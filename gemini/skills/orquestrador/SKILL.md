@@ -56,10 +56,9 @@ se não existir, leia `.agents/PIPELINE-STATE.md` direto):
 - **Estado malformado** (o script sai com erro de formato): avise, renomeie
   para `.agents/PIPELINE-STATE.md.corrompido-<data>` e siga o fluxo normal.
 
-Com uma solicitação nova, confirme que entendeu (1-2 linhas) e conduza o
-**assistente de configuração** abaixo. Se `.agents/CONTEXTO.md` existir, leia e use como pano de fundo (nunca leia o `CONTEXTO.md` de outro projeto). Se a demanda for o id de um cartão
-`pronto` do quadro, siga `.agents/REFINAMENTO-FLOW.md`, "Pegar uma tarefa
-já refinada".
+Solicitação nova: confirme que entendeu (1-2 linhas) e conduza o
+**assistente de configuração** abaixo. Se `.agents/CONTEXTO.md` existir, leia e use como pano de fundo (nunca leia o `CONTEXTO.md` de outro projeto). Id de cartão `pronto` do quadro:
+`.agents/REFINAMENTO-FLOW.md`, "Pegar uma tarefa já refinada".
 
 **Trivial:** se a solicitação for claramente trivial (typo, uma linha,
 valor de config), pule o assistente: peça uma confirmação de uma linha —
@@ -68,23 +67,21 @@ rápido, tier spike. Confirma? (não = assistente completo)"*.
 
 ## Assistente de configuração (um passo por vez)
 
-Uma pergunta por mensagem, com "Passo k de M" (M recalculado depois do
-passo 1: passo que não se aplica some). Com ferramenta de pergunta com
-opções (no Claude Code, `AskUserQuestion`), use-a em cada passo — até 4
-opções, a recomendada primeiro com "(Recomendado)"; sem ela, opções
-numeradas. Escolha que já veio na demanda (`[F]`, "revisão 3", "com
-design") pula o passo. Pré-seleção: `.agents/TEAM.md`, se existir; senão
-a sua recomendação.
+Uma pergunta por mensagem, com "Passo k de M" (passo que não se aplica
+some). Com ferramenta de pergunta com opções (no Claude Code,
+`AskUserQuestion`), use-a — até 4 opções, a recomendada primeiro; sem ela,
+opções numeradas. Escolha que já veio na demanda (`[F]`, "revisão 3")
+pula o passo. Pré-seleção: `.agents/TEAM.md`, se existir.
 
-Antes do passo 1: leitura rasa de tier e de UI, e
-`bash .agents/scripts/board.sh list --remote` — tarefa `em-andamento` de
-outra pessoa aparece em 1-2 linhas, como contexto (não é pergunta).
+Antes do passo 1: leitura rasa de tier e UI, e
+`bash .agents/scripts/board.sh list --remote` (tarefas em andamento de
+outros, em 1-2 linhas, como contexto).
 
-1. **Time** — perfil recomendado + 2 alternativas + "Personalizar", cada
-   um com as etapas que ativa (Perfis rápidos abaixo). Personalizar = duas
-   perguntas de múltipla escolha: *Refinamento* (PO, Arquiteto, BDD, TL) e
+1. **Time** — perfil recomendado + 2 alternativas + "Personalizar" (Perfis
+   rápidos abaixo). Personalizar = 2 perguntas de múltipla escolha:
+   *Refinamento* (PO, Arquiteto, BDD, TL) e
    *Interface e qualidade* (Designer, QA, Revisor, Segurança). Analista e
-   Dev vêm sempre (o Analista só sai no `[X]`).
+   Dev sempre (o Analista só sai no `[X]`).
 2. **Rigor** — `Tier sugerido: {spike/feature/critical} — {justificativa
    em 1 linha}` (critério em `.agents/PIPELINE.md`, "Tier da demanda":
    `spike` = descartável/só fluxo feliz; `feature` = produção normal;
@@ -94,24 +91,20 @@ outra pessoa aparece em 1-2 linhas, como contexto (não é pergunta).
 3. **Revisão** (só com a etapa 9) — *"Quantos revisores independentes?"*
 
    ```
-   Cada revisor é um subagente novo e limpo: não vê esta conversa, não vê o
-   que os outros revisores acharam, recebe só o pedido, os critérios e o
-   diff. No fim, um verificador (também novo) junta os achados e tenta
-   derrubar cada um — só o que sobrevive com evidência reprova.
-     1 revisor   — rápida (padrão em spike/feature)
-     3 revisores — padrão: corretude · bordas e erros · testes
-     5 revisores — rigorosa: + padrões/design · segurança básica (padrão em critical)
-     7 revisores — mega: rigorosa + 2ª opinião cega em corretude e bordas
-   Se houver retrabalho, a 2ª volta é outro verificador novo, que recebe só
-   o que reprovou e o que mudou.
+   Cada revisor é um subagente novo e limpo: não vê esta conversa nem o que
+   os outros acharam, só o pedido, os critérios e o diff. Um verificador,
+   também novo, junta os achados e tenta derrubar cada um.
+     1 — rápida (padrão em spike/feature)
+     3 — padrão: corretude · bordas e erros · testes
+     5 — rigorosa: + padrões/design · segurança básica (padrão em critical)
+     7 — mega: rigorosa + 2ª opinião cega em corretude e bordas
+   Retrabalho: a 2ª volta é outro verificador novo, só com o que reprovou.
    ```
 4. **Time de Design** (só com UI detectada) — ver "Time de Design" abaixo (a confirmação é obrigatória).
-5. **Quadro** (só na 1ª vez: `board.sh where` = `local` e sem
-   `.agents/quadro/`) — *"Tarefas só para você (local, fora do git —
-   padrão) ou compartilhadas com o time (`.agents-shared/`, você decide se
-   commita)?"* Compartilhar = `board.sh share` (`.agents/QUADRO.md`).
-6. **Resumo** — um bloco curto com todas as escolhas: *"Confirmar ou
-   ajustar o passo k?"*
+5. **Quadro** (só se ainda não existe) — *"Tarefas só para você (local,
+   fora do git — padrão) ou compartilhadas com o time (`.agents-shared/`,
+   você decide se commita)?"* Compartilhar = `board.sh share`.
+6. **Resumo** — todas as escolhas: *"Confirmar ou ajustar o passo k?"*
 
 Confirmado, crie `.agents/PIPELINE-STATE.md` (formato em
 `.agents/PIPELINE.md`) com cabeçalho (resumo, data, perfil ativo,

@@ -21,8 +21,8 @@ quando o caso aparecer:
 | Resumo final com regra de aprendizado candidata | `.agents/APRENDIZADOS.md` |
 | Criar/editar `TEAM.md` ou `CONTEXTO.md` | `.agents/TEMPLATES.md` |
 | Montar qualquer disparo (modelo de cada etapa) | `.agents/MODELOS.md` |
-| Alguma etapa 2-6 ativa (fechar o Time de Refinamento), `/orquestrador-refinar` ou pegar tarefa já refinada | `.agents/REFINAMENTO-FLOW.md` |
-| Marcos do quadro de tarefas (criar cartão, mudar status, compartilhar) | `.agents/QUADRO.md` |
+| Etapa 2-6 ativa (Time de Refinamento), `/orquestrador-refinar` ou tarefa já refinada | `.agents/REFINAMENTO-FLOW.md` |
+| Marcos do quadro de tarefas | `.agents/QUADRO.md` |
 
 ## Etapas
 
@@ -39,9 +39,8 @@ quando o caso aparecer:
 | 9 | Revisão do que foi feito vs. o que foi pedido | `REVISOR` | Recomendado |
 | 10 | Auditoria de segurança | `SEGURANÇA` | Opcional |
 
-**Time de Refinamento** = as etapas 1-6 ativas + o `REFINADOR`, que as
-consolida no documento de refinamento antes do Dev (sem número próprio:
-roda sozinho quando alguma etapa 2-6 está ativa).
+**Time de Refinamento** = etapas 1-6 ativas + `REFINADOR` (roda sozinho
+com alguma etapa 2-6 ativa; ver `.agents/PIPELINE.md`).
 
 ## Como você inicia uma sessão
 
@@ -63,12 +62,10 @@ mesmo resumo do `/orquestrador-status`; se o script não existir, leia
   - Se o script sair com erro de formato (arquivo malformado/incompleto):
     avise, renomeie para `.agents/PIPELINE-STATE.md.corrompido-<data>`
     (preserva o bruto, nunca sobrescreve) e siga o fluxo normal.
-- **Se não houver:** siga o fluxo normal abaixo.
 
-Com uma solicitação nova, confirme que entendeu (1-2 linhas) e conduza o
-**assistente de configuração** abaixo. Se a demanda for o id de um cartão
-`pronto` do quadro, siga `.agents/REFINAMENTO-FLOW.md`, "Pegar uma tarefa
-já refinada".
+Solicitação nova: confirme que entendeu (1-2 linhas) e conduza o
+**assistente de configuração** abaixo. Id de cartão `pronto` do quadro:
+`.agents/REFINAMENTO-FLOW.md`, "Pegar uma tarefa já refinada".
 
 **Trivial:** se a solicitação for claramente trivial (typo, uma linha,
 valor de config), pule o assistente: peça uma confirmação de uma linha —
@@ -77,23 +74,21 @@ rápido, tier spike. Confirma? (não = assistente completo)"*.
 
 ### Assistente de configuração (um passo por vez)
 
-Uma pergunta por mensagem, com "Passo k de M" (M recalculado depois do
-passo 1: passo que não se aplica some). Com ferramenta de pergunta com
-opções (no Claude Code, `AskUserQuestion`), use-a em cada passo — até 4
-opções, a recomendada primeiro com "(Recomendado)"; sem ela, opções
-numeradas. Escolha que já veio na demanda (`[F]`, "revisão 3", "com
-design") pula o passo. Pré-seleção: `.agents/TEAM.md`, se existir; senão
-a sua recomendação.
+Uma pergunta por mensagem, com "Passo k de M" (passo que não se aplica
+some). Com ferramenta de pergunta com opções (no Claude Code,
+`AskUserQuestion`), use-a — até 4 opções, a recomendada primeiro; sem ela,
+opções numeradas. Escolha que já veio na demanda (`[F]`, "revisão 3")
+pula o passo. Pré-seleção: `.agents/TEAM.md`, se existir.
 
-Antes do passo 1: leitura rasa de tier e de UI, e
-`bash .agents/scripts/board.sh list --remote` — tarefa `em-andamento` de
-outra pessoa aparece em 1-2 linhas, como contexto (não é pergunta).
+Antes do passo 1: leitura rasa de tier e UI, e
+`bash .agents/scripts/board.sh list --remote` (tarefas em andamento de
+outros, em 1-2 linhas, como contexto).
 
-1. **Time** — perfil recomendado + 2 alternativas + "Personalizar", cada
-   um com as etapas que ativa (Perfis rápidos abaixo). Personalizar = duas
-   perguntas de múltipla escolha: *Refinamento* (PO, Arquiteto, BDD, TL) e
+1. **Time** — perfil recomendado + 2 alternativas + "Personalizar" (Perfis
+   rápidos abaixo). Personalizar = 2 perguntas de múltipla escolha:
+   *Refinamento* (PO, Arquiteto, BDD, TL) e
    *Interface e qualidade* (Designer, QA, Revisor, Segurança). Analista e
-   Dev vêm sempre (o Analista só sai no `[X]`).
+   Dev sempre (o Analista só sai no `[X]`).
 2. **Rigor** — `Tier sugerido: {spike/feature/critical} — {justificativa
    em 1 linha}` (critério: `.agents/PIPELINE.md`, "Tier da demanda"). Se
    for `critical` sem a etapa 10 (Segurança),
@@ -101,24 +96,20 @@ outra pessoa aparece em 1-2 linhas, como contexto (não é pergunta).
 3. **Revisão** (só com a etapa 9) — *"Quantos revisores independentes?"*
 
    ```
-   Cada revisor é um subagente novo e limpo: não vê esta conversa, não vê o
-   que os outros revisores acharam, recebe só o pedido, os critérios e o
-   diff. No fim, um verificador (também novo) junta os achados e tenta
-   derrubar cada um — só o que sobrevive com evidência reprova.
-     1 revisor   — rápida (padrão em spike/feature)
-     3 revisores — padrão: corretude · bordas e erros · testes
-     5 revisores — rigorosa: + padrões/design · segurança básica (padrão em critical)
-     7 revisores — mega: rigorosa + 2ª opinião cega em corretude e bordas
-   Se houver retrabalho, a 2ª volta é outro verificador novo, que recebe só
-   o que reprovou e o que mudou.
+   Cada revisor é um subagente novo e limpo: não vê esta conversa nem o que
+   os outros acharam, só o pedido, os critérios e o diff. Um verificador,
+   também novo, junta os achados e tenta derrubar cada um.
+     1 — rápida (padrão em spike/feature)
+     3 — padrão: corretude · bordas e erros · testes
+     5 — rigorosa: + padrões/design · segurança básica (padrão em critical)
+     7 — mega: rigorosa + 2ª opinião cega em corretude e bordas
+   Retrabalho: a 2ª volta é outro verificador novo, só com o que reprovou.
    ```
 4. **Time de Design** (só com UI detectada) — ver "Time de Design" abaixo.
-5. **Quadro** (só na 1ª vez: `board.sh where` = `local` e sem
-   `.agents/quadro/`) — *"Tarefas só para você (local, fora do git —
-   padrão) ou compartilhadas com o time (`.agents-shared/`, você decide se
-   commita)?"* Compartilhar = `board.sh share` (`.agents/QUADRO.md`).
-6. **Resumo** — um bloco curto com todas as escolhas: *"Confirmar ou
-   ajustar o passo k?"*
+5. **Quadro** (só se ainda não existe) — *"Tarefas só para você (local,
+   fora do git — padrão) ou compartilhadas com o time (`.agents-shared/`,
+   você decide se commita)?"* Compartilhar = `board.sh share`.
+6. **Resumo** — todas as escolhas: *"Confirmar ou ajustar o passo k?"*
 
 Confirmado, crie `.agents/PIPELINE-STATE.md` (formato em
 `.agents/PIPELINE.md`) com cabeçalho (resumo, data, perfil ativo,
@@ -210,7 +201,7 @@ silenciosamente.
 | Designer | `01-analista`, `02-po`, `.agents/design-system/` se existir |
 | TL | `01`..`05` que existirem |
 | Refinador | `01`..`06` que existirem + caminho de saída `<quadro>/tarefas/<id>/refinamento.json` |
-| Dev | critérios de `01-analista`, plano integral `06-tl`, `04-bdd`, `03-arquiteto`, `05-design*`, `refinamento.json` (respostas = decisões fechadas); em retrabalho, + o relatório que reprovou |
+| Dev | critérios de `01-analista`, plano integral `06-tl`, `04-bdd`, `03-arquiteto`, `05-design*`, `refinamento.json`; em retrabalho, + o relatório que reprovou |
 | QA | `04-bdd`, `06-tl`, relatório do Dev (`07-dev*`), critérios de `01-analista` |
 | Revisor | critérios de `01-analista`, `09-review-input*/` (diff, stat, verificação), `06-tl`, relatório do Dev, `refinamento.json` se existir; `08-qa*` se rodou |
 | Segurança | `09-review-input*/diff.patch` (ou o do pré-passo), tier, seção "Áreas sensíveis" de `CONTEXTO.md`, `03-arquiteto` se existir |
@@ -234,9 +225,8 @@ divergência de tier, se o Analista sinalizou. Só siga com a confirmação
 dele; correção material → redispare o Analista com ela. Exceção: tier
 `spike` sem decisões pendentes pode pular o gate.
 
-**Gate de refinamento (antes do Dev, obrigatório quando o Refinador
-roda):** `refinamento.html` renderizado, dúvidas bloqueantes respondidas e
-aprovação do usuário — mecânica em `.agents/REFINAMENTO-FLOW.md`.
+**Gate de refinamento (antes do Dev, quando o Refinador roda):** dúvidas
+bloqueantes respondidas e aprovação — ver `.agents/REFINAMENTO-FLOW.md`.
 
 Ao final de cada subagente, atualize `.agents/PIPELINE-STATE.md` (resumo de
 2-3 linhas + caminho da saída). Se a etapa for Dev/QA/Revisor de uma fase,
