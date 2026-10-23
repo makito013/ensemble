@@ -7,6 +7,8 @@ O Orquestrador gerencia um pipeline configurável. Você escolhe quais etapas at
                                                           ↓
                                                       [6] TL
                                                           ↓
+                                       REFINADOR → refinamento.html (gate: dúvidas respondidas)
+                                                          ↓
                                                       [7] DEV
                                                           ↓
                                                       [8] QA ─ reprovado ─→ volta ao DEV
@@ -32,10 +34,13 @@ O Orquestrador gerencia um pipeline configurável. Você escolhe quais etapas at
 | 8 | Testes unitários e integração | QA | `.agents/QA.md` | Opcional |
 | 9 | Revisão: pedido vs. entregado | Revisor | `.agents/REVISOR.md` | Recomendado |
 | 10 | Auditoria de segurança | Segurança | `.agents/SEGURANCA.md` | Opcional |
+| — | Documento de refinamento (fecha o Time de Refinamento) | Refinador | `.agents/REFINADOR.md` | Automático com alguma etapa 2-6 |
 | — | Orquestração do pipeline | Orquestrador | `.agents/ORQUESTRADOR.md` | Sempre ativo |
 
 Documentos carregados só sob demanda: `.agents/TIME-DESIGN-FLOW.md` (Time de
-Design), `.agents/PLAN-FLOW.md` (`/orquestrador-plan`),
+Design), `.agents/REFINAMENTO-FLOW.md` (Time de Refinamento e
+`/orquestrador-refinar`), `.agents/QUADRO.md` (quadro de tarefas),
+`.agents/PLAN-FLOW.md` (`/orquestrador-plan`),
 `.agents/APRENDIZADOS.md` (aprendizado por feedback), `.agents/TEMPLATES.md`
 (TEAM.md, CONTEXTO.md, idioma do código) e `.agents/MODELOS.md` (modelo de
 cada disparo).
@@ -44,7 +49,7 @@ cada disparo).
 
 | Código | Perfil | Etapas ativas |
 |--------|--------|--------------|
-| `[X]` | ✏️ Trivial (typo, uma linha, config) | 7 → 9 (Revisor rápido), confirmação de uma linha em vez do menu |
+| `[X]` | ✏️ Trivial (typo, uma linha, config) | 7 → 9 (Revisor rápido), confirmação de uma linha em vez do assistente |
 | `[P]` | 🏃 Projeto pessoal/protótipo | 1 → 7 → 9 |
 | `[F]` | 🔧 Feature simples | 1 → 2 → 6 → 7 → 9 |
 | `[U]` | 🏗️ Feature com UI | 1 → 2 → 3 → 5 → 6 → 7 → 9 |
@@ -58,7 +63,7 @@ cada disparo).
 
 Eixo independente do perfil — perfil escolhe **quais etapas rodam**, tier
 escolhe **quanto rigor/processo** a demanda merece dentro das etapas que
-rodam. O Orquestrador sugere um tier no menu (leitura rápida da solicitação
+rodam. O Orquestrador sugere um tier no assistente (leitura rápida da solicitação
 bruta) e o Analista, depois de rodar, faz uma leitura mais informada e
 sinaliza divergência em vez de sobrescrever — ver `.agents/ANALISTA.md`,
 "Tier da demanda".
@@ -115,6 +120,10 @@ está em `.agents/REVISOR.md`; esta seção fixa a escala e o estado.
 | padrão | 2-3 | lentes L1, L2, L3 em paralelo + 1 verificador |
 | rigorosa | 4-5 | lentes L1..L5 em paralelo + 1 verificador |
 | mega | ≥6 | L1..L5 + 2ª amostra independente de L1 e L2 + 1 verificador |
+
+No assistente, a escala aparece como "quantos revisores independentes":
+1 / 3 / 5 / 7 (lentes; o verificador fecha à parte). Cada um é um
+subagente novo, sem a conversa e sem a saída dos outros.
 
 Os nomes e os valores nomeados de sempre continuam valendo (rápida=1,
 padrão=3, rigorosa=5, mega=8), então `TEAM.md` e fluxos que informam N
@@ -180,6 +189,8 @@ seguintes **por caminho** (matriz de handoff em `ORQUESTRADOR.md`):
 - Sufixos, nesta ordem: `-f<F>` (fase, quando há fases), `-v<V>` (volta ≥2
   de retrabalho), `-l<k>`/`-l1b`/`-l2b` (lentes do Revisor — o relatório do
   verificador é o arquivo sem sufixo de lente). Ex.: `09-revisor-f2-v2.md`.
+- `refinamento.json`/`refinamento.html` não ficam aqui: vivem na pasta do
+  cartão no quadro (`.agents/QUADRO.md`), para sobreviver ao arquivamento.
 - `09-review-input[-f<F>][-v<V>]/` — pré-passo determinístico do Revisor:
   `diff.patch`, `diffstat.txt`, `snapshot.txt`, `delta.patch` (volta ≥2) e
   `verificacao.txt`.
@@ -193,6 +204,7 @@ Iniciado em: <data>
 Perfil ativo: <perfil> (<lista de etapas ativas>)
 Tier: <tier>
 Revisor: <rápida/padrão/rigorosa/mega> (N=<n>)
+Tarefa do quadro: <id do cartão> (`board.sh where` diz se é local ou compartilhado)
 Base (git): <sha do HEAD antes do primeiro Dev>
 
 ## Planejamento
@@ -238,7 +250,8 @@ num prompt, passe delimitados, com o preâmbulo anti-injection.
   (preserva o bruto) e oferece começar do zero.
 - `.agents/PIPELINE-STATE.md`, `.agents/.pipeline-run/` e
   `.agents/.pipeline-history/` são dado de projeto, igual
-  `CONTEXTO.md`/`TEAM.md` — nunca tocados pelo instalador.
+  `CONTEXTO.md`/`TEAM.md` — nunca tocados pelo instalador. O mesmo vale
+  para o quadro (`.agents/quadro/` ou `.agents-shared/`).
 - `/orquestrador-status` (só leitura) roda
   `bash .agents/scripts/pipeline-status.sh` e mostra demanda, perfil, tier,
   fase atual, etapas concluídas/pendentes, voltas e os caminhos em
@@ -249,7 +262,8 @@ num prompt, passe delimitados, com o preâmbulo anti-injection.
 **Inicie sempre pelo Orquestrador (Claude Code):**
 > `/orquestrador quero adicionar login com Google ao projeto`
 
-O Orquestrador confirma o que entendeu, apresenta o menu, você marca as
-etapas, e ele dispara os agentes na ordem e traz os resultados. Código é
+O Orquestrador confirma o que entendeu, configura a sessão com você passo a
+passo (time, rigor, revisores, design, quadro) e dispara os agentes na
+ordem, trazendo os resultados. Código é
 sempre em inglês (convenção completa em `.agents/TEMPLATES.md`, repetida em
 cada persona que produz código e na skill `coding-standards`).

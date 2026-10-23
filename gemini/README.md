@@ -10,7 +10,7 @@ para o **Antigravity (Google Gemini CLI)**. É a versão paralela à pasta `agen
 
 ## Estrutura
 
-Cada skill é uma pasta com um único `SKILL.md` (27 no total):
+Cada skill é uma pasta com um único `SKILL.md` (33 no total, contando `coding-standards`, a única sempre ativa):
 
 ```
 gemini/
@@ -23,6 +23,7 @@ gemini/
     ├── bdd/                   → etapa 4 — escreve cenários Gherkin
     ├── designer/              → etapa 5 — propõe UX/UI (só se houver interface)
     ├── tl/                    → etapa 6 — planeja implementação técnica
+    ├── refinador/             → fecha o Time de Refinamento (refinamento.json → refinamento.html)
     ├── dev/                   → etapa 7 — implementa o código
     ├── qa/                    → etapa 8 — cria e executa testes
     ├── revisor/               → etapa 9 — revisa o que foi pedido vs. entregue
@@ -35,6 +36,8 @@ gemini/
     ├── orquestrador-status/   → mostra o pipeline em aberto (só leitura)
     ├── orquestrador-pr/       → revisão de PR local (Revisor + Segurança)
     ├── orquestrador-plan/     → planejamento avulso de uma ideia (Grill, opções, protótipos)
+    ├── orquestrador-refinar/  → só o Time de Refinamento: deixa a tarefa pronta no quadro
+    ├── orquestrador-quadro/   → quadro de tarefas (feito/em andamento/pronto) e compartilhamento
     ├── grill/                 → interrogador socrático do orquestrador-plan
     │
     │   # Time de Design (UX/UI, paralelo ao pipeline principal)

@@ -20,5 +20,5 @@ Passos:
 3. Com `ativar N` / `desativar N`: edite a linha correspondente à etapa N em
    `.agents/TEAM.md` (a etapa 7 — Desenvolvimento — não pode ser desativada) e
    confirme a mudança ao usuário.
-4. Deixe claro que isto só muda a pré-seleção do menu de `/orquestrador` — o
+4. Deixe claro que isto só muda a pré-seleção do passo "Time" do assistente de `/orquestrador` — o
    usuário ainda pode ajustar por sessão.

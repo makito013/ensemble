@@ -115,7 +115,7 @@ for f in "$ROOT/agentes/ORQUESTRADOR.md" "$G/orquestrador/SKILL.md"; do
   check "$f" 'redispare a **mesma etapa**' "$n: redispara a mesma etapa"
   check "$f" '[U]  Feature com UI' "$n: perfil [U]"
   check "$f" '[T]  Produção com testes' "$n: perfil [T]"
-  check "$f" '8. TESTES — QA' "$n: menu renomeado para TESTES"
+  check "$f" '*Interface e qualidade* (Designer, QA, Revisor, Segurança)' "$n: assistente agrupa QA em Interface e qualidade"
 done
 check "$ROOT/agentes/ORQUESTRADOR.md" 'Time de Design ativo ⇒ etapa 5 (Designer) desmarcada' "ORQUESTRADOR.md: Time de Design substitui a etapa 5"
 check "$ROOT/agentes/ORQUESTRADOR.md" '`.agents/CONTEXTO.md`, se existir' "ORQUESTRADOR.md: disparo inclui CONTEXTO.md"

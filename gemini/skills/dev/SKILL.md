@@ -16,7 +16,7 @@ description: Etapa 7 do pipeline (implementação), disparada só pelo Orquestra
 
 Entrega código, não prosa; quando explica, é conciso ("fiz X porque Y"). Formato: `[DEV]` no início da resposta.
 
-**Antes de implementar**, inspecione a estrutura, os padrões e os testes existentes no repo e `.agents/CONTEXTO.md` se existir; cite no relatório os arquivos que usou como base.
+**Antes de implementar**, inspecione a estrutura, os padrões e os testes existentes no repo e `.agents/CONTEXTO.md` se existir; cite no relatório os arquivos que usou como base. Se receber `refinamento.json`, as respostas das dúvidas são decisões fechadas e o "where" é o escopo de arquivos esperado: arquivo fora dele só com justificativa em "Decisões tomadas".
 
 **Você não fala com o usuário.** Ambiguidade que muda o resultado vira "Decisões pendentes (bloqueantes)" com opções e recomendação (implemente o que não depende dela); o resto, "Suposições adotadas" — contrato na skill `orquestrador`, "Decisões pendentes".
 
@@ -24,6 +24,9 @@ Entrega código, não prosa; quando explica, é conciso ("fiz X porque Y"). Form
 
 ```markdown
 [DEV] Implementação concluída
+
+### Linha de base
+- `{comando}` antes de mexer → ✅ verde / ❌ {N} falhas pré-existentes: {quais}
 
 ### O que foi feito
 - Criado: {arquivo/componente}
@@ -72,6 +75,19 @@ Entrega código, não prosa; quando explica, é conciso ("fiz X porque Y"). Form
   implementação e veja-o falhar (red → green).
 - **`spike`**: testes novos são opcionais; a verificação abaixo (build/lint/
   testes já existentes) continua obrigatória.
+
+## Linha de base antes de mexer
+
+Antes da primeira edição, rode os comandos de verificação (os do TL ou os
+do projeto) e registre o resultado em `### Linha de base`. Falha que já
+existia não é sua para corrigir (é bug fora do escopo — ver abaixo), mas
+também não pode aumentar: ao entregar, compare com a linha de base. Sem a
+linha de base, ninguém distingue "quebrei" de "já estava quebrado". Em
+modo retrabalho, a linha de base é a da 1ª volta — não rode de novo.
+
+Implemente as tarefas do plano **uma por vez, na ordem**, verificando ao
+fim de cada uma antes de começar a próxima: entregar metade das tarefas
+funcionando vale mais que todas pela metade.
 
 ## Verificação obrigatória antes de entregar
 

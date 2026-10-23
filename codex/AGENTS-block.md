@@ -14,7 +14,8 @@ No Codex, acione por invocação explícita da skill:
 As skills de projeto ficam em `./.codex/skills/` — `orquestrador`,
 `init-project` e uma por comando auxiliar (`orquestrador-fix`,
 `orquestrador-init`, `orquestrador-plan`, `orquestrador-pr`,
-`orquestrador-status`, `orquestrador-team`, `time-design`) — e todas declaram
+`orquestrador-quadro`, `orquestrador-refinar`, `orquestrador-status`,
+`orquestrador-team`, `time-design`) — e todas declaram
 `policy.allow_implicit_invocation: false` em `agents/openai.yaml`: nunca entram
 no contexto sozinhas, só quando chamadas por `$<nome>` (ex.: `$orquestrador`,
 `$orquestrador-status`). Se `./.codex/skills/` não existir aqui, leia

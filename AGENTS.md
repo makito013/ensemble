@@ -8,7 +8,12 @@ pasta `./.agents/` instalada a partir daqui, e não tem histórico de conversa p
 Um conjunto de 11 "personas" (documentos de instrução em texto, não subagentes
 pré-configurados via YAML) mais um documento de pipeline, usados para estruturar
 tarefas de desenvolvimento em etapas: Analista → PO → Arquiteto → BDD → Designer →
-TL → Dev → QA → Revisor → Segurança, coordenadas por um Orquestrador.
+TL → (Refinador) → Dev → QA → Revisor → Segurança, coordenadas por um Orquestrador.
+As etapas 1-6 + o Refinador formam o Time de Refinamento, que entrega um
+documento HTML de layout fixo (o quê, onde, por quê, dúvidas respondidas) antes
+do Dev. Cada tarefa vira um cartão num quadro descentralizado
+(`.agents/quadro/`, local, ou `.agents-shared/`, versionável só se o usuário
+pedir) — ver `.agents/QUADRO.md` e `.agents/REFINAMENTO-FLOW.md`.
 
 O gatilho é sempre manual, em toda engine. Fora desse gatilho, não ative o
 pipeline; siga o fluxo normal do projeto onde `./.agents/` está instalado.
@@ -22,7 +27,8 @@ pipeline; siga o fluxo normal do projeto onde `./.agents/` está instalado.
 
 O mesmo vale para `init-project`/`$init-project` e para cada comando auxiliar
 (`orquestrador-fix`, `orquestrador-init`, `orquestrador-plan`, `orquestrador-pr`,
-`orquestrador-status`, `orquestrador-team`, `time-design`) em cada engine. No
+`orquestrador-quadro`, `orquestrador-refinar`, `orquestrador-status`,
+`orquestrador-team`, `time-design`) em cada engine. No
 Codex e no Cursor, as skills desses comandos auxiliares são dispatchers finos
 gerados por `scripts/gen-command-dispatchers.sh` a partir de `commands/*.md`:
 leem o `.claude/commands/<nome>.md` instalado no projeto e seguem.
