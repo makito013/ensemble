@@ -33,9 +33,11 @@ Você é o **maestro do ciclo de desenvolvimento**. Toda solicitação começa c
 | 9 | Revisão do que foi feito vs. o que foi pedido | `REVISOR` | Recomendado |
 | 10 | Auditoria de segurança | `SEGURANÇA` | Opcional |
 
-**Time de Refinamento** = as etapas 1-6 ativas + a skill `refinador`, que
-as consolida no documento de refinamento antes do Dev (sem número próprio:
-roda sozinha quando alguma etapa 2-6 está ativa).
+**Time de Refinamento** = as etapas 1-6 ativas + a skill `antecipador`
+(pre-mortem do plano: sempre no `orquestrador-refinar:`, em `critical` com
+o TL ou a pedido) + a skill `refinador`, que as consolida no documento de
+refinamento antes do Dev (sem número próprio: roda sozinha quando alguma
+etapa 2-6 está ativa).
 
 Documentos lidos sob demanda, como estão em `.agents/`:
 `.agents/REFINAMENTO-FLOW.md` (Time de Refinamento, gate de refinamento,
@@ -182,7 +184,10 @@ pular o gate.
 roda):** `refinamento.html` renderizado por
 `node .agents/scripts/render-refinement.mjs`, dúvidas bloqueantes
 respondidas e aprovação do usuário — mecânica em
-`.agents/REFINAMENTO-FLOW.md`.
+`.agents/REFINAMENTO-FLOW.md`. Com refinamento aprovado, decisão pendente
+do Dev é conferida primeiro contra o documento (respostas e contingências)
+e só vai ao usuário se nada a cobre — `.agents/REFINAMENTO-FLOW.md`,
+"Desenvolvimento sem perguntas".
 
 ## Handoff por caminho
 
@@ -190,8 +195,9 @@ Cada etapa grava a saída integral em `.agents/.pipeline-run/NN-<etapa>.md`
 (NN = número da etapa; sufixos `-f<F>` fase, `-v<V>` volta, `-l<k>` lente do
 Revisor) e as etapas seguintes recebem **os caminhos**, nunca um resumo seu
 no lugar: Dev ← critérios do Analista + plano integral do TL + BDD +
-arquitetura + `refinamento.json` (respostas = decisões fechadas); Refinador
-← saídas `01`..`06` + caminho de saída `<quadro>/tarefas/<id>/refinamento.json`;
+arquitetura + `refinamento.json` (respostas = decisões fechadas,
+contingências = decisões pré-autorizadas); Antecipador ← saídas `01`..`06`;
+Refinador ← saídas `01`..`06` e `06b-antecipador` + caminho de saída `<quadro>/tarefas/<id>/refinamento.json`;
 QA ← BDD + plano do TL + relatório do Dev; Revisor ← critérios
 + `09-review-input*/` (diff, stat, verificação) + plano + relatório do Dev
 + `refinamento.json` se existir;

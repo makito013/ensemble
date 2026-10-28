@@ -176,6 +176,11 @@ GRILL|grill|O que você entrega a cada turno
 GRILL|grill|Revisão final (checklist de prontidão)
 ORQUESTRADOR|orquestrador|Como você inicia uma sessão
 ORQUESTRADOR|orquestrador|Assistente de configuração (um passo por vez)
+ANTECIPADOR|antecipador|Missão
+ANTECIPADOR|antecipador|O que você recebe
+ANTECIPADOR|antecipador|Onde procurar problemas
+ANTECIPADOR|antecipador|O que você entrega
+ANTECIPADOR|antecipador|Regras
 REFINADOR|refinador|Missão
 REFINADOR|refinador|O que você recebe
 REFINADOR|refinador|O que você entrega

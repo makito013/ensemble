@@ -1,6 +1,6 @@
 ---
 name: orquestrador-refinar
-description: Roda só o Time de Refinamento — planeja uma demanda e entrega o documento de refinamento (HTML com o quê, onde, por quê e dúvidas respondidas), deixando a tarefa pronta no quadro para qualquer dev desenvolver depois. Gatilho sempre manual, nunca automático.
+description: Roda só o Time de Refinamento — planeja uma demanda, antecipa os problemas do desenvolvimento (pre-mortem) e entrega o documento de refinamento (HTML com o quê, onde, por quê, dúvidas respondidas e decisões pré-autorizadas), deixando a tarefa pronta no quadro para qualquer dev desenvolver depois sem voltar a perguntar. Gatilho sempre manual, nunca automático.
 ---
 
 # orquestrador-refinar

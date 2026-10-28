@@ -80,6 +80,10 @@ function validate(data) {
   asArray(data.tasks).forEach((task, i) => {
     if (!task || !isNonEmptyString(task.description)) errors.push(`tasks[${i}].description is required`);
   });
+  asArray(data.contingencies).forEach((c, i) => {
+    if (!c || !isNonEmptyString(c.when)) errors.push(`contingencies[${i}].when is required`);
+    if (!c || !isNonEmptyString(c.then)) errors.push(`contingencies[${i}].then is required`);
+  });
   return errors;
 }
 
@@ -184,6 +188,18 @@ function renderRisks(risks) {
   );
 }
 
+// Pre-authorized decisions: the developer applies them without asking.
+function renderContingencies(contingencies) {
+  if (contingencies.length === 0) return empty('Nenhuma decisão pré-autorizada.');
+  const rows = contingencies
+    .map(
+      (c, i) =>
+        `<tr><td>${escapeHtml(isNonEmptyString(c.id) ? c.id : `C${i + 1}`)}</td><td>${inline(c.when)}</td><td>${inline(c.then)}</td><td>${isNonEmptyString(c.escalateIf) ? inline(c.escalateIf) : '—'}</td></tr>`,
+    )
+    .join('');
+  return `<p class="rec">Aprovadas junto com o documento: o desenvolvimento aplica sem perguntar.</p><div class="table-wrap"><table><thead><tr><th>#</th><th>Se acontecer</th><th>Faça</th><th>Pare e reporte se</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
 function renderVerification(data) {
   const commands = asArray(data.verification);
   const strategy = asArray(data.testStrategy);
@@ -235,6 +251,7 @@ function main() {
     acceptance: renderAcceptance(data.acceptanceCriteria),
     outOfScope: list(data.outOfScope),
     risks: renderRisks(data.risks),
+    contingencies: renderContingencies(asArray(data.contingencies)),
     assumptions: list(data.assumptions),
     verification: renderVerification(data),
     sources: renderSources(data.sources),
