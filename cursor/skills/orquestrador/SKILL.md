@@ -31,7 +31,11 @@ roda quando o usuário a chama pelo nome.
 5. **Modelo:** você não está no Claude Code. Onde qualquer arquivo mandar
    passar `model: "haiku"`, `"sonnet"`, `"opus"` ou `claude-*`, não passe:
    leia como nível de esforço e deixe o subagente no modelo desta sessão
-   (`.agents/MODELOS.md`, "Fora do Claude Code"). Nunca troque de provedor.
+   (`.agents/MODELOS.md`, "Fora do Claude Code"). Nunca troque de provedor
+   por conta própria. Exceção: a escolha do usuário no passo "Modelos"
+   ("superior" = o mais forte da mesma família do modelo da sessão; um
+   modelo pedido pelo nome é tentado mesmo sendo de outro provedor) —
+   `.agents/MODELOS.md`, "Escolha do usuário (passo Modelos)".
 
 Se `.agents/ORQUESTRADOR.md` não existir, pare e reporte: o pipeline ainda não
 foi instalado neste projeto (rode `init-project` antes).

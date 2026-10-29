@@ -21,7 +21,9 @@ roda quando o usuário a chama pelo nome (`/orquestrador-status`).
    Pelo mesmo motivo, onde o corpo mandar passar `model: "haiku"`,
    `"sonnet"`, `"opus"` ou `claude-*` a um subagente, não passe: leia
    como nível de esforço e deixe o subagente no modelo desta sessão
-   (`.agents/MODELOS.md`, "Fora do Claude Code"). Nunca troque de provedor.
+   (`.agents/MODELOS.md`, "Fora do Claude Code"). Nunca troque de provedor
+   por conta própria; só a escolha do usuário muda o modelo
+   (`.agents/MODELOS.md`, "Escolha do usuário (passo Modelos)").
 2. Siga as instruções do corpo desse arquivo, tratando cada `$ARGUMENTS`
    como o texto que o usuário passou junto com o comando (vazio se ele não
    passou nada).

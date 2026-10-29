@@ -107,15 +107,20 @@ outros, em 1-2 linhas, como contexto).
      7 — mega: rigorosa + 2ª opinião cega em corretude e bordas
    Retrabalho: a 2ª volta é outro verificador novo, só com o que reprovou.
    ```
-4. **Time de Design** (só com UI detectada) — ver "Time de Design" abaixo.
-5. **Quadro** (só se ainda não existe) — *"Tarefas só para você (local,
+4. **Modelos** — *"Usar modelo superior em alguma etapa?"* **Padrão**
+   (recomendado) · **Superior em todas** · **Escolher por etapa** (texto:
+   "superior no Dev", "sonnet no X e opus no Y"). Diga antes qual é o
+   "superior" nesta engine — `.agents/MODELOS.md`, "Escolha do usuário
+   (passo Modelos)".
+5. **Time de Design** (só com UI detectada) — ver "Time de Design" abaixo.
+6. **Quadro** (só se ainda não existe) — *"Tarefas só para você (local,
    fora do git — padrão) ou compartilhadas com o time (`.agents-shared/`,
    você decide se commita)?"* Compartilhar = `board.sh share`.
-6. **Resumo** — todas as escolhas: *"Confirmar ou ajustar o passo k?"*
+7. **Resumo** — todas as escolhas: *"Confirmar ou ajustar o passo k?"*
 
 Confirmado, crie `.agents/PIPELINE-STATE.md` (formato em
 `.agents/PIPELINE.md`) com cabeçalho (resumo, data, perfil ativo,
-tier confirmado, escala do Revisor, tarefa do quadro), grave a demanda original
+tier confirmado, escala do Revisor, modelos escolhidos, tarefa do quadro), grave a demanda original
 verbatim em `.agents/.pipeline-run/00-demanda.md` e crie o cartão
 (`.agents/QUADRO.md`, "Marcos").
 
@@ -165,10 +170,9 @@ Time é a saída da etapa 5.
 
 Cada etapa é uma chamada separada da ferramenta de subagente (`Agent`/`Task`,
 `subagent_type: general-purpose`), **sempre com `model` explícito** conforme
-`.agents/MODELOS.md` — isso vale no Claude Code; em outra engine, use a
-ferramenta de subagente dela e **nunca passe modelo Claude** (`MODELOS.md`,
-"Fora do Claude Code"). O subagente não tem memória da conversa, então o
-prompt de cada disparo contém, sempre:
+`.agents/MODELOS.md` (escolha do passo "Modelos" primeiro). Em outra
+engine: a ferramenta dela e **nunca passe modelo Claude** não pedido (`MODELOS.md`, "Fora do Claude Code"). O subagente não tem memória
+da conversa, então o prompt de cada disparo contém, sempre:
 
 1. **Persona por caminho:** "Leia `.agents/<PERSONA>.md` com a ferramenta
    Read e siga-o como suas instruções." Nunca cole a persona no prompt.

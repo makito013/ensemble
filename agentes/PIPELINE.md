@@ -207,6 +207,7 @@ Iniciado em: <data>
 Perfil ativo: <perfil> (<lista de etapas ativas>)
 Tier: <tier>
 Revisor: <rápida/padrão/rigorosa/mega> (N=<n>)
+Modelos: <padrão | superior em todas | etapa=modelo, ...>
 Tarefa do quadro: <id do cartão> (`board.sh where` diz se é local ou compartilhado)
 Base (git): <sha do HEAD antes do primeiro Dev>
 

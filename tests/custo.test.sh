@@ -207,4 +207,20 @@ for f in "$ROOT"/codex/skills/*/SKILL.md "$ROOT"/cursor/skills/*/SKILL.md; do
   check "$f" 'Fora do Claude Code' "$n não passa modelo Claude"
 done
 
+# --- the "Modelos" wizard step: user choice beats the table, in every engine ---
+check "$A/MODELOS.md" 'Escolha do usuário (passo Modelos)' "MODELOS.md resolve a escolha do usuário"
+check "$A/MODELOS.md" 'sessão `opus` → `fable`' "MODELOS.md: superior no Claude Code é um degrau acima da sessão"
+check "$A/MODELOS.md" 'mesma família do modelo' "MODELOS.md: superior fora do Claude Code fica na família da sessão"
+check "$A/MODELOS.md" 'nunca troque em silêncio' "MODELOS.md: modelo pedido indisponível é avisado"
+for f in "$A/ORQUESTRADOR.md" "$G/orquestrador/SKILL.md"; do
+  check "$f" '**Modelos** — *"Usar modelo superior em alguma etapa?"*' "${f#"$ROOT"/}: assistente tem o passo Modelos"
+done
+check "$A/PIPELINE.md" 'Modelos: <padrão' "PIPELINE-STATE.md grava os modelos escolhidos"
+check "$A/scripts/pipeline-status.sh" "field 'Modelos'" "pipeline-status mostra os modelos escolhidos"
+for f in "$ROOT"/codex/skills/*/SKILL.md "$ROOT"/cursor/skills/*/SKILL.md; do
+  n="${f#"$ROOT"/}"
+  [[ "$n" == */init-project/* ]] && continue
+  check "$f" 'Escolha do usuário' "$n respeita a escolha de modelo do usuário"
+done
+
 exit $fail

@@ -367,9 +367,17 @@ passo vem como pergunta de opções clicáveis (`AskUserQuestion`):
    pedido, os critérios e o diff. Um verificador, também novo, junta os
    achados e tenta derrubar cada um; só o que sobrevive com evidência
    reprova.
-4. **Time de Design** (só se a demanda falar de tela).
-5. **Quadro** (só na primeira vez no projeto) — local ou compartilhado.
-6. **Resumo** — confirmar ou voltar a um passo.
+4. **Modelos** — padrão, superior em todas as etapas ou escolher por
+   etapa ("superior no Arquiteto e no Dev", "sonnet no X e opus no Y").
+   "Superior" é um degrau acima do modelo da sessão na IA que você está
+   usando: no Claude Code, `opus` com sessão `sonnet` e `fable` com sessão
+   `opus`; no Cursor ou no Codex, o modelo mais forte da mesma família do
+   modelo da sessão. Um modelo de outro provedor só é usado se você pedir
+   pelo nome (ex.: `fable` no Cursor), e se não estiver disponível o
+   Orquestrador avisa e segue no padrão.
+5. **Time de Design** (só se a demanda falar de tela).
+6. **Quadro** (só na primeira vez no projeto) — local ou compartilhado.
+7. **Resumo** — confirmar ou voltar a um passo.
 
 Escolhas já escritas na demanda (`/orquestrador [F] revisão 3 ...`) pulam
 o passo correspondente.
