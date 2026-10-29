@@ -31,10 +31,11 @@ else
   [[ -s "$TMP/out.html" ]] && pass "renderiza mesmo com o gate fechado" || bad "HTML vazio"
   grep -q '{{' "$TMP/out.html" && bad "slot do template sem preencher" || pass "todos os slots preenchidos"
   grep -q 'Aguardando 1 dúvida bloqueante' "$TMP/out.html" && pass "banner mostra o gate fechado" || bad "banner"
-  for section in 'O que será feito' 'Por quê' 'Onde (arquivos e módulos)' 'Como — tarefas em ordem' 'Dúvidas que precisam de resposta antes do desenvolvimento' 'Critérios de aceitação' 'Fora de escopo'; do
+  for section in 'O que será feito' 'Por quê' 'Onde (arquivos e módulos)' 'Como — tarefas em ordem' 'Dúvidas que precisam de resposta antes do desenvolvimento' 'Critérios de aceitação' 'Fora de escopo' 'Se acontecer — decisões já autorizadas'; do
     grep -qF "$section" "$TMP/out.html" && pass "seção fixa: $section" || bad "seção ausente: $section"
   done
   grep -q 'src/auth/providers/google.ts' "$TMP/out.html" && pass "onde lista os caminhos" || bad "onde sem caminhos"
+  grep -q 'Mais de um usuário com o mesmo e-mail' "$TMP/out.html" && pass "contingência mostra o limite para parar" || bad "contingência sem escalateIf"
   grep -q '<script' "$TMP/out.html" && bad "HTML gerado tem script" || pass "HTML autocontido, sem script"
   grep -Eq '(src|href)="https?://' "$TMP/out.html" && bad "HTML referencia recurso externo" || pass "HTML sem recurso externo"
 
@@ -69,6 +70,18 @@ else
   rc=$?
   set -e
   [[ "$rc" == 1 ]] && pass "change fora de create|modify|remove é recusado" || bad "change inválido aceito"
+  node -e '
+    const fs = require("fs");
+    const d = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+    d.contingencies.push({ id: "C9", when: "" });
+    fs.writeFileSync(process.argv[2], JSON.stringify(d));
+  ' "$FIXTURE" "$TMP/bad3.json"
+  set +e
+  node "$RENDER" "$TMP/bad3.json" "$TMP/bad3.html" >"$TMP/log3" 2>&1
+  rc=$?
+  set -e
+  [[ "$rc" == 1 ]] && grep -q 'contingencies\[2\].then' "$TMP/log3" \
+    && pass "contingência sem gatilho/ação é recusada" || bad "contingência inválida: saída $rc"
   set +e
   node "$RENDER" "$FIXTURE" >/dev/null 2>&1
   rc=$?
@@ -91,6 +104,16 @@ check "$G/orquestrador/SKILL.md" 'Gate de refinamento' "gemini orquestrador tem 
 check "$A/PIPELINE.md" '.agents/REFINAMENTO-FLOW.md' "PIPELINE.md lista REFINAMENTO-FLOW.md como sob demanda"
 check "$A/PIPELINE.md" '.agents/QUADRO.md' "PIPELINE.md lista QUADRO.md como sob demanda"
 check "$A/MODELOS.md" 'Refinador' "MODELOS.md define o modelo do Refinador"
+check "$A/MODELOS.md" 'Antecipador' "MODELOS.md define o modelo do Antecipador"
+check "$A/ANTECIPADOR.md" '[ANTECIPADOR] Pre-mortem concluído' "Antecipador tem o marcador de entrega"
+check "$A/ANTECIPADOR.md" 'Nada sensível' "Antecipador proíbe dado sensível"
+check "$A/REFINADOR.md" '"contingencies"' "Refinador grava as contingências"
+check "$A/REFINAMENTO-FLOW.md" 'ANTECIPADOR.md' "fluxo dispara o Antecipador"
+check "$A/REFINAMENTO-FLOW.md" 'Desenvolvimento sem perguntas' "fluxo confere o documento antes de perguntar ao usuário"
+check "$ROOT/commands/orquestrador-refinar.md" 'Antecipador' "/orquestrador-refinar sempre roda o Antecipador"
+check "$G/orquestrador-refinar/SKILL.md" 'antecipador' "gemini orquestrador-refinar roda o antecipador"
+check "$A/DEV.md" 'Refinamento aprovado = siga sem perguntar' "Dev aplica contingências sem perguntar"
+check "$G/dev/SKILL.md" 'Refinamento aprovado = siga sem perguntar' "gemini dev aplica contingências sem perguntar"
 check "$A/DEV.md" 'refinamento.json' "Dev recebe o refinamento"
 check "$A/REVISOR.md" 'fora do "where"' "Revisor confere escopo contra o refinamento"
 

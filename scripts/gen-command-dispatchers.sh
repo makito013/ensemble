@@ -57,6 +57,12 @@ contexto por relevância. Só roda quando chamada por \`\$$n\`.
 
 1. Leia integralmente \`.claude/commands/$n.md\`. Ignore o frontmatter YAML
    (\`description\`, \`argument-hint\`, \`model\`): é metadado do Claude Code.
+   Pelo mesmo motivo, onde o corpo mandar passar \`model: "haiku"\`,
+   \`"sonnet"\`, \`"opus"\` ou \`claude-*\` a um subagente, não passe: leia
+   como nível de esforço e deixe o subagente no modelo desta sessão
+   (\`.agents/MODELOS.md\`, "Fora do Claude Code"). Nunca troque de provedor
+   por conta própria; só a escolha do usuário muda o modelo
+   (\`.agents/MODELOS.md\`, "Escolha do usuário (passo Modelos)").
 2. Siga as instruções do corpo desse arquivo, tratando cada \`\$ARGUMENTS\`
    como o texto que o usuário passou junto com a invocação (vazio se ele não
    passou nada).
@@ -100,6 +106,12 @@ roda quando o usuário a chama pelo nome (\`/$n\`).
 
 1. Leia integralmente \`.claude/commands/$n.md\`. Ignore o frontmatter YAML
    (\`description\`, \`argument-hint\`, \`model\`): é metadado do Claude Code.
+   Pelo mesmo motivo, onde o corpo mandar passar \`model: "haiku"\`,
+   \`"sonnet"\`, \`"opus"\` ou \`claude-*\` a um subagente, não passe: leia
+   como nível de esforço e deixe o subagente no modelo desta sessão
+   (\`.agents/MODELOS.md\`, "Fora do Claude Code"). Nunca troque de provedor
+   por conta própria; só a escolha do usuário muda o modelo
+   (\`.agents/MODELOS.md\`, "Escolha do usuário (passo Modelos)").
 2. Siga as instruções do corpo desse arquivo, tratando cada \`\$ARGUMENTS\`
    como o texto que o usuário passou junto com o comando (vazio se ele não
    passou nada).

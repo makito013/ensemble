@@ -21,6 +21,14 @@ no contexto sozinhas, só quando chamadas por `$<nome>` (ex.: `$orquestrador`,
 `$orquestrador-status`). Se `./.codex/skills/` não existir aqui, leia
 `./.agents/ORQUESTRADOR.md` direto e assuma a persona a partir dele.
 
+**Modelo dos subagentes:** os arquivos do pipeline citam `haiku`, `sonnet`,
+`opus` e `claude-*` porque também servem ao Claude Code. Aqui, nunca passe
+esses nomes a um subagente nem troque de provedor por conta própria: o
+subagente usa o modelo desta sessão
+(`./.agents/MODELOS.md`, "Fora do Claude Code"). Só a escolha do usuário muda isso — "superior" é o mais forte da
+mesma família do modelo da sessão; um modelo pedido pelo nome é tentado
+mesmo sendo de outro provedor (`MODELOS.md`, "Escolha do usuário").
+
 Documentos de referência (leia sob demanda, não de antemão):
 
 - `./.agents/ORQUESTRADOR.md` — ponto de entrada, menu de etapas e mecânica de

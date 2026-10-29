@@ -4,8 +4,8 @@
 > `agentes-pipeline` (não precisa bater com o nome do repositório no GitHub —
 > veja o passo de clone abaixo).
 
-Fonte-da-verdade portátil do pipeline de desenvolvimento multi-agente com **12 agentes**:
-Orquestrador, Analista, PO, Arquiteto, BDD, Designer, TL, Refinador, Dev, QA, Revisor e Segurança.
+Fonte-da-verdade portátil do pipeline de desenvolvimento multi-agente com **13 agentes**:
+Orquestrador, Analista, PO, Arquiteto, BDD, Designer, TL, Antecipador, Refinador, Dev, QA, Revisor e Segurança.
 
 Este repositório é a **única cópia canônica** do pipeline — disponível em dois formatos,
 um para cada ferramenta de IA:
@@ -193,6 +193,7 @@ agentes-pipeline/
 │
 ├── agentes/                ← templates instalados em projetos (formato Claude)
 │   ├── ANALISTA.md
+│   ├── ANTECIPADOR.md      ← pre-mortem do plano (Time de Refinamento)
 │   ├── ARQUITETO.md
 │   ├── BDD.md
 │   ├── DESIGNER.md
@@ -366,9 +367,17 @@ passo vem como pergunta de opções clicáveis (`AskUserQuestion`):
    pedido, os critérios e o diff. Um verificador, também novo, junta os
    achados e tenta derrubar cada um; só o que sobrevive com evidência
    reprova.
-4. **Time de Design** (só se a demanda falar de tela).
-5. **Quadro** (só na primeira vez no projeto) — local ou compartilhado.
-6. **Resumo** — confirmar ou voltar a um passo.
+4. **Modelos** — padrão, superior em todas as etapas ou escolher por
+   etapa ("superior no Arquiteto e no Dev", "sonnet no X e opus no Y").
+   "Superior" é um degrau acima do modelo da sessão na IA que você está
+   usando: no Claude Code, `opus` com sessão `sonnet` e `fable` com sessão
+   `opus`; no Cursor ou no Codex, o modelo mais forte da mesma família do
+   modelo da sessão. Um modelo de outro provedor só é usado se você pedir
+   pelo nome (ex.: `fable` no Cursor), e se não estiver disponível o
+   Orquestrador avisa e segue no padrão.
+5. **Time de Design** (só se a demanda falar de tela).
+6. **Quadro** (só na primeira vez no projeto) — local ou compartilhado.
+7. **Resumo** — confirmar ou voltar a um passo.
 
 Escolhas já escritas na demanda (`/orquestrador [F] revisão 3 ...`) pulam
 o passo correspondente.
@@ -384,13 +393,28 @@ tarefa:
 1. Dúvidas que precisam de resposta antes do desenvolvimento
 2. O que será feito · 3. Por quê · 4. Onde (arquivo, criar/alterar/remover, motivo)
 5. Como (tarefas em ordem, por fase) · 6. Critérios de aceitação
-7. Fora de escopo · 8. Riscos · 9. Suposições · 10. Verificação · 11. Fontes
+7. Fora de escopo · 8. Riscos · 9. Se acontecer — decisões já autorizadas
+10. Suposições · 11. Verificação · 12. Fontes
 
 O Dev só começa depois do **gate de refinamento**: o documento renderizado,
 as dúvidas bloqueantes respondidas por você (o script sai com código 3
 enquanto houver alguma aberta) e sua aprovação. As respostas viram
 decisões fechadas para o Dev e o "onde" vira o escopo que o Revisor
 confere.
+
+Antes do Refinador, o **Antecipador** faz o *pre-mortem* do plano: simula
+a implementação tarefa a tarefa contra o código real e pergunta onde o Dev
+vai travar. O que só você decide vira dúvida no gate; o que tem resposta
+padrão razoável vira **contingência** ("se o endpoint devolver 404, faça
+X; pare e reporte se Y"), que você aprova junto com o documento. Roda
+sempre no `/orquestrador-refinar` e, no `/orquestrador`, em tier
+`critical` com o TL ou quando você pede.
+
+Com o refinamento aprovado, o desenvolvimento **segue o documento sem
+perguntar**, por mais que demore ou mude de mãos: dúvida que o Dev levanta
+é conferida primeiro contra as respostas e contingências, e só chega a você
+o que o documento não cobre — e essa resposta é gravada no documento para
+ninguém perguntar de novo.
 
 `/orquestrador-refinar <demanda>` roda **só** o refinamento e deixa a
 tarefa `pronto` no quadro; depois, você ou outro dev desenvolve com

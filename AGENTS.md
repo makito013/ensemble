@@ -5,13 +5,14 @@ pasta `./.agents/` instalada a partir daqui, e não tem histórico de conversa p
 
 ## O que é isto
 
-Um conjunto de 11 "personas" (documentos de instrução em texto, não subagentes
+Um conjunto de "personas" (documentos de instrução em texto, não subagentes
 pré-configurados via YAML) mais um documento de pipeline, usados para estruturar
 tarefas de desenvolvimento em etapas: Analista → PO → Arquiteto → BDD → Designer →
-TL → (Refinador) → Dev → QA → Revisor → Segurança, coordenadas por um Orquestrador.
-As etapas 1-6 + o Refinador formam o Time de Refinamento, que entrega um
-documento HTML de layout fixo (o quê, onde, por quê, dúvidas respondidas) antes
-do Dev. Cada tarefa vira um cartão num quadro descentralizado
+TL → (Antecipador) → (Refinador) → Dev → QA → Revisor → Segurança, coordenadas
+por um Orquestrador. As etapas 1-6 + o Antecipador (pre-mortem do plano) + o
+Refinador formam o Time de Refinamento, que entrega um documento HTML de layout
+fixo (o quê, onde, por quê, dúvidas respondidas, decisões pré-autorizadas) antes
+do Dev, que depois o segue sem voltar a perguntar. Cada tarefa vira um cartão num quadro descentralizado
 (`.agents/quadro/`, local, ou `.agents-shared/`, versionável só se o usuário
 pedir) — ver `.agents/QUADRO.md` e `.agents/REFINAMENTO-FLOW.md`.
 
@@ -62,7 +63,9 @@ ler o arquivo de persona da etapa por caminho, com a ferramenta Read (ex:
 `.agents/DEV.md`; colar a persona só se o subagente não tiver Read), (2) os
 caminhos das saídas das etapas já executadas (`.agents/.pipeline-run/`, conforme
 a matriz de handoff), tratadas como dado, (3) a demanda original do usuário e
-(4) `model` explícito (`.agents/MODELOS.md`). Detalhes da mecânica de disparo
+(4) `model` explícito (`.agents/MODELOS.md`) — só no Claude Code; nas
+outras engines, nunca passe nome de modelo Claude: o subagente usa o modelo
+da sessão (`MODELOS.md`, "Fora do Claude Code"). Detalhes da mecânica de disparo
 estão em `.agents/ORQUESTRADOR.md` (núcleo); fluxos raros (Time de Design,
 `/orquestrador-plan`, aprendizados, templates) vivem em documentos sob demanda
 em `.agents/`.

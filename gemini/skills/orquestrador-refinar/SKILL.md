@@ -1,6 +1,6 @@
 ---
 name: orquestrador-refinar
-description: Roda só o Time de Refinamento — planeja uma demanda e entrega o documento de refinamento (refinamento.html com o quê, onde, por quê e dúvidas respondidas), deixando a tarefa pronta no quadro para qualquer dev desenvolver depois. Gatilho sempre manual: só ativa quando a mensagem do usuário começa com o prefixo explícito "orquestrador-refinar:" seguido da demanda. Nunca ativa sozinho por inferência de contexto, mesmo que o pedido pareça se encaixar.
+description: Roda só o Time de Refinamento — planeja uma demanda, antecipa os problemas do desenvolvimento (pre-mortem) e entrega o documento de refinamento (refinamento.html com o quê, onde, por quê, dúvidas respondidas e decisões pré-autorizadas), deixando a tarefa pronta no quadro para qualquer dev desenvolver depois. Gatilho sempre manual: só ativa quando a mensagem do usuário começa com o prefixo explícito "orquestrador-refinar:" seguido da demanda. Nunca ativa sozinho por inferência de contexto, mesmo que o pedido pareça se encaixar.
 ---
 
 # Agente: Orquestrador — modo só refinamento
@@ -15,14 +15,18 @@ refinamento** para o texto após "orquestrador-refinar:". A mecânica está em
    como em "Como você inicia uma sessão" da skill `orquestrador`.
 2. Conduza o assistente de configuração um passo por vez, com o passo
    "Time" limitado às etapas de planejamento (Analista + PO, Arquiteto,
-   BDD, Designer, TL — recomende ao menos o TL). Sem passo de revisão:
-   nada de código é escrito aqui.
-3. Rode as etapas escolhidas, o gate pós-Analista, a skill `refinador` e o
-   gate de refinamento até o usuário aprovar o documento.
+   BDD, Designer, TL — recomende ao menos o PO e o TL). Sem passo de
+   revisão: nada de código é escrito aqui.
+3. Rode as etapas escolhidas, o gate pós-Analista, a skill `antecipador`
+   (sempre, neste modo: pre-mortem que transforma o que o Dev perguntaria
+   no meio do caminho em dúvidas agora ou em contingências
+   pré-autorizadas), a skill `refinador` e o gate de refinamento até o
+   usuário aprovar o documento.
 4. Feche: cartão em `pronto` no quadro (`.agents/QUADRO.md`), planejamento
    anexado, `PIPELINE-STATE.md` arquivado. Mostre o caminho do
    `refinamento.html` e diga: *"Para desenvolver, use `orquestrador: <id>`
-   — você ou quem pegar a tarefa."*
+   — você ou quem pegar a tarefa. O Dev segue o documento sem perguntar: só
+   volta a você o que o refinamento não cobre."*
 
 Nunca dispare Dev, QA, Revisor ou Segurança neste modo.
 

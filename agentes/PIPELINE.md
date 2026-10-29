@@ -7,6 +7,8 @@ O Orquestrador gerencia um pipeline configurável. Você escolhe quais etapas at
                                                           ↓
                                                       [6] TL
                                                           ↓
+                                       ANTECIPADOR (pre-mortem: dúvidas + contingências)
+                                                          ↓
                                        REFINADOR → refinamento.html (gate: dúvidas respondidas)
                                                           ↓
                                                       [7] DEV
@@ -34,6 +36,7 @@ O Orquestrador gerencia um pipeline configurável. Você escolhe quais etapas at
 | 8 | Testes unitários e integração | QA | `.agents/QA.md` | Opcional |
 | 9 | Revisão: pedido vs. entregado | Revisor | `.agents/REVISOR.md` | Recomendado |
 | 10 | Auditoria de segurança | Segurança | `.agents/SEGURANCA.md` | Opcional |
+| — | Pre-mortem do plano (dúvidas antecipadas + decisões pré-autorizadas) | Antecipador | `.agents/ANTECIPADOR.md` | Sempre no `/orquestrador-refinar`; `critical` com TL; a pedido |
 | — | Documento de refinamento (fecha o Time de Refinamento) | Refinador | `.agents/REFINADOR.md` | Automático com alguma etapa 2-6 |
 | — | Orquestração do pipeline | Orquestrador | `.agents/ORQUESTRADOR.md` | Sempre ativo |
 
@@ -185,7 +188,7 @@ seguintes **por caminho** (matriz de handoff em `ORQUESTRADOR.md`):
   às decisões pendentes, acumuladas).
 - `NN-<etapa>.md`, NN = número da etapa: `01-analista`, `02-po`,
   `03-arquiteto`, `04-bdd`, `05-designer` (ou `05-design`, saída do Time de
-  Design), `06-tl`, `07-dev`, `08-qa`, `09-revisor`, `10-seguranca`.
+  Design), `06-tl`, `06b-antecipador` (sem número próprio), `07-dev`, `08-qa`, `09-revisor`, `10-seguranca`.
 - Sufixos, nesta ordem: `-f<F>` (fase, quando há fases), `-v<V>` (volta ≥2
   de retrabalho), `-l<k>`/`-l1b`/`-l2b` (lentes do Revisor — o relatório do
   verificador é o arquivo sem sufixo de lente). Ex.: `09-revisor-f2-v2.md`.
@@ -204,6 +207,7 @@ Iniciado em: <data>
 Perfil ativo: <perfil> (<lista de etapas ativas>)
 Tier: <tier>
 Revisor: <rápida/padrão/rigorosa/mega> (N=<n>)
+Modelos: <padrão | superior em todas | etapa=modelo, ...>
 Tarefa do quadro: <id do cartão> (`board.sh where` diz se é local ou compartilhado)
 Base (git): <sha do HEAD antes do primeiro Dev>
 

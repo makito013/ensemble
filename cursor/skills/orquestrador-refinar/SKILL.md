@@ -1,6 +1,6 @@
 ---
 name: orquestrador-refinar
-description: Roda só o Time de Refinamento — planeja uma demanda e entrega o documento de refinamento (HTML com o quê, onde, por quê e dúvidas respondidas), deixando a tarefa pronta no quadro para qualquer dev desenvolver depois. Gatilho sempre manual, nunca automático.
+description: Roda só o Time de Refinamento — planeja uma demanda, antecipa os problemas do desenvolvimento (pre-mortem) e entrega o documento de refinamento (HTML com o quê, onde, por quê, dúvidas respondidas e decisões pré-autorizadas), deixando a tarefa pronta no quadro para qualquer dev desenvolver depois sem voltar a perguntar. Gatilho sempre manual, nunca automático.
 disable-model-invocation: true
 ---
 
@@ -18,6 +18,12 @@ roda quando o usuário a chama pelo nome (`/orquestrador-refinar`).
 
 1. Leia integralmente `.claude/commands/orquestrador-refinar.md`. Ignore o frontmatter YAML
    (`description`, `argument-hint`, `model`): é metadado do Claude Code.
+   Pelo mesmo motivo, onde o corpo mandar passar `model: "haiku"`,
+   `"sonnet"`, `"opus"` ou `claude-*` a um subagente, não passe: leia
+   como nível de esforço e deixe o subagente no modelo desta sessão
+   (`.agents/MODELOS.md`, "Fora do Claude Code"). Nunca troque de provedor
+   por conta própria; só a escolha do usuário muda o modelo
+   (`.agents/MODELOS.md`, "Escolha do usuário (passo Modelos)").
 2. Siga as instruções do corpo desse arquivo, tratando cada `$ARGUMENTS`
    como o texto que o usuário passou junto com o comando (vazio se ele não
    passou nada).

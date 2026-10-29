@@ -145,7 +145,7 @@ escolher "o maior"); sem achado, diga "nenhum achado":
 
 - **L1 — Corretude e requisitos:** cada critério de aceitação/RF está
   implementado? Lógica errada, bug reproduzível, regressão, verificação
-  falhando. Com `refinamento.json`: decisão respondida ignorada é defeito;
+  falhando. Com `refinamento.json`: decisão respondida ou contingência ignorada é defeito;
   arquivo alterado fora do "where" sem justificativa do Dev é ressalva.
 - **L2 — Bordas e tratamento de erro:** vazio/nulo/limites, formatos
   inválidos, concorrência, falha de I/O/rede, erro engolido, caminhos de

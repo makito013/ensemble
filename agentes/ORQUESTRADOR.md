@@ -39,8 +39,8 @@ quando o caso aparecer:
 | 9 | Revisão do que foi feito vs. o que foi pedido | `REVISOR` | Recomendado |
 | 10 | Auditoria de segurança | `SEGURANÇA` | Opcional |
 
-**Time de Refinamento** = etapas 1-6 ativas + `REFINADOR` (roda sozinho
-com alguma etapa 2-6 ativa; ver `.agents/PIPELINE.md`).
+**Time de Refinamento** = etapas 1-6 ativas + `ANTECIPADOR` + `REFINADOR`
+(quando rodam: `.agents/REFINAMENTO-FLOW.md`).
 
 ## Como você inicia uma sessão
 
@@ -105,15 +105,17 @@ outros, em 1-2 linhas, como contexto).
      7 — mega: rigorosa + 2ª opinião cega em corretude e bordas
    Retrabalho: a 2ª volta é outro verificador novo, só com o que reprovou.
    ```
-4. **Time de Design** (só com UI detectada) — ver "Time de Design" abaixo.
-5. **Quadro** (só se ainda não existe) — *"Tarefas só para você (local,
+4. **Modelos** — *"Usar modelo superior em alguma etapa?"* (opções:
+   `.agents/MODELOS.md`, "Escolha do usuário (passo Modelos)").
+5. **Time de Design** (só com UI detectada) — ver "Time de Design" abaixo.
+6. **Quadro** (só se ainda não existe) — *"Tarefas só para você (local,
    fora do git — padrão) ou compartilhadas com o time (`.agents-shared/`,
    você decide se commita)?"* Compartilhar = `board.sh share`.
-6. **Resumo** — todas as escolhas: *"Confirmar ou ajustar o passo k?"*
+7. **Resumo** — todas as escolhas: *"Confirmar ou ajustar o passo k?"*
 
 Confirmado, crie `.agents/PIPELINE-STATE.md` (formato em
 `.agents/PIPELINE.md`) com cabeçalho (resumo, data, perfil ativo,
-tier confirmado, escala do Revisor, tarefa do quadro), grave a demanda original
+tier confirmado, escala do Revisor, modelos, tarefa do quadro), grave a demanda original
 verbatim em `.agents/.pipeline-run/00-demanda.md` e crie o cartão
 (`.agents/QUADRO.md`, "Marcos").
 
@@ -163,8 +165,9 @@ Time é a saída da etapa 5.
 
 Cada etapa é uma chamada separada da ferramenta de subagente (`Agent`/`Task`,
 `subagent_type: general-purpose`), **sempre com `model` explícito** conforme
-`.agents/MODELOS.md`. O subagente não tem memória da conversa, então o
-prompt de cada disparo contém, sempre:
+`.agents/MODELOS.md` (passo "Modelos" primeiro; outra engine:
+**nunca passe modelo Claude** não pedido). O subagente não tem memória da
+conversa, então o prompt de cada disparo contém, sempre:
 
 1. **Persona por caminho:** "Leia `.agents/<PERSONA>.md` com a ferramenta
    Read e siga-o como suas instruções." Nunca cole a persona no prompt.
@@ -200,7 +203,8 @@ silenciosamente.
 | BDD | `01-analista` (critérios de aceitação), `02-po` |
 | Designer | `01-analista`, `02-po`, `.agents/design-system/` se existir |
 | TL | `01`..`05` que existirem |
-| Refinador | `01`..`06` que existirem + caminho de saída `<quadro>/tarefas/<id>/refinamento.json` |
+| Antecipador | `01`..`06` |
+| Refinador | `01`..`06`, `06b-antecipador` + caminho de saída `<quadro>/tarefas/<id>/refinamento.json` |
 | Dev | critérios de `01-analista`, plano integral `06-tl`, `04-bdd`, `03-arquiteto`, `05-design*`, `refinamento.json`; em retrabalho, + o relatório que reprovou |
 | QA | `04-bdd`, `06-tl`, relatório do Dev (`07-dev*`), critérios de `01-analista` |
 | Revisor | critérios de `01-analista`, `09-review-input*/` (diff, stat, verificação), `06-tl`, relatório do Dev, `refinamento.json` se existir; `08-qa*` se rodou |
@@ -227,6 +231,7 @@ dele; correção material → redispare o Analista com ela. Exceção: tier
 
 **Gate de refinamento (antes do Dev, quando o Refinador roda):** dúvidas
 bloqueantes respondidas e aprovação — ver `.agents/REFINAMENTO-FLOW.md`.
+Depois, dúvida do Dev confere o documento antes do usuário.
 
 Ao final de cada subagente, atualize `.agents/PIPELINE-STATE.md` (resumo de
 2-3 linhas + caminho da saída). Se a etapa for Dev/QA/Revisor de uma fase,

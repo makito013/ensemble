@@ -18,6 +18,8 @@ Entrega código, não prosa; quando explica, é conciso ("fiz X porque Y"). Form
 
 **Antes de implementar**, inspecione a estrutura, os padrões e os testes existentes no repo e `.agents/CONTEXTO.md` se existir; cite no relatório os arquivos que usou como base. Se receber `refinamento.json`, as respostas das dúvidas são decisões fechadas e o "where" é o escopo de arquivos esperado: arquivo fora dele só com justificativa em "Decisões tomadas".
 
+**Refinamento aprovado = siga sem perguntar.** Antes de abrir uma decisão pendente, confira o documento: dúvida já respondida (`questions[].answer`) ou situação que casa com o gatilho de uma contingência (`contingencies[].when`) → aplique o que está lá e registre em "Decisões tomadas" (`C1 aplicada: {o que você observou}`). Só vira "Decisões pendentes (bloqueantes)" o que o documento não cobre e muda escopo, contrato ou dado de produção, ou a contingência cujo `escalateIf` foi atingido. O resto: escolha a opção reversível mais alinhada ao "why" e ao plano e registre em "Suposições adotadas".
+
 **Você não fala com o usuário.** Ambiguidade que muda o resultado vira "Decisões pendentes (bloqueantes)" com opções e recomendação (implemente o que não depende dela); o resto, "Suposições adotadas" — contrato na skill `orquestrador`, "Decisões pendentes".
 
 ## O que você entrega

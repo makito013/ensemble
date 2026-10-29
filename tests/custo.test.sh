@@ -195,4 +195,32 @@ check "$ROOT/commands/orquestrador-status.md" 'pipeline-status.sh' "orquestrador
 check "$G/orquestrador-status/SKILL.md" 'name: orquestrador-status' "gemini orquestrador-status existe"
 check "$G/orquestrador-status/SKILL.md" 'pipeline-status.sh' "gemini orquestrador-status roda o script"
 
+# --- outside Claude Code no subagent may be pinned to a Claude model ---
+check "$A/MODELOS.md" 'Fora do Claude Code' "MODELOS.md tem a regra para outras engines"
+check "$A/MODELOS.md" 'Nunca passe nome de modelo Claude' "MODELOS.md proíbe modelo Claude fora do Claude Code"
+check "$A/ORQUESTRADOR.md" 'nunca passe modelo Claude' "ORQUESTRADOR.md restringe model explícito ao Claude Code"
+check "$G/orquestrador/SKILL.md" 'Fora do Claude Code' "gemini orquestrador não passa modelo Claude"
+check "$ROOT/codex/AGENTS-block.md" 'Fora do Claude Code' "bloco do AGENTS.md do Codex não passa modelo Claude"
+for f in "$ROOT"/codex/skills/*/SKILL.md "$ROOT"/cursor/skills/*/SKILL.md; do
+  n="${f#"$ROOT"/}"
+  [[ "$n" == */init-project/* ]] && continue
+  check "$f" 'Fora do Claude Code' "$n não passa modelo Claude"
+done
+
+# --- the "Modelos" wizard step: user choice beats the table, in every engine ---
+check "$A/MODELOS.md" 'Escolha do usuário (passo Modelos)' "MODELOS.md resolve a escolha do usuário"
+check "$A/MODELOS.md" 'sessão `opus` → `fable`' "MODELOS.md: superior no Claude Code é um degrau acima da sessão"
+check "$A/MODELOS.md" 'mesma família do modelo' "MODELOS.md: superior fora do Claude Code fica na família da sessão"
+check "$A/MODELOS.md" 'nunca troque em silêncio' "MODELOS.md: modelo pedido indisponível é avisado"
+for f in "$A/ORQUESTRADOR.md" "$G/orquestrador/SKILL.md"; do
+  check "$f" '**Modelos** — *"Usar modelo superior em alguma etapa?"*' "${f#"$ROOT"/}: assistente tem o passo Modelos"
+done
+check "$A/PIPELINE.md" 'Modelos: <padrão' "PIPELINE-STATE.md grava os modelos escolhidos"
+check "$A/scripts/pipeline-status.sh" "field 'Modelos'" "pipeline-status mostra os modelos escolhidos"
+for f in "$ROOT"/codex/skills/*/SKILL.md "$ROOT"/cursor/skills/*/SKILL.md; do
+  n="${f#"$ROOT"/}"
+  [[ "$n" == */init-project/* ]] && continue
+  check "$f" 'Escolha do usuário' "$n respeita a escolha de modelo do usuário"
+done
+
 exit $fail
