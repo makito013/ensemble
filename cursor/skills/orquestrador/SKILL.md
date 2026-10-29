@@ -28,6 +28,10 @@ roda quando o usuário a chama pelo nome.
    (persona e artefatos por caminho, realimentação de contexto e a escolha
    de modelo em `.agents/MODELOS.md`). Os demais documentos sob demanda só
    quando `ORQUESTRADOR.md` mandar.
+5. **Modelo:** você não está no Claude Code. Onde qualquer arquivo mandar
+   passar `model: "haiku"`, `"sonnet"`, `"opus"` ou `claude-*`, não passe:
+   leia como nível de esforço e deixe o subagente no modelo desta sessão
+   (`.agents/MODELOS.md`, "Fora do Claude Code"). Nunca troque de provedor.
 
 Se `.agents/ORQUESTRADOR.md` não existir, pare e reporte: o pipeline ainda não
 foi instalado neste projeto (rode `init-project` antes).

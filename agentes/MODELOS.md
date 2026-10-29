@@ -6,9 +6,27 @@ subagentes próprios.
 
 ## Regra
 
-**Sempre passe `model` explicitamente** em todo disparo de subagente
-(`"haiku"`, `"sonnet"` ou `"opus"`) — nunca dependa do default da
-ferramenta, que herda o modelo da sessão principal e não é garantido.
+**Só no Claude Code.** `haiku`, `sonnet` e `opus` (e qualquer `claude-*`
+num frontmatter `model:`) são nomes de modelos Claude. Fora do Claude Code
+eles não valem — ver "Fora do Claude Code" abaixo.
+
+**Sempre passe `model` explicitamente** em todo disparo de subagente no
+Claude Code (`"haiku"`, `"sonnet"` ou `"opus"`) — nunca dependa do default
+da ferramenta, que herda o modelo da sessão principal e não é garantido.
+
+## Fora do Claude Code (Codex, Cursor, Gemini/Antigravity)
+
+**Nunca passe nome de modelo Claude** (`haiku`, `sonnet`, `opus`,
+`claude-*`) nem troque de provedor: numa engine que também acessa modelos
+Claude (Cursor, ou Codex com outro provedor configurado), isso faz a etapa
+rodar em Claude sem o usuário ter escolhido. Omita o parâmetro de modelo:
+o subagente usa o modelo desta sessão, que é o que o usuário escolheu.
+
+Leia a tabela abaixo só como **nível de esforço**: `haiku` = leve,
+`sonnet` = padrão, `opus` = forte. Se a ferramenta de subagente da engine
+tiver um ajuste de esforço/raciocínio (não de modelo), use-o conforme o
+nível. Trocar o modelo, mesmo dentro do mesmo provedor, só se o usuário
+pedir.
 
 | Modelo | Quem roda nele |
 |--------|----------------|

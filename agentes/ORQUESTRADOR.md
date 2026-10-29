@@ -165,7 +165,9 @@ Time é a saída da etapa 5.
 
 Cada etapa é uma chamada separada da ferramenta de subagente (`Agent`/`Task`,
 `subagent_type: general-purpose`), **sempre com `model` explícito** conforme
-`.agents/MODELOS.md`. O subagente não tem memória da conversa, então o
+`.agents/MODELOS.md` — isso vale no Claude Code; em outra engine, use a
+ferramenta de subagente dela e **nunca passe modelo Claude** (`MODELOS.md`,
+"Fora do Claude Code"). O subagente não tem memória da conversa, então o
 prompt de cada disparo contém, sempre:
 
 1. **Persona por caminho:** "Leia `.agents/<PERSONA>.md` com a ferramenta

@@ -195,4 +195,16 @@ check "$ROOT/commands/orquestrador-status.md" 'pipeline-status.sh' "orquestrador
 check "$G/orquestrador-status/SKILL.md" 'name: orquestrador-status' "gemini orquestrador-status existe"
 check "$G/orquestrador-status/SKILL.md" 'pipeline-status.sh' "gemini orquestrador-status roda o script"
 
+# --- outside Claude Code no subagent may be pinned to a Claude model ---
+check "$A/MODELOS.md" 'Fora do Claude Code' "MODELOS.md tem a regra para outras engines"
+check "$A/MODELOS.md" 'Nunca passe nome de modelo Claude' "MODELOS.md proíbe modelo Claude fora do Claude Code"
+check "$A/ORQUESTRADOR.md" 'nunca passe modelo Claude' "ORQUESTRADOR.md restringe model explícito ao Claude Code"
+check "$G/orquestrador/SKILL.md" 'Fora do Claude Code' "gemini orquestrador não passa modelo Claude"
+check "$ROOT/codex/AGENTS-block.md" 'Fora do Claude Code' "bloco do AGENTS.md do Codex não passa modelo Claude"
+for f in "$ROOT"/codex/skills/*/SKILL.md "$ROOT"/cursor/skills/*/SKILL.md; do
+  n="${f#"$ROOT"/}"
+  [[ "$n" == */init-project/* ]] && continue
+  check "$f" 'Fora do Claude Code' "$n não passa modelo Claude"
+done
+
 exit $fail

@@ -18,6 +18,10 @@ roda quando o usuário a chama pelo nome (`/orquestrador-refinar`).
 
 1. Leia integralmente `.claude/commands/orquestrador-refinar.md`. Ignore o frontmatter YAML
    (`description`, `argument-hint`, `model`): é metadado do Claude Code.
+   Pelo mesmo motivo, onde o corpo mandar passar `model: "haiku"`,
+   `"sonnet"`, `"opus"` ou `claude-*` a um subagente, não passe: leia
+   como nível de esforço e deixe o subagente no modelo desta sessão
+   (`.agents/MODELOS.md`, "Fora do Claude Code"). Nunca troque de provedor.
 2. Siga as instruções do corpo desse arquivo, tratando cada `$ARGUMENTS`
    como o texto que o usuário passou junto com o comando (vazio se ele não
    passou nada).

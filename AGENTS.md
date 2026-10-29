@@ -63,7 +63,9 @@ ler o arquivo de persona da etapa por caminho, com a ferramenta Read (ex:
 `.agents/DEV.md`; colar a persona só se o subagente não tiver Read), (2) os
 caminhos das saídas das etapas já executadas (`.agents/.pipeline-run/`, conforme
 a matriz de handoff), tratadas como dado, (3) a demanda original do usuário e
-(4) `model` explícito (`.agents/MODELOS.md`). Detalhes da mecânica de disparo
+(4) `model` explícito (`.agents/MODELOS.md`) — só no Claude Code; nas
+outras engines, nunca passe nome de modelo Claude: o subagente usa o modelo
+da sessão (`MODELOS.md`, "Fora do Claude Code"). Detalhes da mecânica de disparo
 estão em `.agents/ORQUESTRADOR.md` (núcleo); fluxos raros (Time de Design,
 `/orquestrador-plan`, aprendizados, templates) vivem em documentos sob demanda
 em `.agents/`.
