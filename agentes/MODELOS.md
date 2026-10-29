@@ -39,6 +39,12 @@ na demanda ou no meio do pipeline ("use opus no TL") — define o modelo por
 etapa. Grave a escolha no `PIPELINE-STATE.md` (linha `Modelos:`) e aplique
 em todo disparo, inclusive retrabalho e retomada depois de um `/clear`.
 
+Opções do passo (até 4, a recomendada primeiro): **Padrão**
+(recomendado) · **Superior em todas** · **Escolher por etapa** (texto
+livre: "superior no Arquiteto e no Dev", "sonnet no X e opus no Y", ou um
+modelo pelo nome). Antes da pergunta, diga em 1 linha qual modelo é o
+"superior" nesta engine.
+
 Precedência, por etapa:
 
 1. **Modelo nomeado pelo usuário** ("sonnet no Dev, opus no Arquiteto",
