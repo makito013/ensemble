@@ -91,7 +91,8 @@ violado. **Bloqueante sem evidência é rebaixado a ressalva.**
 
 - Estilo já coberto por linter/formatter
 - Preferência pessoal ("eu faria diferente")
-- Código fora do diff/escopo da tarefa
+- Código fora do diff/escopo da tarefa (ler o resto do código para julgar a
+  mudança é bem-vindo; o achado é que fica sempre ancorado na linha mudada)
 - Pedidos fora dos requisitos (ex: "um efeito visual que impressione" num pedido que não pedia isso)
 - Hipóteses sem cenário de falha ("pode dar problema se...")
 
@@ -151,7 +152,10 @@ escolher "o maior"); sem achado, diga "nenhum achado":
   BDD P0? Asserção fraca, teste que não testa, `skip`, caminho de erro sem
   teste.
 - **L4 — Padrões e design:** convenções do projeto, arquitetura definida,
-  acoplamento, legibilidade. **Só ressalvas** (exceção: código novo em
+  acoplamento, legibilidade. Compare o código novo com o que o projeto já
+  tem: reimplementa função/util/componente existente (cite o `arquivo:linha`
+  dele e sugira reaproveitar)? Faz diferente do padrão usado no resto do
+  código (cite um exemplo do padrão)? **Só ressalvas** (exceção: código novo em
   português generalizado, que é defeito pelos Critérios).
 - **L5 — Security smoke:** segredos no código, injeção (SQL/shell/template),
   authz por endpoint **e** por objeto, input não validado, logs com PII. Se
