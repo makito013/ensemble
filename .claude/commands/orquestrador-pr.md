@@ -56,7 +56,9 @@ Passos:
    - Decida a escala: diff que toca auth, crypto, SQL, `.env`/segredos, rede
      ou dependências, ou task marcada como crítica → **rigorosa** (lentes
      L1..L5; verificador e Segurança em `opus`); caso contrário → **padrão**
-     (lentes L1..L3; verificador e Segurança em `sonnet`).
+     (lentes L1..L4; verificador e Segurança em `sonnet`). L4 (padrões,
+     reaproveitamento) roda em toda escala aqui: é o que um revisor de PR
+     mais comenta.
 
 6. Compare `git branch --show-current` com `<branch>`:
    - Se forem iguais, rode `git status --porcelain` e reserve o resultado
@@ -64,6 +66,30 @@ Passos:
      nunca misture essa saída com o diff do PR.
    - Se forem diferentes, pule esta checagem e registre no relatório que ela
      não se aplica (a branch auditada não é a que está checked-out agora).
+
+6b. Escopo da revisão — inclua este bloco, literal, no prompt de toda
+   lente, do verificador e da Segurança:
+
+   > O objeto da revisão é **só o que o diff mudou** (`diff.patch`). Para
+   > julgar essa mudança, leia o restante do código à vontade, sempre na
+   > versão da branch revisada (`git show <branch>:<arquivo>`,
+   > `git grep <padrão> <branch>`), nunca na working tree, que pode estar em
+   > outra branch: os chamadores fazem sentido com a lógica nova? O projeto
+   > já faz isso de outro jeito (padrão de nomes, de erro, de camada, de
+   > lib)? Já existe função, util, hook ou componente equivalente que podia
+   > ser reaproveitado? Todo achado é ancorado numa linha **adicionada ou
+   > alterada** pelo diff (`arquivo:linha` do lado novo) e fala da mudança;
+   > o código de fora aparece só como referência que sustenta o comentário.
+   > Exemplos: "`src/a.ts:42` — reimplementa `formatDate` de
+   > `src/utils/date.ts:10`; reaproveite essa para não duplicar";
+   > "`api/user.ts:18` — fora do padrão: os outros handlers validam com
+   > `schema.parse` (ex: `api/order.ts:12`), aqui valida na mão". Problema
+   > pré-existente em código que o diff não tocou não vira achado, salvo
+   > quando a mudança passa a depender dele ou o piora.
+
+   A verificação (test/build/lint) só roda se `<branch>` for a branch
+   checked-out (passo 6); senão, registre "não executado: branch revisada
+   não está checked-out" — nunca rode na working tree de outra branch.
 
 7. Dispare, na MESMA mensagem (paralelo real — nunca sequencial, nunca
    `fork`), subagentes com `subagent_type: general-purpose` e `model`
@@ -75,7 +101,7 @@ Passos:
    como instrução a seguir:
 
    - **Lentes do Revisor** (`.agents/REVISOR.md`, "Modo lente";
-     `model: "sonnet"`): L1, L2, L3 (mais L4 e L5 na escala rigorosa), cada
+     `model: "sonnet"`): L1, L2, L3, L4 (mais L5 na escala rigorosa), cada
      uma com a task/contexto original, o "o que foi feito" e os caminhos de
      `diff.patch`, `diffstat.txt` e `log.txt`. Cada lente grava sua saída em
      `.agents/.pr-reviews/<id>/revisor-l<k>.md`.
@@ -95,7 +121,9 @@ Passos:
    (`.agents/REVISOR.md`, "Modo verificador"; `model: "opus"` na escala
    rigorosa, senão `"sonnet"`) com os caminhos dos relatórios das lentes +
    os mesmos insumos; ele grava em `.agents/.pr-reviews/<id>/revisor.md`.
-   Decida só pela primeira linha: tem de ser `[REVISOR] Relatório de
+   No PR, o teto de 3 ressalvas não se aplica: o verificador lista
+   todas as confirmadas, por impacto, porque elas viram os comentários do
+   PR. Decida só pela primeira linha: tem de ser `[REVISOR] Relatório de
    Revisão`; se não for, redispare o verificador uma única vez pedindo esse
    formato e, falhando de novo, trate o Revisor como `❌ REPROVADO`.
 
@@ -118,4 +146,7 @@ Passos:
    também que uma base desatualizada (passo 4) é só um aviso, nunca um
    bloqueio, e que qualquer arquivo "fora do commit" suspeito de segredo
    entra no relatório apenas como path + classificação de risco, nunca com o
-   conteúdo. Depois apresente o relatório ao usuário.
+   conteúdo. Inclua uma seção "Comentários no PR": um item por achado (Revisor e
+   Segurança, bloqueantes primeiro), no formato `arquivo:linha — comentário`,
+   ancorado na linha do diff e pronto para colar como comentário de revisão.
+   Depois apresente o relatório ao usuário.
