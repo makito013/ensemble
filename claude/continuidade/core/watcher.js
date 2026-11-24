@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 'use strict';
 
-const { spawnSync } = require('child_process');
+const childProcess = require('child_process');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const {
+  queueDir,
   listItems,
   tryReadItem,
   updateItem,
@@ -10,6 +14,7 @@ const {
   removeItem,
 } = require('./lib/queue-store');
 const { decideAction } = require('./lib/decide');
+const { RATE_LIMIT_PATTERN, parseResetTime, inspectTranscript } = require('./lib/session');
 
 const RESUME_PROMPT =
   'Você foi interrompido por ter atingido o limite de uso ou por um erro. ' +
@@ -17,7 +22,8 @@ const RESUME_PROMPT =
   'continue a tarefa em andamento até concluir ou até realmente precisar ' +
   'de uma decisão do usuário que só ele pode tomar.';
 
-const RATE_LIMIT_PATTERN = /rate.?limit|usage limit|limit reached|limit atingido/i;
+// Clock slack between the last transcript entry and the StopFailure hook.
+const ACTIVITY_GRACE_MS = 5000;
 
 // Only the tail of a failed run is inspected for the rate-limit message: the
 // resumed session may legitimately print "rate limit" anywhere in its work.
@@ -92,10 +98,21 @@ function classifyResult(result) {
   return { ok: false, reason, output };
 }
 
-function attemptResume(item, claudeBin) {
+function isDefaultConfigDir(dir) {
+  return path.resolve(dir) === path.join(os.homedir(), '.claude');
+}
+
+function attemptResume(item, claudeBin, cwd) {
   const bin = claudeBin || process.env.CLAUDE_CONTINUIDADE_BIN || 'claude';
-  const env = Object.assign({}, process.env, { CLAUDE_CONFIG_DIR: item.config_dir });
-  const result = spawnSync(
+  const env = Object.assign({}, process.env);
+  // Setting the variable to the default directory is not a no-op: it makes the
+  // CLI read <dir>/.claude.json instead of ~/.claude.json.
+  if (item.config_dir && !isDefaultConfigDir(item.config_dir)) {
+    env.CLAUDE_CONFIG_DIR = item.config_dir;
+  } else {
+    delete env.CLAUDE_CONFIG_DIR;
+  }
+  const result = childProcess.spawnSync(
     bin,
     [
       '-r',
@@ -107,7 +124,7 @@ function attemptResume(item, claudeBin) {
       '--output-format',
       'json',
     ],
-    { cwd: item.cwd, env, encoding: 'utf8', timeout: timeoutMs(), killSignal: 'SIGTERM' }
+    { cwd: cwd || item.cwd, env, windowsHide: true, maxBuffer: 64 * 1024 * 1024, encoding: 'utf8', timeout: timeoutMs(), killSignal: 'SIGTERM' }
   );
   return classifyResult(result);
 }
@@ -147,7 +164,35 @@ function run(now, claudeBin) {
       results.push({ file: duplicate.file, action: 'duplicate' });
     }
 
-    const { ok, reason, output } = attemptResume(primary.item, claudeBin);
+    const session = inspectTranscript(primary.item.transcript_path);
+    const reference = Math.max(primary.item.queued_at || 0, primary.item.last_attempt_at || 0);
+    if (session.lastActivity > reference + ACTIVITY_GRACE_MS) {
+      // Somebody already continued this session by hand: never compete with it.
+      moveToStale(primary.file);
+      results.push({ file: primary.file, action: 'stale-already-continued' });
+      continue;
+    }
+
+    const firstQueuedAt = Math.min(
+      primary.item.queued_at,
+      ...entries.map((e) => e.item.first_queued_at || Infinity)
+    );
+    const retryAfter =
+      primary.item.error === 'rate_limit'
+        ? parseResetTime(primary.item.last_assistant_message, primary.item.queued_at)
+        : null;
+    if (retryAfter && now < retryAfter) {
+      // Persist what the removed duplicates carried.
+      updateItem(
+        primary.file,
+        Object.assign({}, primary.item, { attempts: priorAttempts, first_queued_at: firstQueuedAt })
+      );
+      results.push({ file: primary.file, action: 'waiting-reset', retryAfter });
+      continue;
+    }
+
+    const cwd = session.cwd && fs.existsSync(session.cwd) ? session.cwd : primary.item.cwd;
+    const { ok, reason, output } = attemptResume(primary.item, claudeBin, cwd);
     if (ok) {
       removeItem(primary.file);
       results.push({ file: primary.file, action: 'resumed', output });
@@ -163,14 +208,29 @@ function run(now, claudeBin) {
       results.push({ file: primary.file, action: 'stale-max-attempts', reason, attempts, output });
       continue;
     }
-    updateItem(primary.file, Object.assign({}, primary.item, { attempts }));
+    updateItem(primary.file, Object.assign({}, primary.item, {
+      attempts,
+      first_queued_at: firstQueuedAt,
+      last_attempt_at: Math.max(now, Date.now()),
+    }));
     results.push({ file: primary.file, action: 'still-blocked', reason, attempts, output });
   }
   return results;
 }
 
 if (require.main === module) {
-  run(Date.now());
+  const log = (text) =>
+    fs.appendFileSync(path.join(queueDir(), 'watcher.log'), `${new Date().toISOString()} ${text}\n`);
+  try {
+    const results = run(Date.now());
+    log(`run items=${results.length}`);
+    for (const r of results) {
+      log(JSON.stringify(Object.assign({}, r, { output: r.output && tail(r.output, 5).slice(-500) })));
+    }
+  } catch (err) {
+    log(`fatal ${err.stack}`);
+    process.exitCode = 1;
+  }
 }
 
 module.exports = {
