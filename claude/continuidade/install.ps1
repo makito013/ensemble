@@ -27,9 +27,12 @@ $ExistingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyConti
 if (-not $ExistingTask) {
     $NodePath = (Get-Command node).Source
     $WatcherScript = Join-Path $WatcherBinDir "watcher.js"
-    $Action = New-ScheduledTaskAction -Execute $NodePath -Argument "`"$WatcherScript`""
-    $Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration ([TimeSpan]::MaxValue)
-    Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Description "Retoma sessoes do Claude Code interrompidas por rate limit/erro" | Out-Null
+    # conhost --headless evita abrir uma janela de console a cada 15min
+    $Action = New-ScheduledTaskAction -Execute "$env:SystemRoot\System32\conhost.exe" -Argument "--headless `"$NodePath`" `"$WatcherScript`""
+    $Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 15)
+    # sem RepetitionDuration = indefinido; TimeSpan::MaxValue e recusado pelo Agendador do Windows 10+
+    $Settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 12)
+    Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Settings $Settings -Description "Retoma sessoes do Claude Code interrompidas por rate limit/erro" | Out-Null
     Write-Output "watcher agendado registrado: tarefa '$TaskName' a cada 15min"
 } else {
     Write-Output "watcher compartilhado ja presente (tarefa '$TaskName'), nao recriado"
